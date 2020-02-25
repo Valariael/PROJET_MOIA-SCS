@@ -1,6 +1,13 @@
 #!/bin/bash
 
 clear
+echo "Compilation arbitre et joueur."
+make
+err=$?
+if [ $err -ne "0" ]; then
+	echo "Erreur à la compilation !"
+	exit -1
+fi
 echo "Lancement du script de test pour un arbitre et deux joueurs."
 ./serveurArbitre 8080 &
 echo "Arbitre lancé."
