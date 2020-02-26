@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     //Vérification des arguments.
     if (argc != 5) 
     {
-        printf("usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion>\n", argv[0]);
+        printf("joueur> usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion>\n", argv[0]);
         return -1;
     }
 
@@ -41,8 +41,8 @@ int main(int argc, char **argv)
     } 
     else 
     {
-        printf("usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion>\n", argv[0]);
-        printf("couleur incorrecte : B (blanc) ou N (noir)\n");
+        printf("joueur> usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion>\n", argv[0]);
+        printf("joueur> couleur incorrecte : B (blanc) ou N (noir)\n");
         return -2;
     }
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     sock = socketClient(nomMachineDest, portDest);
     if (sock < 0) 
     {
-        perror("erreur creation socket client");
+        perror("joueur> erreur creation socket client");
         return -3;
     }
 
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     err = send(sock, &reqPartie, sizeof(TPartieReq), 0);
     if (err <= 0)
     {
-        perror("erreur send partie");
+        perror("joueur> erreur send partie");
         shutdown(sock, SHUT_RDWR);
         close(sock);
         return -4;
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     err = recv(sock, &repPartie, sizeof(TPartieRep), 0);
     if (err <= 0) 
     {
-        perror("erreur recv partie");
+        perror("joueur> erreur recv partie");
         shutdown(sock, SHUT_RDWR);
         close(sock);
         return -5;
@@ -77,21 +77,21 @@ int main(int argc, char **argv)
     //Vérification de la réponse.
     if (repPartie.err == ERR_TYP)
     {
-        printf("erreur type de requête\n");
+        printf("joueur> erreur type de requête\n");
         shutdown(sock, SHUT_RDWR);
         close(sock);
         return -6;
     }
     else if (repPartie.err == ERR_PARTIE)
     {
-        printf("erreur création partie, réessayer\n");
+        printf("joueur> erreur création partie, réessayer\n");
         shutdown(sock, SHUT_RDWR);
         close(sock);
         return -7;
     }
     else if (repPartie.err != ERR_OK)
     {
-        printf("autre erreur reçue\n");
+        printf("joueur> autre erreur reçue\n");
         shutdown(sock, SHUT_RDWR);
         close(sock);
         return -8;
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
         if (reqPartie.coulPion == BLANC) reqPartie.coulPion = NOIR;
     }
 
-    printf("debug> début jeu\n");
+    printf("joueur> début jeu\n");
     //jeu
 
     shutdown(sock, SHUT_RDWR);
