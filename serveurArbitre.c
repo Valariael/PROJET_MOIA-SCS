@@ -19,12 +19,13 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 
 	*sockJoueur1 = 0;
 	*sockJoueur2 = 0;
+	//Connexion premier joueur.
 	while (*sockJoueur1 <= 0)
 	{
 		*sockJoueur1 = accept(sockConnexion,
 			(struct sockaddr *)&adrJoueur1,
 			(socklen_t *)&tailleAdr);
-		if(*sockJoueur1 < 0) 
+		if (*sockJoueur1 < 0) 
 		{
 			perror("erreur accept joueur 1");
 			continue;
@@ -33,7 +34,7 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 
 		err = recv(*sockJoueur1, &reqPartie1, sizeof(TPartieReq), 0);
 		if (err <= 0)
-		{
+		{//TODO: check idReq is PARTIE not COUP > ERR_TYP
 			perror("erreur recv partie 1");
 			shutdown(*sockJoueur1, SHUT_RDWR);
 			close(*sockJoueur1);
@@ -43,12 +44,13 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 		printf("debug> j1 nom=%s\n", reqPartie1.nomJoueur);
 	}
 
+	//Connexion deuxième joueur.
 	while (*sockJoueur2 <= 0) 
 	{
 		*sockJoueur2 = accept(sockConnexion,
 			(struct sockaddr *)&adrJoueur2,
 			(socklen_t *)&tailleAdr);
-		if(*sockJoueur2 < 0) 
+		if (*sockJoueur2 < 0) 
 		{
 			perror("erreur accept joueur 2");
 			continue;
@@ -57,7 +59,7 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 
 		err = recv(*sockJoueur2, &reqPartie2, sizeof(TPartieReq), 0);
 		if (err <= 0)
-		{
+		{//TODO: check idReq is PARTIE not COUP > ERR_TYP
 			perror("erreur recv partie 2");
 			shutdown(*sockJoueur2, SHUT_RDWR);
 			close(*sockJoueur2);
@@ -67,12 +69,13 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 		printf("debug> j2 nom=%s\n", reqPartie2.nomJoueur);
 	}
 
+	//Préparation des réponses.
 	repPartie1.err = ERR_OK;
 	strcpy(repPartie1.nomAdvers, reqPartie2.nomJoueur);
 	repPartie2.err = ERR_OK;
 	strcpy(repPartie2.nomAdvers, reqPartie1.nomJoueur);
 	repPartie1.validCoulPion = OK;
-	if(reqPartie1.coulPion == reqPartie2.coulPion)
+	if (reqPartie1.coulPion == reqPartie2.coulPion)
 	{
 		repPartie2.validCoulPion = KO;
 	}
@@ -81,6 +84,7 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 		repPartie2.validCoulPion = OK;
 	}
 
+	//Envoi réponse au premier joueur.
 	err = send(*sockJoueur1, &repPartie1, sizeof(TPartieRep), 0);
 	if (err <= 0)
 	{
@@ -91,7 +95,7 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 
 		repPartie2.err = ERR_PARTIE;
 		err = send(*sockJoueur2, &repPartie2, sizeof(TPartieRep), 0);
-		if(err <= 0) 
+		if (err <= 0) 
 		{
 			perror("erreur send erreur partie 2");
 			shutdown(*sockJoueur2, SHUT_RDWR);
@@ -104,6 +108,7 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 		return -1;
 	}
 
+	//Envoi réponse au deuxième joueur.
 	err = send(*sockJoueur2, &repPartie2, sizeof(TPartieRep), 0);
 	if (err <= 0)
 	{
@@ -114,7 +119,7 @@ int paireJoueurValides(int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 
 		repPartie1.err = ERR_PARTIE;
 		err = send(*sockJoueur1, &repPartie1, sizeof(TPartieRep), 0);
-		if(err <= 0) 
+		if (err <= 0) 
 		{
 			perror("erreur send erreur partie 1");
 			shutdown(*sockJoueur1, SHUT_RDWR);
@@ -137,15 +142,18 @@ int main(int argc, char **argv)
 	sockJoueur2,
 	portServeur,
 	err,
-	estServeur = 1;
+	estServeur = 1,
+	idPartie = 0;
 	pid_t pid;
 
+	//Vérification des arguments.
 	if (argc != 2)
 	{
 		printf("usage : %s <port>\n", argv[0]);
 		return -1;
 	}
 
+	//Création du socket de connexion.
 	portServeur = atoi(argv[1]);
 	sockConnexion = socketServeur(portServeur);
 	if (sockConnexion < 0) 
@@ -154,16 +162,20 @@ int main(int argc, char **argv)
 		return -2;
 	}
 
+	//Processus d'origine doit continuer à pouvoir lancer des nouvelles parties.
 	while (estServeur)
 	{
+		//Connexion de deux joueurs pour une partie.
 		err = paireJoueurValides(&sockJoueur1, &sockJoueur2, sockConnexion);
-		if(err < 0)
+		if (err < 0)
 		{
 			perror("erreur paire joueurs");
 			continue;
 		}
 		printf("debug> paire de joueurs connectés fd1=%d fd2=%d\n", sockJoueur1, sockJoueur2);
 
+		//La partie est exécutée dans le processus fils.
+		idPartie++;
 		pid = fork();
 		switch (pid)
 		{
