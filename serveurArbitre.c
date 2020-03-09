@@ -66,16 +66,19 @@ int ackJoueursConnectes (int *sockJoueur, int *sockAutreJoueur, TPartieRep *repP
 		shutdownClose(*sockJoueur);
 		*sockJoueur = 0;
 
-		repPartieAutre->err = ERR_PARTIE;
-		err = send(*sockAutreJoueur, repPartieAutre, sizeof(TPartieRep), 0);
-		if (err <= 0) 
+		//En cas d'erreur, envoi d'une réponse ERR_PARTIE ? TODO verif enoncé
+		if (*sockAutreJoueur != 0)
 		{
-			perror("arbitre> erreur send erreur partie");
+			repPartieAutre->err = ERR_PARTIE;
+			err = send(*sockAutreJoueur, repPartieAutre, sizeof(TPartieRep), 0);
 			shutdownClose(*sockAutreJoueur);
 			*sockAutreJoueur = 0;
-			return -2;
+			if (err <= 0) 
+			{
+				perror("arbitre> erreur send erreur partie");
+				return -2;
+			}
 		}
-		//TODO close ?
 
 		return -1;
 	}
@@ -113,10 +116,21 @@ int paireJoueurValides (int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 
 	//Envoi réponse au premier joueur.
 	err = ackJoueursConnectes(sockJoueur1, sockJoueur2, &repPartie1, &repPartie2);
+	if (err < 0) 
+	{
+		printf("arbitre> erreur send réponse partie 1 fd=%d\n", *sockJoueur1);
+		return -1;
+	}
 
 	//Envoi réponse au deuxième joueur.
 	err = ackJoueursConnectes(sockJoueur2, sockJoueur1, &repPartie2, &repPartie1);
+	if (err < 0) 
+	{
+		printf("arbitre> erreur send réponse partie 2 fd=%d\n", *sockJoueur2);
+		return -2;
+	}
 
+	//On échange les sockets si besoin pour accorder les couleurs choisies avec l'ordre de jeu.
 	if (reqPartie1.coulPion == NOIR)
 	{
 		tmp = *sockJoueur1;
