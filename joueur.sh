@@ -22,4 +22,4 @@ if [ $err -ne "0" ]; then
 	echo "Erreur à la compilation du joueur !"
 	exit -1
 fi
-./clientJoueur $1 $2 $3 $4 &
+./clientJoueur $1 $2 $3 $4 $5 &

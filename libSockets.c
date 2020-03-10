@@ -11,6 +11,18 @@
 
 typedef unsigned short int ushort;
 
+void shutdownClose(int sock)
+{
+    shutdown(sock, SHUT_RDWR);
+    close(sock);
+}
+
+void shutdownCloseBoth(int sock1, int sock2)
+{
+    shutdownClose(sock1);
+    shutdownClose(sock2);
+}
+
 int socketServeur(ushort nPort) {
     struct sockaddr_in addr;
     int size, err, sock;
