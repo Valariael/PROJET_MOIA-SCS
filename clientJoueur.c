@@ -91,7 +91,7 @@ int jouerPartie (int sockServeur, int sockIA, int commence)
     TCoupRep repCoup;
 
     printf("joueur> commence ? %d\n", commence);
-    
+
     while (continuer)
     {
         //Si c'est à nous de jouer.
@@ -297,9 +297,19 @@ int main (int argc, char **argv)
 
     //Première manche.
     err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0));
+    if (err < 0)
+    {
+        printf("joueur> erreur 1ere partie\n");
+        return -10;
+    }
 
     //Première manche.
     err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1));
+    if (err < 0)
+    {
+        printf("joueur> erreur 2eme partie\n");
+        return -11;
+    }
 
     shutdownCloseBoth(sock, sockIA);
 
