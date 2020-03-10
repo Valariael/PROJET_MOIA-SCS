@@ -90,6 +90,8 @@ int jouerPartie (int sockServeur, int sockIA, int commence)
     TCoupReq reqCoup;
     TCoupRep repCoup;
 
+    printf("joueur> commence ? %d\n", commence);
+    
     while (continuer)
     {
         //Si c'est à nous de jouer.
@@ -246,6 +248,7 @@ int main (int argc, char **argv)
         shutdownClose(sock);
         return -5;
     }
+    printf("joueur> VS %s fd=%d\n", repPartie.nomAdvers, sock);
 
     //Vérification de la réponse.
     if (repPartie.err == ERR_TYP)//TODO refactor
@@ -268,10 +271,18 @@ int main (int argc, char **argv)
     }
 
     //Changement de couleur si nécessaire.
-    if (repPartie.validCoulPion == KO) 
+    if (repPartie.validCoulPion == KO)  //TODO fix in serv?
     {
-        if (reqPartie.coulPion == NOIR) reqPartie.coulPion = BLANC;
-        if (reqPartie.coulPion == BLANC) reqPartie.coulPion = NOIR;
+        if (reqPartie.coulPion == NOIR) 
+        {
+            reqPartie.coulPion = BLANC;
+            printf("joueur> BLANC fd=%d\n", sock);
+        }
+        if (reqPartie.coulPion == BLANC)
+        {
+            reqPartie.coulPion = NOIR;
+            printf("joueur> NOIR fd=%d\n", sock);
+        }
     }
 
     //Connexion au moteur IA.
