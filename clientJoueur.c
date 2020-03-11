@@ -271,14 +271,14 @@ int main (int argc, char **argv)
     }
 
     //Changement de couleur si nécessaire.
-    if (repPartie.validCoulPion == KO)  //TODO fix in serv?
+    if (repPartie.validCoulPion == KO)
     {
         if (reqPartie.coulPion == NOIR) 
         {
             reqPartie.coulPion = BLANC;
             printf("joueur> BLANC fd=%d\n", sock);
         }
-        if (reqPartie.coulPion == BLANC)
+        else
         {
             reqPartie.coulPion = NOIR;
             printf("joueur> NOIR fd=%d\n", sock);
