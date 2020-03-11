@@ -176,7 +176,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 		else
 		{
 			//Vérification du coup par l'arbitre.
-			coupValide = true;//validationCoup(numJoueur, reqCoup, &resultatValidation);
+			coupValide = validationCoup(numJoueur, reqCoup, &resultatValidation);
 			if (!coupValide || (reqCoup.propCoup != resultatValidation))
 			{
 				//En cas de de coup erroné, envoi de la réponse TRICHE.
@@ -236,7 +236,7 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 	fd_set readSet;
 	TCoupRep repCoup;
 	
-	//initialiserPartie();
+	initialiserPartie();
 	while (continuerPartie)
 	{
 		//Préparation du select pour le timeout.

@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <string.h>
 #include "libSockets.h"
 #include "protocolQuantik.h"
@@ -84,13 +85,13 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
     }
 }
 
-int jouerPartie (int sockServeur, int sockIA, int commence)
+int jouerPartie (int sockServeur, int sockIA, int commence, int idJoueur)
 {
     int err, joueur = commence, continuer = 1;
     TCoupReq reqCoup;
     TCoupRep repCoup;
 
-    printf("joueur> commence ? %d\n", commence);
+    printf("joueur> id=%d commence ? %d\n", idJoueur, commence);
 
     while (continuer)
     {
@@ -190,7 +191,8 @@ int main (int argc, char **argv)
         sockIA,
         portDest,
         portIA,
-        err;
+        err,
+        idJoueur = rand() % 100;//TODO projet fini -> enlver affichages
     char* nomMachineDest;
     TPartieReq reqPartie;
     TPartieRep repPartie;
@@ -248,7 +250,7 @@ int main (int argc, char **argv)
         shutdownClose(sock);
         return -5;
     }
-    printf("joueur> VS %s fd=%d\n", repPartie.nomAdvers, sock);
+    printf("joueur> %s VS %s fd=%d\n", reqPartie.nomJoueur, repPartie.nomAdvers, sock);
 
     //Vérification de la réponse.
     if (repPartie.err == ERR_TYP)//TODO refactor
@@ -276,12 +278,12 @@ int main (int argc, char **argv)
         if (reqPartie.coulPion == NOIR) 
         {
             reqPartie.coulPion = BLANC;
-            printf("joueur> BLANC fd=%d\n", sock);
+            printf("joueur> BLANC id=%d\n", idJoueur);
         }
         else
         {
             reqPartie.coulPion = NOIR;
-            printf("joueur> NOIR fd=%d\n", sock);
+            printf("joueur> NOIR id=%d\n", idJoueur);
         }
     }
 
@@ -296,7 +298,7 @@ int main (int argc, char **argv)
     printf("joueur> début jeu\n");
 
     //Première manche.
-    err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0));
+    err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0), idJoueur);
     if (err < 0)
     {
         printf("joueur> erreur 1ere partie\n");
@@ -304,7 +306,7 @@ int main (int argc, char **argv)
     }
 
     //Première manche.
-    err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1));
+    err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1), idJoueur);
     if (err < 0)
     {
         printf("joueur> erreur 2eme partie\n");
