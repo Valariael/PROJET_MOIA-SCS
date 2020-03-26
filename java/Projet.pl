@@ -26,7 +26,7 @@ placer(Grille,NouvelleGrille,Pos,Duo):-nth1(Pos,NouvelleGrille,Duo,Grille).
 %vérifie que la forme est sur le plateau
 placerCorrect(Pos):-Pos>0, Pos < 17.
 
-
+%récupère les numéros des cases à vérifier en fonction de la position courante
 associationCarre(A,B):-select(A,[1,2,5,6],B).
 associationCarre(A,B):-select(A,[3,4,7,8],B).
 associationCarre(A,B):-select(A,[9,10,13,14],B).
@@ -39,9 +39,22 @@ associationColonne(A,B):-select(A,[2,6,10,14],B).
 associationColonne(A,B):-select(A,[3,7,11,15],B).
 associationColonne(A,B):-select(A,[4,8,12,16],B).
 %vérifie les contraintes imposées 
-placerContrainteLigne(Grille, Joueur, [Nombre,Forme],Pos):-
+verifContrainte(Grille,[L|Q],Forme, Joueur):-nth1(L,Grille,[Coul,Fm]),
+                                            (Coul = Joueur;Forme \= Fm),
+                                            verifContrainte(Grille, Q ,Forme, Joueur).
+%verifie toutes les contraintes pour une case Pos
+placerContrainte(Grille, Joueur, [Nombre,Forme],Pos):-
     Nombre>0,
-    contrainteLigne(Grille)
+    nth1(Pos,Grille,[Coul,Fr]),
+    Coul = 0,
+    Fr = 0,
+    placerCorrect(Pos),
+    associationLigne(Pos,Liste),
+    verifContrainte(Grille,Liste,Forme,Joueur),
+    associationColonne(Pos,Liste2),
+    verifContrainte(Grille,Liste2,Forme,Joueur),
+    associationCarre(Pos,Liste3),
+    verifContrainte(Grille,Liste3,Forme,Joueur).
 
 %etatFinal() vérifie l'état final
 %longueur
