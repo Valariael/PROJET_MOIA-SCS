@@ -39,9 +39,10 @@ associationColonne(A, B):-select(A, [4, 8, 12, 16], B).
 
 %vérifie les contraintes imposées
 verifContrainte(_,[],_,_). 
-verifContrainte(Grille, [L|Q], Forme, Joueur):-nth1(L, Grille, [Coul, Fm]),
-                                            (Coul = Joueur ; Forme \= Fm),
-                                            verifContrainte(Grille, Q ,Forme, Joueur).
+verifContrainte(Grille, [L|Q], Forme, Joueur):-
+	nth1(L, Grille, [Coul, Fm]),
+	(Coul = Joueur ; Forme \= Fm),
+	verifContrainte(Grille, Q ,Forme, Joueur).
 
 %verifie toutes les contraintes pour une case Pos
 placerContrainte(Grille, Joueur, Pos, [_, Forme]):-
@@ -56,50 +57,68 @@ placerContrainte(Grille, Joueur, Pos, [_, Forme]):-
     associationCarre(Pos, Liste3),
     verifContrainte(Grille, Liste3, Forme, Joueur).
 
-recupIndices(_,[],[]).
-recupIndices(Grille,[Ind | ListeInd],[G | ListeGrille]):-recupIndices(Grille,ListeInd,ListeGrille),nth1(Ind, Grille,G).
 %place une forme en vérifiant les contraintes
 placer(Grille, NouvelleGrille, Joueur, Pos, Duo):-
 	placerCorrect(Pos),
 	placerContrainte(Grille, Joueur, Pos, Duo),
 	placerForme(Grille, NouvelleGrille, Pos, Duo).
 
-etatFinal(L):-select([_,1],L,L1),select([_,2],L1,L2),select([_,3],L2,L3),select([_,4],L3,L4), L4 = [].
-%etatFinal() vérifie l'état final
-etatFinalTest(Grille,Pos):-associationLigne(Pos, Liste),
-                           associationColonne(Pos, Liste2),
-                           associationCarre(Pos, Liste3),
-                           recupIndices(Grille,Liste,ListeInd),
-                           recupIndices(Grille,Liste2,ListeInd2),
-                           recupIndices(Grille,Liste3,ListeInd3),
-                           nth1(Pos, Grille, P),
-                           L is [P|ListeInd],
-                           L2 is [P|ListeInd2],
-                           L3 is [P|ListeInd3],
-                           (etatFinal(L);etatFinal(L2);etatFinal(L3)).
-%Sol
-choisir([J,L],J,[Nb,NumPion],[J,L2]):-select([Nb,NumPion],L,L1),
-                               Nb > 0,Nb2 is Nb-1,
-                               L2 = [[Nb2,NumPion]|L1].
+%vérifie la présence de chacune des formes dans un groupe de cases
+etatFinal(ListePions):-
+	select([_, 1], ListePions, L1),
+	select([_, 2], L1, L2),
+	select([_, 3], L2, L3),
+	select([_, 4], L3, L4),
+	L4 = [].
 
+%récupère la liste des pions aux indices donnés
+recupIndices(_, [], []).
+recupIndices(Grille, [Ind|ListeInd], [G|ListeGrille]):-
+	recupIndices(Grille, ListeInd, ListeGrille),
+	nth1(Ind, Grille, G).
 
-choisirG(ListeIndAvantLaFonction,NbCase,ListeIndApresLaFonction):-select(NbCase,ListeIndAvantLaFonction,ListeIndApresLaFonction).
-profondeur([G|LP],J1,J2,[G|LP]):-
-    etatFinalTest(G),
+%vérifie la fin de la partie
+etatFinalTest(Grille,Pos):-
+	associationLigne(Pos, ListeLi),
+	associationColonne(Pos, ListeCo),
+	associationCarre(Pos, ListeCa),
+	recupIndices(Grille, ListeLi, ListeLiInd),
+	recupIndices(Grille, ListeCo, ListeCoInd),
+	recupIndices(Grille, ListeCa, ListeCaInd),
+	nth1(Pos, Grille, P),
+	LLi = [P|ListeLiInd],
+	LCo = [P|ListeCoInd],
+	LCa = [P|ListeCaInd],
+	(etatFinal(LLi) ; etatFinal(LCo) ; etatFinal(LCa)).
+
+%choisis un pion à placer
+choisirPion([NumJ, ListePions], NumJ, [Nombre, Forme], [NumJ, [[NvNombre, Forme]|NvListePions]]):-
+	select([Nombre, Forme], ListePions, NvListePions),
+	Nombre > 0,
+	NvNombre is Nombre - 1.
+
+%choisis une position où placer le pion
+choisirInd(ListeInd, Ind, NvListeInd):-
+	select(Ind, ListeInd, NvListeInd).
+
+%parcours en profondeur en alternant d'un joueur à l'autre, affiche le gagnant
+profondeur([Grille|ListeGrille], _, [NumJ, _], _, Ind, [Grille|ListeGrille]):-
+	Ind > 0,
+    etatFinalTest(Grille, Ind),
+    write("Gagnant : J"),
+    writeln(NumJ),
     !.
-%manque une fct pour selectionner 
-profondeur([G|LP],J1,J2,Sol):-
-    choisir(J1,NJ1,Duo,NvJ1),
-    placer(G,GR,NJ1,_),
-    etatFinalTest(G,)
-    choisir(J2,NJ2,Duo,NvJ2),
-    placer(G,GR,NJ2,_),
-    +member(GR,LP),
-    profondeur([GR,G|LP],NvJ1,NvJ2,Sol).
+profondeur([Grille|ListeGrille], ListeInd, J1, J2, _, Sol):-
+    choisirPion(J1, NumJ1, Duo, NvJ1),
+    choisirInd(ListeInd, Ind, NvListeInd),
+    placer(Grille, NvGrille, NumJ1, Ind, Duo),
+    profondeur([NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind, Sol).
 
-jeu_profondeur(Sol):-
-    plateau(16,G),
+%résolution du quantik avec le parcours en profondeur
+jeuProfondeur(Sol):-
+    plateau(16, Grille),
+    listeIndice(1, ListeInd),
     joueur1(J1),
     joueur2(J2),
-    profondeur([G],J1,J2,Sol),
-    reverse(Sol, L).
+    profondeur([Grille], ListeInd, J1, J2, -1, RSol),
+    reverse(RSol, Sol).
