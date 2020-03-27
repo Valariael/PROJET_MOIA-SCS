@@ -7,3 +7,7 @@
 !Makefile
 
 *.class
+
+.idea
+*.iml
+java/out

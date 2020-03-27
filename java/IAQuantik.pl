@@ -122,3 +122,4 @@ jeuProfondeur(Sol):-
     joueur2(J2),
     profondeur([Grille], ListeInd, J1, J2, -1, RSol),
     reverse(RSol, Sol).
+
