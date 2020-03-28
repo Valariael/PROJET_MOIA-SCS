@@ -8,10 +8,10 @@ import java.net.Socket;
 public class MoteurIA {
     public static final int CODE_NV_PARTIE_BLANC = 1;
     public static final int CODE_NV_PARTIE_NOIR = 2;
-    public static final int CODE_COUP_PREMIER = 3;
-    public static final int CODE_COUP_DEUXIEME = 4;
+    public static final int CODE_COUP_SELF = 3;
+    public static final int CODE_COUP_ADV = 4;
 
-    public static final int OK = 0;
+    public static final int CODE_OK = 0;
 
     public static void main (String[] args)
     {
@@ -42,11 +42,11 @@ public class MoteurIA {
         try
         {
             jeu = new Quantik();
-            System.out.println(jeu.toString());
         }
         catch (Exception e)
         {
             e.printStackTrace();
+            System.exit(-1);
         }
         Coup coup;
         try
@@ -61,20 +61,17 @@ public class MoteurIA {
                 switch (codeReq)
                 {
                     case CODE_NV_PARTIE_BLANC:
-                        assert jeu != null;
                         jeu.initPartie(true);
-                        dos.writeInt(OK);
+                        dos.writeInt(CODE_OK);
                         break;
 
                     case CODE_NV_PARTIE_NOIR:
-                        assert jeu != null;
                         jeu.initPartie(false);
-                        dos.writeInt(OK);
+                        dos.writeInt(CODE_OK);
                         break;
 
-                    case CODE_COUP_PREMIER:
-                        assert jeu != null;
-                        coup = jeu.coupPremierJoueur();
+                    case CODE_COUP_SELF:
+                        coup = jeu.getSelfCoup();
                         dos.writeInt(coup.isBloqueInt());
                         dos.writeInt(coup.getPionInt());
                         dos.writeInt(coup.getLigneInt());
@@ -82,15 +79,14 @@ public class MoteurIA {
                         dos.writeInt(coup.getProprieteInt());
                         break;
 
-                    case CODE_COUP_DEUXIEME:
+                    case CODE_COUP_ADV:
                         coup = new Coup();
                         coup.setBloqueInt(dis.readInt());
                         coup.setPionInt(dis.readInt());
                         coup.setLigneInt(dis.readInt());
                         coup.setColonneInt(dis.readInt());
                         coup.setProprieteInt(dis.readInt());
-                        assert jeu != null;
-                        jeu.coupDeuxiemeJoueur(coup);
+                        jeu.putAdvCoup(coup);
                         break;
 
                     default:

@@ -123,3 +123,7 @@ jeuProfondeur(Sol):-
     profondeur([Grille], ListeInd, J1, J2, -1, RSol),
     reverse(RSol, Sol).
 
+jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
+	choisirPion(J, NumJ, [Nombre, Forme], NvJ),
+	choisirInd(ListeInd, Ind, NvListeInd),
+	placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]).

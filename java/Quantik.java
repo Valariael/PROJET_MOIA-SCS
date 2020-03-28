@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Quantik
 {
-    private String premierJoueur, deuxiemeJoueur, grille, indices;
+    private String joueurSelf, joueurAdv, grille, indices;
 
     public Quantik() throws Exception
     {
@@ -18,7 +18,7 @@ public class Quantik
         if (!consult.hasSolution()) throw new Exception("Echec consult");
     }
 
-    public void initPartie(boolean blancPremier)
+    public void initPartie(boolean isBlanc)
     {
         Map<String, Term> solution1, solution2;
         Variable X = new Variable("X");
@@ -35,25 +35,25 @@ public class Quantik
         solution2 = joueur2.oneSolution();
         Query grille = new Query(
                 "plateau",
-                new Term[] {new Atom("16"), X}
+                new Term[] {new org.jpl7.Integer(16), X}
         );
         this.grille = grille.oneSolution().get("X").toString();
         Query indices = new Query(
                 "listeIndice",
-                new Term[] {new Atom("1"), X}
+                new Term[] {new org.jpl7.Integer(1), X}
         );
         this.indices = indices.oneSolution().get("X").toString();
 
-        premierJoueur = (blancPremier ? solution1.get("X").toString() : solution2.get("X").toString());
-        deuxiemeJoueur = (blancPremier ? solution2.get("X").toString() : solution1.get("X").toString());
+        joueurSelf = (isBlanc ? solution1.get("X").toString() : solution2.get("X").toString());
+        joueurAdv = (isBlanc ? solution2.get("X").toString() : solution1.get("X").toString());
     }
 
-    public Coup coupPremierJoueur()
+    public Coup getSelfCoup()
     {
         return new Coup();
     }
 
-    public void coupDeuxiemeJoueur(Coup coup)
+    public void putAdvCoup(Coup coup)
     {
 
     }
@@ -63,10 +63,10 @@ public class Quantik
         StringBuilder sb = new StringBuilder();
 
         sb.append("Premier joueur : ");
-        sb.append(premierJoueur);
+        sb.append(joueurSelf);
         sb.append("\n");
         sb.append("Deuxieme joueur : ");
-        sb.append(deuxiemeJoueur);
+        sb.append(joueurAdv);
         sb.append("\n");
         sb.append("Grille : ");
         sb.append(grille);
