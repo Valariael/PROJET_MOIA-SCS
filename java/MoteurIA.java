@@ -17,7 +17,7 @@ public class MoteurIA {
     {
         if (args.length != 1)
         {
-            System.out.println("usage : java MoteurIA <port>");
+            System.out.println("usage : java -cp \".:/usr/lib/swi-prolog/lib/jpl.jar\" MoteurIA <port>");
             return;
         }
 
@@ -42,6 +42,7 @@ public class MoteurIA {
         try
         {
             jeu = new Quantik();
+            System.out.println("liaison Quantik OK");
         }
         catch (Exception e)
         {

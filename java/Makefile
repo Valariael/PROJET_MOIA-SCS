@@ -1,23 +1,18 @@
-JFLAGS = -g
-JC = javac
-.SUFFIXES: .java .class
-.java.class:
-	$(JC) $(JFLAGS) $*.java
+#JFLAGS = -cp "jpl-7.4.0.jar"
+#JC = javac
+#.SUFFIXES: .java .class
+#.java.class:
+#	$(JC) $(JFLAGS) $*.java
 
-CLASSES = \
-	MoteurIA.java \
+#CLASSES = \
+#	Coup.java \
+#	Quantik.java \
+#	MoteurIA.java \
 
-sources = $(wildcard *.java)
+default: #classes
+	javac -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" Coup.java Quantik.java MoteurIA.java
 
-classes = $(sources:.java=.class)
-
-all: program
-
-program: $(classes)
-
-%.class: %.java
-	$(JC) $<
+#classes: $(CLASSES:.java=.class)
 
 clean:
-	$(RM) *.class
-#TODO -cp "jpl-7.4.0.jar"
+	rm *.class
