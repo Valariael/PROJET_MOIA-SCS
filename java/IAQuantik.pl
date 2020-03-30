@@ -18,24 +18,23 @@ joueur2([2, [[2, 1], [2, 2], [2, 3], [2, 4]]]).
 
 %TODO grille des indices, faire un select sur la première case dispo, envoyer l'indice dans placer
 %place une forme sur une position
-placerForme(Grille, NouvelleGrille, Pos, Duo):-nth1(Pos, NouvelleGrille, Duo, Grille). 
-
+placerForme(Grille, Grille2, Pos, Joueur,Forme):-nth1(Pos, NouvelleGrille, [Joueur,Forme], Grille),Pos2 is Pos+1,nth1(Pos2, NouvelleGrille, [0,0], Grille2). 
 %vérifie que la forme est sur le plateau
 placerCorrect(Pos):-Pos > 0, Pos < 17.
 
 %récupère les numéros des cases à vérifier en fonction de la position courante
-associationCarre(A, B):-select(A, [1, 2, 5, 6], B).
-associationCarre(A, B):-select(A, [3, 4, 7, 8], B).
-associationCarre(A, B):-select(A, [9, 10, 13, 14], B).
-associationCarre(A, B):-select(A, [11, 12, 15, 16], B).
-associationLigne(A, B):-select(A, [1, 2, 3, 4], B).
-associationLigne(A, B):-select(A, [5, 6, 7,8], B).
-associationLigne(A, B):-select(A, [9, 10, 11, 12], B).
-associationLigne(A, B):-select(A, [13, 14, 15, 16], B).
-associationColonne(A, B):-select(A, [1, 5, 9, 13], B).
-associationColonne(A, B):-select(A, [2, 6, 10, 14], B).
-associationColonne(A, B):-select(A, [3, 7, 11, 15], B).
-associationColonne(A, B):-select(A, [4, 8, 12, 16], B).
+associationCarre(A, B):-select(A, [1, 2, 5, 6], B),!.
+associationCarre(A, B):-select(A, [3, 4, 7, 8], B),!.
+associationCarre(A, B):-select(A, [9, 10, 13, 14], B),!.
+associationCarre(A, B):-select(A, [11, 12, 15, 16], B),!.
+associationLigne(A, B):-select(A, [1, 2, 3, 4], B),!.
+associationLigne(A, B):-select(A, [5, 6, 7,8], B),!.
+associationLigne(A, B):-select(A, [9, 10, 11, 12], B),!.
+associationLigne(A, B):-select(A, [13, 14, 15, 16], B),!.
+associationColonne(A, B):-select(A, [1, 5, 9, 13], B),!.
+associationColonne(A, B):-select(A, [2, 6, 10, 14], B),!.
+associationColonne(A, B):-select(A, [3, 7, 11, 15], B),!.
+associationColonne(A, B):-select(A, [4, 8, 12, 16], B),!.
 
 %vérifie les contraintes imposées
 verifContrainte(_,[],_,_). 
@@ -58,10 +57,10 @@ placerContrainte(Grille, Joueur, Pos, [_, Forme]):-
     verifContrainte(Grille, Liste3, Forme, Joueur).
 
 %place une forme en vérifiant les contraintes
-placer(Grille, NouvelleGrille, Joueur, Pos, Duo):-
+placer(Grille, NouvelleGrille, Joueur, Pos, [Nb,Forme]):-
 	placerCorrect(Pos),
-	placerContrainte(Grille, Joueur, Pos, Duo),
-	placerForme(Grille, NouvelleGrille, Pos, Duo).
+	placerContrainte(Grille, Joueur, Pos, [Nb,Forme]),
+	placerForme(Grille, NouvelleGrille, Pos, Joueur, Forme).
 
 %vérifie la présence de chacune des formes dans un groupe de cases
 etatFinal(ListePions):-
@@ -102,12 +101,11 @@ choisirInd(ListeInd, Ind, NvListeInd):-
 	select(Ind, ListeInd, NvListeInd).
 
 %parcours en profondeur en alternant d'un joueur à l'autre, affiche le gagnant
-profondeur([Grille|ListeGrille], _, [NumJ, _], _, Ind, [Grille|ListeGrille]):-
+profondeur([Grille|ListeGrille], _, _, [NumJ, _], Ind, [Grille|ListeGrille]):-
 	Ind > 0,
     etatFinalTest(Grille, Ind),
     write("Gagnant : J"),
-    writeln(NumJ),
-    !.
+    writeln(NumJ).
 profondeur([Grille|ListeGrille], ListeInd, J1, J2, _, Sol):-
     choisirPion(J1, NumJ1, Duo, NvJ1),
     choisirInd(ListeInd, Ind, NvListeInd),
