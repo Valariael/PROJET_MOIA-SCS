@@ -26,9 +26,12 @@ int recvIntFromJava(int sock, int *data)
     while(err < 4) 
     {
         err = recv(sock, data, sizeof(int), MSG_PEEK);
-        perror("joueur> erreur recv Java MSG_PEEK");
-        shutdownClose(sock);
-        return -1;
+        if (err <= 0)//TODO < ou <= ??
+        {
+            perror("joueur> erreur recv Java MSG_PEEK");
+            shutdownClose(sock);
+            return -1;
+        }
     }
     err = recv(sock, data, sizeof(int), 0);
     if (err <= 0)
@@ -37,6 +40,7 @@ int recvIntFromJava(int sock, int *data)
         shutdownClose(sock);
         return -2;
     }
+    *data = ntohl(*data);
 
     return 0;
 }
@@ -63,7 +67,7 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur)
         printf("joueur> erreur recv estBloque IA");
         return -2;
     }
-    reqCoup->estBloque = ntohl(data);
+    reqCoup->estBloque = data;
 
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
@@ -71,7 +75,7 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur)
         printf("joueur> erreur recv typePion IA");
         return -4;
     }
-    pion.typePion = ntohl(data);
+    pion.typePion = data;
     pion.coulPion = couleur;
 
     err = recvIntFromJava(sockIA, &data);
@@ -80,7 +84,7 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur)
         printf("joueur> erreur recv ligne IA");
         return -5;
     }
-    caseCible.l = ntohl(data);
+    caseCible.l = data;
 
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
@@ -88,7 +92,7 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur)
         printf("joueur> erreur recv colonne IA");
         return -6;
     }
-    caseCible.c = ntohl(data);
+    caseCible.c = data;
 
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
@@ -96,7 +100,7 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur)
         printf("joueur> erreur recv ligne IA");
         return -2;
     }
-    reqCoup->propCoup = ntohl(data);
+    reqCoup->propCoup = data;
 
     reqCoup->idRequest = COUP;
     reqCoup->numPartie = 1;//TODO
@@ -248,14 +252,14 @@ int jouerPartie (int sockServeur, int sockIA, int commence, TCoul couleur, int i
         shutdownClose(sockIA);
         return -1;
     }
-    err = recv(sockIA, &data, sizeof(int), 0);
-    if (err <= 0)
+    err = recvIntFromJava(sockIA, &data);
+    if (err < 0)
     {
         perror("joueur> erreur recv code ok init");
         shutdownClose(sockIA);
         return -2;
     }
-    if (ntohl(data) != CODE_OK)
+    if (data != CODE_OK)
     {
         printf("joueur> erreur init partie !CODE_OK\n");//TODO close ?
         return -3;
