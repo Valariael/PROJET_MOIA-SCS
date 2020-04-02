@@ -30,7 +30,10 @@ public class Coup
                 return -1;
         }
     }
-
+    public int recupIndice()
+    {
+        return 4*Integer.parseInt(ligne) + Integer.parseInt(colonne);
+    }
     public int getLigneInt()
     {
         switch (ligne)
