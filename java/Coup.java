@@ -32,7 +32,7 @@ public class Coup
     }
     public int recupIndice()
     {
-        return 4*Integer.parseInt(ligne) + Integer.parseInt(colonne);
+        return 4*getLigneInt() + getColonneInt()+1;
     }
     public int getLigneInt()
     {

@@ -54,13 +54,14 @@ public class Quantik
     //Renvoie le meilleur coup à effectuer pour le joueur courant
     public Coup getSelfCoup()
     {
+            Variable X = new Variable("X");
         //recherche du coup à effectuer
         Query rechercheCoup = new Query(
                 "heuristique",//TODO une fois l'heuristique créée, récupérer le meilleur coup possible
                 new Term[] {X}
         );
         //On joue le coup récupéré
-        Query jcoup = new Query(
+        /*Query jcoup = new Query(
                 "jouercoup",
                 new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvJ}
         );
@@ -68,7 +69,7 @@ public class Quantik
         this.grille = jcoup.oneSolution().get("NvGrille").toString();
         this.indices = jcoup.oneSolution().get("NvInd").toString();
         this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();
-        lastj = joueurSelf;
+        lastj = joueurSelf;*/
         return new Coup();
     }
 
@@ -84,25 +85,25 @@ public class Quantik
         //requète pour jouer un coup
          Query jcoup = new Query(
                 "jouercoup",
-                new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvJ}
+                new Term[] {new Atom(this.grille), new Atom(this.indices), new Atom(this.joueurAdv), new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvAdv}
         );
         //changement du plateau
         this.grille = jcoup.oneSolution().get("NvGrille").toString();
         this.indices = jcoup.oneSolution().get("NvInd").toString();
         this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();
         lastj = joueurAdv;
-        lastpos = indice;
+        lastpos = ""+indice;
     }
 
     public int vainqueur()
     {
         Query victoire = new Query(
                 "etatFinalTest",
-                new Term[] {this.grille, new org.jpl7.Integer(this.lastpos)}
+                new Term[] {new Atom(this.grille), new Atom(this.lastpos)}
         );
         if (victoire.hasSolution())
         {
-                if(lastj = joueurSelf)
+                if(lastj == joueurSelf)
                 {
                         return 1;
                 }

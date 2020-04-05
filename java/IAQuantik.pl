@@ -125,3 +125,87 @@ jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
 	choisirPion(J, NumJ, [Nombre, Forme], NvJ),
 	choisirInd(ListeInd, Ind, NvListeInd),
 	placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]).
+
+%fonction heuristique
+%objectif du jeu : être le dernier à placer un pion différent sur une ligne un carré ou une colonne.
+%il faut prendre en compte que l'IA adverse va essayer elle aussi de gagner, donc par conséquent il faut privilégier les chemins ou elle essaie de nous bloquer pour ne pas être naïf
+%il est plus probable qu'elle prenne un chemin qui tende à la faire gagner que perdre.
+%nous devons donc trouver une formule qui réunisse plusieurs conditions : notre IA doit faire les meilleurs déplacements possibles en prenant en compte que l'adversaire aussi
+%plusieurs solutions : nous calculons une partie des chemins qui font gagner l'adversaire et nous calculons notre cout en choisissant le déplacement qui bloque le plus de possibilités en nous faisant progresser
+%nous calculons l'heuristique en considérant qu'un coup adverse "puissant" diminue le coup
+%nous essayons de rush la victoire en prenant en compte uniquement nos déplacements dans l'heuristique
+%meilleure solution : 1ere mais difficile à mettre en place et couteuse.
+
+
+%coutH(Plateau,Joueur,Pos,Cout):-Joueur is 2, etatFinalTest(Plateau,Pos),Cout is 10000.
+%coutH(Plateau,Joueur,Pos,Cout):-Joueur is 1, etatFinalTest(Plateau,Pos),Cout is 0.
+
+heuristique(Grille|ListeGrille)
+
+%récupère les cas de victoires du joueur 2 seulement
+profondeurVJ2([Grille|ListeGrille], _, _, [NumJ, _], Ind, [Grille|ListeGrille]):-
+	Ind > 0,
+	NumJ is 2,
+    etatFinalTest(Grille, Ind).
+
+profondeurVJ2([Grille|ListeGrille], ListeInd, J1, J2, _, Sol):-
+    choisirPion(J1, NumJ1, Duo, NvJ1),
+    choisirInd(ListeInd, Ind, NvListeInd),
+    placer(Grille, NvGrille, NumJ1, Ind, Duo),
+    profondeurVJ2([NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind, Sol).
+%trouver une solution, si aucune solution avec profondeurVJ2 --> Aucune possibilité pour l'adversaire de gagner -> victoire ou égalité alliée
+
+%profondeurVJ2(_,_,_,_,_,_):-!.
+% Génération du prochain mouvement avec coût estimé
+
+deplaceH(Ch, [X|Ch], Cout):-
+    add_deplacement(Ch, [X|Ch]),
+    heuristique(X,Cout0),
+    coutReel([X|Ch],Cout1),
+    Cout is Cout0 + Cout1.
+
+% Génération de la liste des parcours suivants
+parcoursSuivant(Chemin, NextParcours):-
+    findall([Cout,PS],deplaceH(Chemin, PS, Cout), NextParcours).
+
+% Insertion d'un parcours dans une liste
+insereC([],Parcours,[Parcours]).
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[Cout|Chemin]|Result]):-
+    Cout < NCout,
+    insereC(Next, [NCout|NChemin], Result).
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[NCout|NChemin],[Cout|Chemin]|Next]):-
+    Cout > NCout.
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[NCout|NChemin],[Cout|Chemin]|Next]):-
+    Cout == NCout,
+    coutReel(Chemin, Cout0),
+    coutReel(NChemin, Cout1),
+    Cout0 >= Cout1.
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[Cout|Chemin]|Result]):-
+    Cout == NCout,
+    coutReel(Chemin, Cout0),
+    coutReel(NChemin, Cout1),
+    Cout0 < Cout1,
+    insereC(Next, [NCout|NChemin], Result).
+
+% Fusion de deux listes
+insere([],Result,Result).
+insere([Parcours|LP],Liste,Result):-
+    insereC(Liste, Parcours, Partiel),
+    insere(LP, Partiel, Result).
+
+% Recherche de solution
+parcoursH([[C,[Head|Historique]]|_],[C,[Head|Historique]]):-
+    arrivee(Head). % Ajouter un ! pour avoir uniquement la meilleure solution
+parcoursH([[_,Chemin]|Liste], Solution):-
+    parcoursSuivant(Chemin, ListeNouveaux),
+    insere(ListeNouveaux, Liste, NouvelleListe),
+    parcoursH(NouvelleListe, Solution).
+
+% Génération de la solution avec heuristique à partir d'une grille de départ (pas forcément la grille vide)
+cm_heuristique(Depart,Solution):-
+    heuristique(Depart, Cout),
+    parcoursH([[Cout, [Depart]]], [_,Los]),
+    reverse(Los,Solution).
+
+%récupération du prochain déplacement à effectuer
+recupH(Depart,X):-cm_heuristique(Depart,[[[X|_]|_]]).
