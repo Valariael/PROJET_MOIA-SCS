@@ -162,15 +162,13 @@ compteurSol([],0).
 heuristique(Grille,LInd,J1,J2,Ind,Cout):-profondeurVJ2([Grille],LInd,J1,J2,Ind,Sol),
                                          compteurSol(Sol,Cout).
 
-deplaceH(Ch, [X|Ch], Cout):-
-    add_deplacement(Ch, [X|Ch]),
-    heuristique(X,Cout0),
-    coutReel([X|Ch],Cout1),
-    Cout is Cout0 + Cout1.
+deplaceH([Ch|ChSuite], [X,Ch|ChSuite],ListeInd,NvListeInd, J, J2, Ind, Forme, NvJ,Cout):-
+    jouerCoup(Ch, ListeInd, J, Ind, Forme, X,NvListeInd, NvJ),
+    heuristique(X,NvListeInd,J,J2,Ind,Cout).
 
 % Génération de la liste des parcours suivants
-parcoursSuivant(Chemin, NextParcours):-
-    findall([Cout,PS],deplaceH(Chemin, PS, Cout), NextParcours).
+parcoursSuivant(Chemin, NextParcours, ListeInd,NvListeInd, J, J2, Ind, Forme, NvJ):-
+    findall([Cout,PS,NvListeInd],deplaceH(Chemin, PS,ListeInd,NvListeInd, J, J2, Ind, Forme, NvJ, Cout), NextParcours).
 
 % Insertion d'un parcours dans une liste
 insereC([],Parcours,[Parcours]).
