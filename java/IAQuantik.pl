@@ -140,7 +140,7 @@ jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
 %coutH(Plateau,Joueur,Pos,Cout):-Joueur is 2, etatFinalTest(Plateau,Pos),Cout is 10000.
 %coutH(Plateau,Joueur,Pos,Cout):-Joueur is 1, etatFinalTest(Plateau,Pos),Cout is 0.
 
-heuristique(Grille|ListeGrille)
+%trouver un moyen de compter le nombre de solutions de profondeurVJ2...
 
 %récupère les cas de victoires du joueur 2 seulement
 profondeurVJ2([Grille|ListeGrille], _, _, [NumJ, _], Ind, [Grille|ListeGrille]):-
@@ -154,9 +154,13 @@ profondeurVJ2([Grille|ListeGrille], ListeInd, J1, J2, _, Sol):-
     placer(Grille, NvGrille, NumJ1, Ind, Duo),
     profondeurVJ2([NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind, Sol).
 %trouver une solution, si aucune solution avec profondeurVJ2 --> Aucune possibilité pour l'adversaire de gagner -> victoire ou égalité alliée
-
+%compte les solutions 
+compteurSol([_|Q],C2):-compteurSol(Q,C), C2 is C + 1.
+compteurSol([],0).
 %profondeurVJ2(_,_,_,_,_,_):-!.
 % Génération du prochain mouvement avec coût estimé
+heuristique(Grille,LInd,J1,J2,Ind,Cout):-profondeurVJ2([Grille],LInd,J1,J2,Ind,Sol),
+                                         compteurSol(Sol,Cout).
 
 deplaceH(Ch, [X|Ch], Cout):-
     add_deplacement(Ch, [X|Ch]),

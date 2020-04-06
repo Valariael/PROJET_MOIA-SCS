@@ -3,7 +3,13 @@ public class Coup
     private boolean bloque;
     private String pion, ligne, colonne, propriete;
 
-    public Coup(){}
+    public Coup(String pion, String ligne, String colonne, String propriete)
+    {
+        this.pion = pion;
+        this.ligne = ligne;
+        this.colonne = colonne;
+        this.propriete = propriete;
+    }
 
     public int isBloqueInt()
     {
