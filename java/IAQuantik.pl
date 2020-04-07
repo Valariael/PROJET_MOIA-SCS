@@ -121,6 +121,7 @@ jeuProfondeur(Sol):-
     profondeur([Grille], ListeInd, J1, J2, -1, RSol),
     reverse(RSol, Sol).
 
+%joue un coup donné et renvoie le nouvel état
 jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
 	choisirPion(J, NumJ, [Nombre, Forme], NvJ),
 	choisirInd(ListeInd, Ind, NvListeInd),
@@ -212,7 +213,9 @@ cm_heuristique(Depart,Solution):-
 %récupération du prochain déplacement à effectuer
 recupH(Depart,X):-cm_heuristique(Depart,[[[X|_]|_]]).
 
-%parcours en largeur
+
+% parcours en largeur
+% -----------------
 jouerCoupLargeur([Grille|ListeGrille], ListeInd, J, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ):-
     jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ).
 
@@ -246,7 +249,10 @@ jeuLargeur(L):-
     joueur2(J2),
     largeur([[[Grille], ListeInd, J1, J2, -1]], RSol),
     reverse(RSol, L).
+% -----------------
 
+% parcours en largeur adapté pour s'arrêter à une profondeur donnée
+% -----------------
 largeurLimite(L, L, Max, N):-
     N is Max,
     !.
@@ -268,3 +274,24 @@ jeuLargeurLimite(L, N):-
     joueur2(J2),
     largeurLimite([[[Grille], ListeInd, J1, J2, -1]], RSol, N, 0),
     reverse(RSol, L).
+% -----------------
+
+% à ne pas utiliser : ces fonctions étaient utilisées pour récupérer toutes les combinaisons gagnantes
+% avant leur sauvegarde dans des fichiers
+% -----------------
+profondeurGagnant([Grille|_], _, _, [NumJ, _], Ind, [], NumJ):-
+	Ind > 0,
+    etatFinalTest(Grille, Ind).
+profondeurGagnant([Grille|ListeGrille], ListeInd, J1, J2, _, [Ind|HistInd], RNumJ):-
+    choisirPion(J1, NumJ1, Duo, NvJ1),
+    choisirInd(ListeInd, Ind, NvListeInd),
+    placer(Grille, NvGrille, NumJ1, Ind, Duo),
+    profondeurGagnant([NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind, HistInd, RNumJ).
+
+jeuProfondeurGagnant(HistInd, RNumJ):-
+    plateau(16, Grille),
+    listeIndice(1, ListeInd),
+    joueur1(J1),
+    joueur2(J2),
+    profondeurGagnant([Grille], ListeInd, J1, J2, -1, HistInd, RNumJ).
+% -----------------
