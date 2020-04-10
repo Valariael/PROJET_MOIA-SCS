@@ -3,6 +3,7 @@ import org.jpl7.Query;
 import org.jpl7.Term;
 import org.jpl7.Variable;
 
+import java.io.*;
 import java.util.Map;
 
 public class Quantik
@@ -112,8 +113,95 @@ public class Quantik
                         return 2;
                 }
         }
+        return 0;//TODO : close all queries to free prolog engine
+    }
+
+    @Deprecated
+    public static void computeSolutions()
+    {
+        try
+        {
+
+            Query consult = new Query(
+                    "consult",
+                    new Term[] {new Atom("IAQuantik.pl")}
+            );
+            if (!consult.hasSolution()) try
+            {
+                throw new Exception("Echec consult");
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                return;
+            }
+
+            Variable sol = new Variable("HistInd");
+            Variable numJ = new Variable("NumJ");
+            Query profondeur = new Query(
+                    "jeuProfondeurGagnant",
+                    new Term[] {sol, numJ}
+            );
+            int prev = 0;
+            FileOutputStream fos = null;
+            while (profondeur.hasMoreSolutions())
+            {
+                Map<String, Term> res = profondeur.nextSolution();
+                Term[] termArray = res.get("HistInd").toTermArray();
+                int firstCoup = termArray[0].intValue();
+
+                if (prev != firstCoup) 
+                {
+                    File fichSols = new File(String.valueOf(firstCoup));
+                    fichSols.createNewFile();
+                    fos = new FileOutputStream(fichSols, false);
+                    prev = firstCoup;
+                }
+
+                fos.write(res.get("NumJ").intValue());
+                for (int i = 1; i < termArray.length; i++)
+                {
+                    fos.write(termArray[i].intValue());
+                }
+                fos.write(0);
+            }
+
+            fos.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Deprecated
+    public static int getNextIndBySearch(int[] prevInds, int numJoueur)
+    {
+        File fichSols = new File(String.valueOf(prevInds[0]));
+        try
+        {
+            FileInputStream fis = new FileInputStream(fichSols);
+            do
+            {
+                int nJ = fis.read();
+                if (nJ == -1) break;
+                boolean contLine = true;
+                do
+                {
+                    int ind = fis.read();
+                    //compare sols + store next moves and win counts
+                    if (ind == 0) contLine = false;
+                } while (contLine);
+            } while (true);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         return 0;
     }
+
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

@@ -294,4 +294,8 @@ jeuProfondeurGagnant(HistInd, RNumJ):-
     joueur1(J1),
     joueur2(J2),
     profondeurGagnant([Grille], ListeInd, J1, J2, -1, HistInd, RNumJ).
+<<<<<<< HEAD
 % -----------------
+=======
+% -----------------
+>>>>>>> d61fe4e88b47541482070533e07cd4de84260f52
