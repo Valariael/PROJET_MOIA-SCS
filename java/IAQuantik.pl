@@ -163,13 +163,13 @@ compteurSol([],0).
 heuristique(Grille,LInd,J1,J2,Ind,Cout):-profondeurVJ2([Grille],LInd,J1,J2,Ind,Sol),
                                          compteurSol(Sol,Cout).
 
-deplaceH([Ch|ChSuite], [X,Ch|ChSuite],ListeInd,NvListeInd, J, J2, Ind, Forme, NvJ,Cout):-
-    jouerCoup(Ch, ListeInd, J, Ind, Forme, X,NvListeInd, NvJ),
-    heuristique(X,NvListeInd,J,J2,Ind,Cout).
+deplaceH([Grille|ListeGrille], ListeInd, J, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ,Cout):-
+    jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ),
+    heuristique(Grille,NvListeInd,J,J2,Ind,Cout).
 
 % Génération de la liste des parcours suivants
-parcoursSuivant(Chemin, NextParcours, ListeInd,NvListeInd, J, J2, Ind, Forme, NvJ):-
-    findall([Cout,PS,NvListeInd],deplaceH(Chemin, PS,ListeInd,NvListeInd, J, J2, Ind, Forme, NvJ, Cout), NextParcours).
+parcoursSuivant([[Grille|ListeGrille], ListeInd, J1, J2, _], ListeParcours):-
+    findall([Cout,[NvGrille,Grille|ListeGrille],NvListeInd, J2, NvJ1, Ind], deplaceH([Grille|ListeGrille], ListeInd, J1, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ1,Cout), ListeParcours).
 
 % Insertion d'un parcours dans une liste
 insereC([],Parcours,[Parcours]).
@@ -197,20 +197,20 @@ insere([Parcours|LP],Liste,Result):-
     insere(LP, Partiel, Result).
 
 % Recherche de solution
-parcoursH([[C,[Head|Historique]]|_],[C,[Head|Historique]]):-
-    arrivee(Head). % Ajouter un ! pour avoir uniquement la meilleure solution
+parcoursH([[C,[[Grille|ListeGrille], ListeInd, J1, J2, Ind]|Historique]]|_],[C,[Head|Historique]]):-
+    etatFinalTest(Head). % Ajouter un ! pour avoir uniquement la meilleure solution
 parcoursH([[_,Chemin]|Liste], Solution):-
     parcoursSuivant(Chemin, ListeNouveaux),
     insere(ListeNouveaux, Liste, NouvelleListe),
     parcoursH(NouvelleListe, Solution).
 
 % Génération de la solution avec heuristique à partir d'une grille de départ (pas forcément la grille vide)
-cm_heuristique(Depart,Solution):-
+cm_heuristique([Depart|Q],Solution):-
     heuristique(Depart, Cout),
-    parcoursH([[Cout, [Depart]]], [_,Los]),
+    parcoursH([[Cout, [Depart|Q]]], [_,Los]),
     reverse(Los,Solution).
 
-%récupération du prochain déplacement à effectuer
+%récupération du prochain déplacement à effectuer : rentrer les infos nécéssaires (Grille, joueurs etc)
 recupH(Depart,X):-cm_heuristique(Depart,[[[X|_]|_]]).
 
 
@@ -294,8 +294,4 @@ jeuProfondeurGagnant(HistInd, RNumJ):-
     joueur1(J1),
     joueur2(J2),
     profondeurGagnant([Grille], ListeInd, J1, J2, -1, HistInd, RNumJ).
-<<<<<<< HEAD
 % -----------------
-=======
-% -----------------
->>>>>>> d61fe4e88b47541482070533e07cd4de84260f52
