@@ -160,17 +160,17 @@ compteurSol([_|Q],C2):-compteurSol(Q,C), C2 is C + 1.
 compteurSol([],0).
 %profondeurVJ2(_,_,_,_,_,_):-!.
 % Génération du prochain mouvement avec coût estimé
-heuristique(Grille,LInd,J1,J2,Ind,Cout):-profondeurVJ2([Grille],LInd,J1,J2,Ind,Sol),
+heuristique([Grille,LInd,J1,J2,Ind],Cout):-profondeurVJ2([Grille],LInd,J1,J2,Ind,Sol),
                                          compteurSol(Sol,Cout).
 
 deplaceH([Grille|ListeGrille], ListeInd, J, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ,Cout):-
     jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ),
-    heuristique(Grille,NvListeInd,J,J2,Ind,Cout).
+    heuristique([Grille,NvListeInd,J,J2,Ind],Cout).
 
 % Génération de la liste des parcours suivants
 parcoursSuivant([[Grille|ListeGrille], ListeInd, J1, J2, _], ListeParcours):-
     findall([Cout,[NvGrille,Grille|ListeGrille],NvListeInd, J2, NvJ1, Ind], deplaceH([Grille|ListeGrille], ListeInd, J1, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ1,Cout), ListeParcours).
-
+coutReel(X,Cout):-heuristique(X,Cout).
 % Insertion d'un parcours dans une liste
 insereC([],Parcours,[Parcours]).
 insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[Cout|Chemin]|Result]):-
@@ -197,8 +197,8 @@ insere([Parcours|LP],Liste,Result):-
     insere(LP, Partiel, Result).
 
 % Recherche de solution
-parcoursH([[C,[[Grille|ListeGrille], ListeInd, J1, J2, Ind]|Historique]]|_],[C,[Head|Historique]]):-
-    etatFinalTest(Head). % Ajouter un ! pour avoir uniquement la meilleure solution
+parcoursH([[C,[[Grille|ListeGrille], ListeInd, J1, J2, Ind]|Historique]|_],[[C,[[Grille|ListeGrille], ListeInd, J1, J2, Ind]]|Historique]):-
+    etatFinalTest(Grille,Ind). % Ajouter un ! pour avoir uniquement la meilleure solution
 parcoursH([[_,Chemin]|Liste], Solution):-
     parcoursSuivant(Chemin, ListeNouveaux),
     insere(ListeNouveaux, Liste, NouvelleListe),
