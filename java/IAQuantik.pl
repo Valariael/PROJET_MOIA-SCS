@@ -9,7 +9,6 @@ listeIndice(17, []).
 listeIndice(N, [N|L]):-
     E is N + 1,
     listeIndice(E, L).
-
 %prédicats pour initialiser les joueurs
 %le premier chiffre représente le joueur
 %les paires représentent le nombre de pion restant au joueur pour chaque type
@@ -205,9 +204,9 @@ parcoursH([[_,Chemin]|Liste], Solution):-
     parcoursH(NouvelleListe, Solution).
 
 % Génération de la solution avec heuristique à partir d'une grille de départ (pas forcément la grille vide)
-cm_heuristique([Depart|Q],Solution):-
+cm_heuristique(Depart,Solution):-
     heuristique(Depart, Cout),
-    parcoursH([[Cout, [Depart|Q]]], [_,Los]),
+    parcoursH([[Cout, Depart]], [_,Los]),
     reverse(Los,Solution).
 
 %récupération du prochain déplacement à effectuer : rentrer les infos nécéssaires (Grille, joueurs etc)
