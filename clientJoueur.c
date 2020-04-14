@@ -97,8 +97,8 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur)
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
-        printf("joueur> erreur recv ligne IA");
-        return -2;
+        printf("joueur> erreur recv prop coup IA");
+        return -7;
     }
     reqCoup->propCoup = data;
 
@@ -228,7 +228,123 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
     }
 }
 
-int jouerPartie (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur)
+int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
+{
+    int err, joueur = commence, continuer = 1, data;
+    TCoupReq reqCoup;
+    TCoupRep repCoup;
+    TCase caseCible;
+    TPion pion;
+
+    printf("joueur> id=%d commence ? %d\n", idJoueur, commence);
+
+    while (continuer)
+    {
+        //Si c'est à nous de jouer.
+        if (joueur)
+        {
+            printf("ReqCoup :\n");
+            printf("estBloque (0|1) : ");
+            scanf("%d", &data);
+            reqCoup.estBloque = data;
+            printf("typePion (0:CYLINDRE|1:PAVE|2:SPHERE|3:TETRAEDRE) : ");
+            scanf("%d", &data);
+            pion.typePion = data;
+            pion.coulPion = couleur;
+            printf("ligne (0:UN|1:DEUX|2:TROIS|3:QUATRE) : ");
+            scanf("%d", &data);
+            caseCible.l = data;
+            printf("colonne (0:A|1:B|2:C|3:D) : ");
+            scanf("%d", &data);
+            caseCible.c = data;
+            printf("propCoup (0:CONT|1:GAGNE|2:NUL|3:PERDU) : ");
+            scanf("%d", &data);
+            reqCoup.propCoup = data;
+
+            reqCoup.idRequest = COUP;
+            reqCoup.numPartie = 1;//TODO
+            reqCoup.pion = pion;
+            reqCoup.posPion = caseCible;
+
+            //Envoi du coup.
+            err = send(sockServeur, &reqCoup, sizeof(TCoupReq), 0);
+            if (err <= 0)
+            {
+                perror("joueur> erreur send req coup");
+                shutdownClose(sockServeur); //TODO select read + write pour gérer la réception du timeout
+                return -5;
+            }
+
+            //Réception de la validation du coup.
+            err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+            if (err <= 0)
+            {
+                perror("joueur> erreur recv rep coup");
+                shutdownClose(sockServeur);
+                return -6;
+            }
+
+            //Arrêt en cas d'erreur sur le coup joué.
+            if (repCoup.err != ERR_OK)
+            {
+                printf("joueur> erreur sur le coup joué\n");
+                shutdownClose(sockServeur);
+                return -7;//TODO: improve
+            }
+
+            afficherValidationCoup(repCoup, joueur);
+
+            //Fin de partie le cas échéant.
+            if (repCoup.propCoup != CONT)
+            {
+                continuer = 0;
+            }
+            //Sinon c'est à l'adversaire de jouer.
+            else
+            {
+                joueur = 0;
+            }
+        }
+        //Si c'est à l'adversaire de jouer.
+        else
+        {
+            //Réception de la validation du coup adverse.
+            err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+            if (err <= 0)
+            {
+                perror("joueur> erreur recv rep coup adverse");
+                shutdownClose(sockServeur);
+                return -8;
+            }
+
+            afficherValidationCoup(repCoup, joueur);
+
+            //Fin de partie le cas échéant.
+            if (repCoup.propCoup != CONT)
+            {
+                continuer = 0;
+            }
+            //Sinon c'est à nous de jouer au prochain coup.
+            else
+            {
+                joueur = 1;
+
+                //Réception du coup adverse.
+                err = recv(sockServeur, &reqCoup, sizeof(TCoupReq), 0);
+                if (err <= 0)
+                {
+                    perror("joueur> erreur recv req coup adverse");
+                    shutdownClose(sockServeur);
+                    return -9;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur)
 {
     int err, joueur = commence, continuer = 1, data;
     TCoupReq reqCoup;
@@ -377,18 +493,23 @@ int main (int argc, char **argv)
     TPartieRep repPartie;
 
     //Vérification des arguments.
-    if (argc != 6) 
+    if (argc == 5) 
     {
-        printf("joueur> usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion> <portIA>\n", argv[0]);
+        printf("joueur> mode manuel\n");
+        portIA = -1;
+    }
+    else if (argc == 6)
+    {
+        printf("joueur> mode IA\n");
+        portIA = atoi(argv[5]);
+    }
+    else
+    {
+        printf("joueur> usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion> [<portIA>]\n", argv[0]);
         return -1;
     }
 
     //Préparation de la requête de partie.
-    nomMachineDest = argv[1];
-    portDest = atoi(argv[2]);
-    portIA = atoi(argv[5]);
-    reqPartie.idReq = PARTIE;
-    strcpy(reqPartie.nomJoueur, argv[3]);
     if (strcmp(argv[4], "B") == 0) 
     {
         reqPartie.coulPion = BLANC;
@@ -399,10 +520,14 @@ int main (int argc, char **argv)
     } 
     else 
     {
-        printf("joueur> usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion>\n", argv[0]);
+        printf("joueur> usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion> [<portIA>]\n", argv[0]);
         printf("joueur> couleur incorrecte : B (blanc) ou N (noir)\n");
         return -2;
     }
+    nomMachineDest = argv[1];
+    portDest = atoi(argv[2]);
+    reqPartie.idReq = PARTIE;
+    strcpy(reqPartie.nomJoueur, argv[3]);
 
     //Création du socket de communication.
     sock = socketClient(nomMachineDest, portDest);
@@ -466,33 +591,59 @@ int main (int argc, char **argv)
         }
     }
 
-    //Connexion au moteur IA.
-    sockIA = socketClient("127.0.0.1", portIA);
-    if (sockIA < 0)
+    if (portIA != -1)
     {
-        perror("joueur> erreur creation socket IA");
-        return -9;
+        //Connexion au moteur IA.
+        sockIA = socketClient("127.0.0.1", portIA);
+        if (sockIA < 0)
+        {
+            perror("joueur> erreur creation socket IA");
+            return -9;
+        }
+
+        printf("joueur> début jeu IA\n");
+
+        //Première manche.
+        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, idJoueur);
+        if (err < 0)
+        {
+            printf("joueur> erreur 1ere partie\n");
+            return -10;
+        }
+
+        //Deuxième manche.
+        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, idJoueur);
+        if (err < 0)
+        {
+            printf("joueur> erreur 2eme partie\n");
+            return -11;
+        }
+
+        shutdownCloseBoth(sock, sockIA);
     }
-
-    printf("joueur> début jeu\n");
-
-    //Première manche.
-    err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, idJoueur);
-    if (err < 0)
+    else
     {
-        printf("joueur> erreur 1ere partie\n");
-        return -10;
-    }
+        //Choix des coups manuel
+        printf("joueur> début jeu manuel\n");
 
-    //Première manche.
-    err = jouerPartie(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, idJoueur);
-    if (err < 0)
-    {
-        printf("joueur> erreur 2eme partie\n");
-        return -11;
-    }
+        //Première manche.
+        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, idJoueur);
+        if (err < 0)
+        {
+            printf("joueur> erreur 1ere partie\n");
+            return -12;
+        }
 
-    shutdownCloseBoth(sock, sockIA);
+        //Deuxième manche.
+        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, idJoueur);
+        if (err < 0)
+        {
+            printf("joueur> erreur 2eme partie\n");
+            return -13;
+        }
+
+        shutdownClose(sock);
+    }
 
     return 0;
 }

@@ -166,6 +166,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 	if (sockJoueurCourant == sockJoueur)
 	{
 		//Réception du coup joué.
+		printf("arbitre> recv req coup fd=%d\n", sockJoueur);
 		err = recv(sockJoueur, &reqCoup, sizeof(TCoupReq), 0);//TODO check num partie
 		if (err <= 0)
 		{
@@ -184,6 +185,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 				repCoup.validCoup = TRICHE;
 				repCoup.propCoup = PERDU;
 
+				printf("arbitre> send rep triche fd=%d\n", sockJoueur);
 				err = envoyerRepCoup(sockJoueur, sockAutreJoueur, &repCoup);
 				if (err < 0)
 				{
@@ -198,6 +200,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 				repCoup.validCoup = VALID;
 				repCoup.propCoup = resultatValidation;
 
+				printf("arbitre> send rep coup fd=%d\n", sockJoueur);
 				err = envoyerRepCoup(sockJoueur, sockAutreJoueur, &repCoup);
 				if (err < 0)
 				{
@@ -210,6 +213,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 					return 1;
 				}
 				
+				printf("arbitre> send coup fd=%d\n", sockAutreJoueur);
 				//Si la partie continue, on envoie le coup joué à l'adversaire.
 				err = send(sockAutreJoueur, &reqCoup, sizeof(TCoupReq), 0);
 				if (err <= 0)
@@ -223,7 +227,20 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 	}
 	else 
 	{
-		//TODO: pas son tour
+		//Sinon ce n'est pas à son tour de jouer.
+		repCoup.err = ERR_COUP;
+		repCoup.validCoup = TRICHE;
+		repCoup.propCoup = PERDU;
+
+		printf("arbitre> send rep triche fd=%d\n", sockJoueur);
+		err = envoyerRepCoup(sockJoueur, sockAutreJoueur, &repCoup);
+		if (err < 0)
+		{
+			printf("arbitre> erreur send coup triche par fd1=%d fd2=%d\n", sockJoueur, sockAutreJoueur);
+			return -2;
+		}
+
+		return 2;
 	}
 
 	return 0;
@@ -231,7 +248,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 
 int jouerPartie (int sockJoueur1, int sockJoueur2)
 {
-	int err, nsfd, sockJoueurCourant = sockJoueur1, continuerPartie;
+	int err, nsfd, sockJoueurCourant = sockJoueur1, continuerPartie = 1;
 	struct timeval timeout;
 	fd_set readSet;
 	TCoupRep repCoup;
@@ -243,7 +260,7 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 		FD_ZERO(&readSet);
 		FD_SET(sockJoueur1, &readSet);
 		FD_SET(sockJoueur2, &readSet);
-		timeout.tv_sec = 5;
+		timeout.tv_sec = 100;//TODO change
 		nsfd = (sockJoueur1 > sockJoueur2 ? sockJoueur1 + 1 : sockJoueur2 + 1);
 
 		err = select(nsfd, &readSet, NULL, NULL, &timeout);
@@ -290,6 +307,10 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 				{
 					continuerPartie = 0;
 				}
+				else
+				{
+					sockJoueurCourant = sockJoueur2;
+				}
 			}
 			if (FD_ISSET(sockJoueur2, &readSet) != 0)
 			{
@@ -305,6 +326,10 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 				else if (err > 0)
 				{
 					continuerPartie = 0;
+				}
+				else
+				{
+					sockJoueurCourant = sockJoueur1;
 				}
 			}
 		}
