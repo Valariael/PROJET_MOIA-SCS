@@ -143,6 +143,21 @@ jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
 %trouver un moyen de compter le nombre de solutions de profondeurVJ2...
 
 %récupère les cas de victoires du joueur 2 seulement
+hoisirIndAmeliore().
+
+%joue un coup en prévoyant les coups gagnants
+jouerCoupAmeliore(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
+    choisirPion(J, NumJ, [Nombre, Forme], NvJ),
+    choisirIndAmeliore(ListeInd, Ind, NvListeInd, Grille),
+    placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]),
+    (etatFinalTest(NvGrille,Ind) ;
+    choisirPion(J2, NumJ2, [Nombre2, Forme2], NvJ2),
+    choisirIndAmeliore(NvListeInd, Ind, NvListeInd, NvGrille),
+    placer(NvGrille, NvGrille2, NumJ2, Ind, [Nombre2, Forme2]),
+    \+etatFinalTest(NvGrille2,Ind)).
+
+
+
 profondeurVJ2([Grille|ListeGrille], _, _, [NumJ, _], Ind, [Grille|ListeGrille]):-
 	Ind > 0,
 	NumJ is 2,
@@ -160,7 +175,7 @@ compteurSol([],0).
 %profondeurVJ2(_,_,_,_,_,_):-!.
 % Génération du prochain mouvement avec coût estimé
 heuristique([Grille,LInd,J1,J2,Ind],Cout):-profondeurVJ2([Grille],LInd,J1,J2,Ind,Sol),
-                                         compteurSol(Sol,Cout).
+                                           compteurSol(Sol,Cout).
 
 deplaceH([Grille|ListeGrille], ListeInd, J, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ,Cout):-
     jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ),
@@ -211,8 +226,8 @@ cm_heuristique(Depart,Solution):-
 
 %récupération du prochain déplacement à effectuer : rentrer les infos nécéssaires (Grille, joueurs etc)
 recupH(Depart,X):-cm_heuristique(Depart,[[[X|_]|_]]).
-
-
+%Exécuter avec quelque chose de la forme : recupH([[[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[1, [[2, 1], [2, 2], [2, 3], [2, 4]]],[2, [[2, 1], [2, 2], [2, 3], [2, 4]]],1],S).
+%c'est à dire Etat du plateau, indices restants, J1, J2, ?premier indice?
 % parcours en largeur
 % -----------------
 jouerCoupLargeur([Grille|ListeGrille], ListeInd, J, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ):-
