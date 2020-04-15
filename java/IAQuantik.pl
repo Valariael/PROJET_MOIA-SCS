@@ -56,9 +56,9 @@ placerContrainte(Grille, Joueur, Pos, [_, Forme]):-
     verifContrainte(Grille, Liste3, Forme, Joueur).
 
 %place une forme en vérifiant les contraintes
-placer(Grille, NouvelleGrille, Joueur, Pos, [Nb,Forme]):-
+placer(Grille, NouvelleGrille, Joueur, Pos, [Nb, Forme]):-
 	placerCorrect(Pos),
-	placerContrainte(Grille, Joueur, Pos, [Nb,Forme]),
+	placerContrainte(Grille, Joueur, Pos, [Nb, Forme]),
 	placerForme(Grille, NouvelleGrille, Pos, Joueur, Forme).
 
 %vérifie la présence de chacune des formes dans un groupe de cases
@@ -125,6 +125,87 @@ jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
 	choisirPion(J, NumJ, [Nombre, Forme], NvJ),
 	choisirInd(ListeInd, Ind, NvListeInd),
 	placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]).
+
+etatPreFinal(ListePions, ListeInd, Ind):-
+    nth1(Pos, ListePions, [0, 0]),
+    nth1(Pos, ListeInd, Ind),
+    nth1(Pos, ListePions, [_, 2]),
+    nth1(Pos, ListePions, [_, 3]),
+    nth1(Pos, ListePions, [_, 4]),
+    L4 = [],
+    Forme = 1,
+    !.
+etatPreFinal(ListePions, ListeInd, Ind):-
+    nth1(Pos, ListePions, [_, 1]),
+    nth1(Pos, ListePions, [0, 0]),
+    nth1(Pos, ListeInd, Ind),
+    nth1(Pos, ListePions, [_, 3]),
+    nth1(Pos, ListePions, [_, 4]),
+    L4 = [],
+    Forme = 2,
+    !.
+etatPreFinal(ListePions, ListeInd, Ind, Forme):-
+    nth1(Pos, ListePions, [_, 1]),
+    nth1(Pos, ListePions, [_, 2]),
+    nth1(Pos, ListePions, [0, 0]),
+    nth1(Pos, ListeInd, Ind),
+    nth1(Pos, ListePions, [_, 4]),
+    L4 = [],
+    Forme = 3,
+    !.
+etatPreFinal(ListePions, ListeInd, Ind, Forme):-
+    nth1(Pos, ListePions, [_, 1]),
+    nth1(Pos, ListePions, [_, 2]),
+    nth1(Pos, ListePions, [_, 3]),
+    nth1(Pos, ListePions, [0, 0]),
+    nth1(Pos, ListeInd, Ind),
+    L4 = [],
+    Forme = 4.
+
+estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+    etatPreFinal(LP1, LI1, IndCible, FormeManquante),
+    !.
+estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+    etatPreFinal(LP2, LI2, IndCible, FormeManquante),
+    !.
+estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+    etatPreFinal(LP3, LI3, IndCible, FormeManquante),
+    !.
+estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+    IndCible = -1,
+    FormeManquante = -1.
+
+etatPreFinalTest(Grille, [], -1):-
+    !.
+%optimisation : ne pas tester plusieurs fois les mêmes combinaisons
+etatPreFinalTest(Grille, [Ind|ListeInd], IndCible, FormeManquante):-
+    associationLigne(Ind, ListeLi),
+    associationColonne(Ind, ListeCo),
+    associationCarre(Ind, ListeCa),
+    recupIndices(Grille, ListeLi, ListeLiInd),
+    recupIndices(Grille, ListeCo, ListeCoInd),
+    recupIndices(Grille, ListeCa, ListeCaInd),
+    nth1(Ind, Grille, P),
+    LLi = [P|ListeLiInd],
+    LCo = [P|ListeCoInd],
+    LCa = [P|ListeCaInd],
+    estPreFinal(LLi, LCo, LCa, ListeLi, ListeCo, ListeCa, IndCible, FormeManquante),
+    (IndCible \= -1, ! ; etatPreFinalTest(Grille, ListeInd, IndCible2, FormeManquante2).
+
+%joue un coup en prévoyant les coups gagnants
+jouerCoupPrioGagnant(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
+    etatPreFinalTest(Grille, ListeInd, Ind, Forme),
+    Ind \= -1,
+    Forme \= -1,
+    choisirPion(J, NumJ, [_, Forme], NvJ),
+    choisirInd(ListeInd, Ind, NvListeInd),
+    placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
+%ameliorations : bloquer le plus de possibilités, éviter de donner un coup gagnant à l'adversaire vvv
+jouerCoupPrioGagnant(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
+    choisirPion(J, NumJ, [_, Forme], NvJ),
+    choisirInd(ListeInd, Ind, NvListeInd),
+    placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
+
 
 %fonction heuristique
 %objectif du jeu : être le dernier à placer un pion différent sur une ligne un carré ou une colonne.
