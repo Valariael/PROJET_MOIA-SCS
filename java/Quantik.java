@@ -7,8 +7,8 @@ import java.io.*;
 import java.util.Map;
 
 public class Quantik
-{
-    private String joueurSelf, joueurAdv, grille, indices, lastj,lastpos;
+{//TODO : refaire doc fct en javadoc
+    private String joueurSelf, joueurAdv, grille, indices, dernierJoueur, dernierePos;
     //consulte le fichier prolog de l'IA
     public Quantik() throws Exception
     {
@@ -78,33 +78,33 @@ public class Quantik
     public void putAdvCoup(Coup coup)
     {
         //Récupération de la case utilisée par l'adversaire
-        int indice = coup.recupIndice();
+        int indice = coup.getIndicePl();
         //Définition des variables à récupérer pour créer la nouvelle situation de jeu
         Variable NvGrille = new Variable("NvGrille");
         Variable NvInd = new Variable("NvInd");
         Variable NvAdv = new Variable("NvAdv");
         //requète pour jouer un coup
-         Query jcoup = new Query(
-                "jouercoup",
-                new Term[] {new Atom(this.grille), new Atom(this.indices), new Atom(this.joueurAdv), new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvAdv}
+        Query jcoup = new Query(
+                "jouerCoup",
+                new Term[] {new Atom(this.grille), new Atom(this.indices), new Atom(this.joueurAdv), new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionPl()), NvGrille, NvInd, NvAdv}
         );
         //changement du plateau
         this.grille = jcoup.oneSolution().get("NvGrille").toString();
         this.indices = jcoup.oneSolution().get("NvInd").toString();
         this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();
-        lastj = joueurAdv;
-        lastpos = ""+indice;
+        dernierJoueur = joueurAdv;
+        dernierePos = String.valueOf(indice);
     }
 
     public int vainqueur()
     {
         Query victoire = new Query(
                 "etatFinalTest",
-                new Term[] {new Atom(this.grille), new Atom(this.lastpos)}
+                new Term[] {new Atom(this.grille), new Atom(this.dernierePos)}
         );
         if (victoire.hasSolution())
         {
-                if(lastj == joueurSelf)
+                if(dernierJoueur.equals(joueurSelf))
                 {
                         return 1;
                 }
@@ -114,6 +114,26 @@ public class Quantik
                 }
         }
         return 0;//TODO : close all queries to free prolog engine
+    }
+
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Premier joueur : ");
+        sb.append(joueurSelf);
+        sb.append("\n");
+        sb.append("Deuxieme joueur : ");
+        sb.append(joueurAdv);
+        sb.append("\n");
+        sb.append("Grille : ");
+        sb.append(grille);
+        sb.append("\n");
+        sb.append("Indices : ");
+        sb.append(indices);
+        sb.append("\n");
+
+        return sb.toString();
     }
 
     @Deprecated
@@ -150,7 +170,7 @@ public class Quantik
                 Term[] termArray = res.get("HistInd").toTermArray();
                 int firstCoup = termArray[0].intValue();
 
-                if (prev != firstCoup) 
+                if (prev != firstCoup)
                 {
                     File fichSols = new File(String.valueOf(firstCoup));
                     fichSols.createNewFile();
@@ -173,7 +193,6 @@ public class Quantik
             e.printStackTrace();
         }
     }
-
 
     @Deprecated
     public static int getNextIndBySearch(int[] prevInds, int numJoueur)
@@ -200,25 +219,5 @@ public class Quantik
             e.printStackTrace();
         }
         return 0;
-    }
-
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Premier joueur : ");
-        sb.append(joueurSelf);
-        sb.append("\n");
-        sb.append("Deuxieme joueur : ");
-        sb.append(joueurAdv);
-        sb.append("\n");
-        sb.append("Grille : ");
-        sb.append(grille);
-        sb.append("\n");
-        sb.append("Indices : ");
-        sb.append(indices);
-        sb.append("\n");
-
-        return sb.toString();
     }
 }

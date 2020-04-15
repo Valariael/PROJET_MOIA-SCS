@@ -73,20 +73,20 @@ public class MoteurIA {
 
                     case CODE_COUP_SELF:
                         coup = jeu.getSelfCoup();
-                        dos.writeInt(coup.isBloqueInt());
-                        dos.writeInt(coup.getPionInt());
-                        dos.writeInt(coup.getLigneInt());
-                        dos.writeInt(coup.getColonneInt());
-                        dos.writeInt(coup.getProprieteInt());
+                        dos.writeInt(coup.getBloque());
+                        dos.writeInt(coup.getPion());
+                        dos.writeInt(coup.getLigne());
+                        dos.writeInt(coup.getColonne());
+                        dos.writeInt(coup.getPropriete());
                         break;
 
                     case CODE_COUP_ADV:
                         coup = new Coup();
-                        coup.setBloqueInt(dis.readInt());
-                        coup.setPionInt(dis.readInt());
-                        coup.setLigneInt(dis.readInt());
-                        coup.setColonneInt(dis.readInt());
-                        coup.setProprieteInt(dis.readInt());
+                        coup.setBloque(dis.readInt());
+                        coup.setPion(dis.readInt());
+                        coup.setLigne(dis.readInt());
+                        coup.setColonne(dis.readInt());
+                        coup.setPropriete(dis.readInt());
                         jeu.putAdvCoup(coup);
                         break;
 
