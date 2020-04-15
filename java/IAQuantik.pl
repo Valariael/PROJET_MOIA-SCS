@@ -126,59 +126,60 @@ jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
 	choisirInd(ListeInd, Ind, NvListeInd),
 	placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]).
 
-etatPreFinal(ListePions, ListeInd, Ind):-
-    nth1(Pos, ListePions, [0, 0]),
+etatPreFinal(ListePions, ListeInd, Ind, Forme):-
+    nth1(Pos, ListePions, [0, 0], ListePion),
     nth1(Pos, ListeInd, Ind),
-    nth1(Pos, ListePions, [_, 2]),
-    nth1(Pos, ListePions, [_, 3]),
-    nth1(Pos, ListePions, [_, 4]),
-    L4 = [],
+    nth1(Pos, ListePion, [_, 2], ListePio),
+    nth1(Pos, ListePio, [_, 3], ListePi),
+    nth1(Pos, ListePi, [_, 4], ListeP),
+    ListeP = [],
     Forme = 1,
     !.
-etatPreFinal(ListePions, ListeInd, Ind):-
-    nth1(Pos, ListePions, [_, 1]),
-    nth1(Pos, ListePions, [0, 0]),
+etatPreFinal(ListePions, ListeInd, Ind, Forme):-
+    nth1(Pos, ListePions, [_, 1], ListePion),
+    nth1(Pos, ListePion, [0, 0], ListePio),
     nth1(Pos, ListeInd, Ind),
-    nth1(Pos, ListePions, [_, 3]),
-    nth1(Pos, ListePions, [_, 4]),
-    L4 = [],
+    nth1(Pos, ListePio, [_, 3], ListePi),
+    nth1(Pos, ListePi, [_, 4], ListeP),
+    ListeP = [],
     Forme = 2,
     !.
 etatPreFinal(ListePions, ListeInd, Ind, Forme):-
-    nth1(Pos, ListePions, [_, 1]),
-    nth1(Pos, ListePions, [_, 2]),
-    nth1(Pos, ListePions, [0, 0]),
+    nth1(Pos, ListePions, [_, 1], ListePion),
+    nth1(Pos, ListePion, [_, 2], ListePio),
+    nth1(Pos, ListePio, [0, 0], ListePi),
     nth1(Pos, ListeInd, Ind),
-    nth1(Pos, ListePions, [_, 4]),
-    L4 = [],
+    nth1(Pos, ListePi, [_, 4], ListeP),
+    ListeP = [],
     Forme = 3,
     !.
 etatPreFinal(ListePions, ListeInd, Ind, Forme):-
-    nth1(Pos, ListePions, [_, 1]),
-    nth1(Pos, ListePions, [_, 2]),
-    nth1(Pos, ListePions, [_, 3]),
-    nth1(Pos, ListePions, [0, 0]),
+    nth1(Pos, ListePions, [_, 1], ListePion),
+    nth1(Pos, ListePion, [_, 2], ListePio),
+    nth1(Pos, ListePio, [_, 3], ListePi),
+    nth1(Pos, ListePi, [0, 0], ListeP),
     nth1(Pos, ListeInd, Ind),
-    L4 = [],
+    ListeP = [],
     Forme = 4.
 
-estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+estPreFinal(LP1, _, _, LI1, _, _, IndCible, FormeManquante):-
     etatPreFinal(LP1, LI1, IndCible, FormeManquante),
     !.
-estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+estPreFinal(_, LP2, _, _, LI2, _, IndCible, FormeManquante):-
     etatPreFinal(LP2, LI2, IndCible, FormeManquante),
     !.
-estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+estPreFinal(_, _, LP3, _, _, LI3, IndCible, FormeManquante):-
     etatPreFinal(LP3, LI3, IndCible, FormeManquante),
     !.
-estPreFinal(LP1, LP2, LP3, LI1, LI2, LI3, IndCible, FormeManquante):-
+estPreFinal(_, _, _, _, _, _, IndCible, FormeManquante):-
     IndCible = -1,
     FormeManquante = -1.
 
-etatPreFinalTest(Grille, [], -1):-
-    !.
+etatPreFinalTest(_, [], _, _):-
+    !,
+    fail.
 %optimisation : ne pas tester plusieurs fois les mêmes combinaisons
-etatPreFinalTest(Grille, [Ind|ListeInd], IndCible, FormeManquante):-
+etatPreFinalTest(Grille, [Ind|ListeInd], IndCible2, FormeManquante2):-
     associationLigne(Ind, ListeLi),
     associationColonne(Ind, ListeCo),
     associationCarre(Ind, ListeCa),
@@ -190,16 +191,51 @@ etatPreFinalTest(Grille, [Ind|ListeInd], IndCible, FormeManquante):-
     LCo = [P|ListeCoInd],
     LCa = [P|ListeCaInd],
     estPreFinal(LLi, LCo, LCa, ListeLi, ListeCo, ListeCa, IndCible, FormeManquante),
-    (IndCible \= -1, ! ; etatPreFinalTest(Grille, ListeInd, IndCible2, FormeManquante2).
+    (IndCible \= -1, IndCible2 is IndCible, FormeManquante2 is FormeManquante, ! ; etatPreFinalTest(Grille, ListeInd, IndCible2, FormeManquante2)).
 
-%joue un coup en prévoyant les coups gagnants
-jouerCoupPrioGagnant(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
-    etatPreFinalTest(Grille, ListeInd, Ind, Forme),
-    Ind \= -1,
-    Forme \= -1,
-    choisirPion(J, NumJ, [_, Forme], NvJ),
+choisirIndBloquant(ListeInd, Ind, IndCible):-
+    associationLigne(Ind, ListeLi),
+    select(IndCible, ListeLi, _),
+    member(IndCible, ListeInd).
+choisirIndBloquant(ListeInd, Ind, IndCible):-
+    associationColonne(Ind, ListeCo),
+    select(IndCible, ListeCo, _),
+    member(IndCible, ListeInd).
+choisirIndBloquant(ListeInd, Ind, IndCible):-
+    associationCarre(Ind, ListeCa),
+    select(IndCible, ListeCa, _),
+    member(IndCible, ListeInd).
+
+indPasBloque(Grille, Ind, Forme, NumJ):-
+    associationLigne(Ind, ListeLi),
+    associationColonne(Ind, ListeCo),
+    associationCarre(Ind, ListeCa),
+    recupIndices(Grille, ListeLi, ListeLiInd),
+    recupIndices(Grille, ListeCo, ListeCoInd),
+    recupIndices(Grille, ListeCa, ListeCaInd),
+    nth1(Ind, Grille, P),
+    LLi = [P|ListeLiInd],
+    LCo = [P|ListeCoInd],
+    LCa = [P|ListeCaInd],
+    \+member([NumJ, Forme], LLi),
+    \+member([NumJ, Forme], LCo),
+    \+member([NumJ, Forme], LCa).
+
+placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, Ind):-
     choisirInd(ListeInd, Ind, NvListeInd),
     placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
+placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndCible):-
+    indPasBloque(Grille, Ind, Forme, NumJ),
+    choisirIndBloquant(ListeInd, Ind, IndCible),
+    delete(IndCible, ListeInd, NvListeInd),
+    placer(Grille, NvGrille, NumJ, IndCible, [_, Forme]),
+    \+etatPreFinalTest(NvGrille, NvListeInd, IndCible, Forme).
+
+%joue un coup en prévoyant les coups gagnants
+jouerCoupPrioGagnant(Grille, ListeInd, J, J2, IndFinal, Forme, NvGrille, NvListeInd, NvJ):-
+    etatPreFinalTest(Grille, ListeInd, Ind, Forme),
+    choisirPion(J, NumJ, [_, Forme], NvJ),
+    placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndFinal).
 %ameliorations : bloquer le plus de possibilités, éviter de donner un coup gagnant à l'adversaire vvv
 jouerCoupPrioGagnant(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
     choisirPion(J, NumJ, [_, Forme], NvJ),
