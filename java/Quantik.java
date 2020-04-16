@@ -1,7 +1,6 @@
 import org.jpl7.*;
-
 import java.io.*;
-import java.util.Map;
+import java.util.*;
 
 public class Quantik
 {//TODO : refaire doc fct en javadoc

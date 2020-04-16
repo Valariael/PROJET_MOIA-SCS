@@ -332,26 +332,27 @@ jouerCoupAmeliore(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ
     placer(NvGrille, NvGrille2, NumJ2, Ind, [Nombre2, Forme2]),
     \+etatFinalTest(NvGrille2,Ind)).
 
+%nouvelle heuristique : plus on bloque de pions 
+fctHeuristique(Grille,ListeInd,_,J2,_,Cout):- fctAdverse(Grille,ListeInd,J2,Cout).
+                                                 %fctJoueur(Grille,ListeInd,J1,Cout2),
+                                                 %Cout is Cout1 + Cout2.
+fctAdverse(_,[],_,0).
+fctAdverse(Grille,ListeInd,[Joueur,[_,_]|Q],Cout):-fctAdverse(Grille,ListeInd,[Joueur,Q],Cout).
+fctAdverse(Grille,ListeInd,[Joueur,[_,Forme]|Q],Cout):-fctAdverse(Grille,ListeInd,[Joueur,Q],Cout1),verifGene(Grille,ListeInd,Joueur, Forme,Cout2),Cout is Cout1 + Cout2.
+verifGene(_,[],_,_,1). 
+verifGene(Grille, [L|Q], Forme, Joueur,Cout):-
+nth1(L, Grille, [Coul, Fm]),
+(Coul = Joueur ; Forme \= Fm),
+verifGene(Grille, Q ,Forme, Joueur,Cout).
 
-
-profondeurVJ2([Grille|ListeGrille], _, _, [NumJ, _], Ind, [Grille|ListeGrille]):-
-	Ind > 0,
-	NumJ is 2,
-    etatFinalTest(Grille, Ind).
-
-profondeurVJ2([Grille|ListeGrille], ListeInd, J1, J2, _, Sol):-
-    choisirPion(J1, NumJ1, Duo, NvJ1),
-    choisirInd(ListeInd, Ind, NvListeInd),
-    placer(Grille, NvGrille, NumJ1, Ind, Duo),
-    profondeurVJ2([NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind, Sol).
+                                             
 %trouver une solution, si aucune solution avec profondeurVJ2 --> Aucune possibilité pour l'adversaire de gagner -> victoire ou égalité alliée
 %compte les solutions 
 compteurSol([_|Q],C2):-compteurSol(Q,C), C2 is C + 1.
 compteurSol([],0).
 %profondeurVJ2(_,_,_,_,_,_):-!.
 % Génération du prochain mouvement avec coût estimé
-heuristique([Grille,LInd,J1,J2,Ind],Cout):-profondeurVJ2([Grille],LInd,J1,J2,Ind,Sol),
-                                           compteurSol(Sol,Cout).
+heuristique([Grille,LInd,J1,J2,Ind],Cout):-fctHeuristique(Grille,LInd,J1,J2,Ind,Cout).
 
 deplaceH([Grille|ListeGrille], ListeInd, J, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ,Cout):-
     jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ),
@@ -392,8 +393,11 @@ parcoursH([[C,[[Grille|ListeGrille], ListeInd, J1, J2, Ind]|Historique]|_],[[C,[
 parcoursH([[_,Chemin]|Liste], Solution):-
     parcoursSuivant(Chemin, ListeNouveaux),
     insere(ListeNouveaux, Liste, NouvelleListe),
-    parcoursH(NouvelleListe, Solution).
+    choisirXmeilleures(NouvelleListe,100,ListeMeilleure),
+    parcoursH(ListeMeilleure, Solution).
 
+choisirXmeilleures(_,0,[]).
+choisirXmeilleures([L|Q],X,S):-X2 is X-1,choisirXmeilleures(Q,X2,S2),S =[L|S2].
 % Génération de la solution avec heuristique à partir d'une grille de départ (pas forcément la grille vide)
 cm_heuristique(Depart,Solution):-
     heuristique(Depart, Cout),
