@@ -3,7 +3,7 @@
 #sh soloPlay.sh portServeur portIAJoueur1 portIAJoueur2
 
 if [ $# -ne 3 ]; then
-	echo "Usage : 3./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2>"
+	echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2>"
 	exit -1
 fi
 

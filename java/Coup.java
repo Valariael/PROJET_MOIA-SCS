@@ -81,4 +81,16 @@ public class Coup
     {
         this.propriete = propriete;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Coup{" +
+                "\nbloque=" + bloque +
+                ", \npion=" + pion +
+                ", \nligne=" + ligne +
+                ", \ncolonne=" + colonne +
+                ", \npropriete=" + propriete +
+                '}';
+    }
 }
