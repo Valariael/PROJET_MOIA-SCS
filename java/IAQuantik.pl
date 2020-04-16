@@ -1,11 +1,13 @@
 %listes de paires forme de pion - couleur, chaque case du tableau représente un case du jeu à un instant T
-plateau(0, []).
+plateau(0, []):-
+    !.
 plateau(N, [[0, 0]|L]):-
     E is N - 1,
     plateau(E, L).
 
 %liste des indices disponibles du tableau
-listeIndice(17, []).
+listeIndice(17, []):-
+    !.
 listeIndice(N, [N|L]):-
     E is N + 1,
     listeIndice(E, L).
@@ -15,9 +17,13 @@ listeIndice(N, [N|L]):-
 joueur1([1, [[2, 1], [2, 2], [2, 3], [2, 4]]]).
 joueur2([2, [[2, 1], [2, 2], [2, 3], [2, 4]]]).
 
+%TODO: cut dans les fonctions avec un seul retour pour éviter out of global stack
 %TODO grille des indices, faire un select sur la première case dispo, envoyer l'indice dans placer
 %place une forme sur une position
-placerForme(Grille, Grille2, Pos, Joueur,Forme):-nth1(Pos, NouvelleGrille, [Joueur,Forme], Grille),Pos2 is Pos+1,nth1(Pos2, NouvelleGrille, [0,0], Grille2). 
+placerForme(Grille, Grille2, Pos, Joueur,Forme):-
+    nth1(Pos, NouvelleGrille, [Joueur,Forme], Grille),
+    Pos2 is Pos+1,
+    nth1(Pos2, NouvelleGrille, [0,0], Grille2). 
 %vérifie que la forme est sur le plateau
 placerCorrect(Pos):-Pos > 0, Pos < 17.
 
@@ -236,45 +242,60 @@ placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd
     \+etatPreFinalTest(NvGrille, NvListeInd, IndCible, Forme).
 
 %compter les cases blocables avec un placement et retourner la meilleure
+% -----------------
+%ajoute directement toutes les cases et indices où il n'y a pas de pion
 appendIndVides([], [], AccIndBloques, AccIndBloques).
 appendIndVides([Ind|ListeInd], [[0, 0]|ListeCases], AccIndBloques, [Ind|RAccIndBloques]):-
-    \+member(Ind, AccIndBloques);
+    \+member(Ind, AccIndBloques),
     appendIndVides(ListeInd, ListeCases, AccIndBloques, RAccIndBloques).
 appendIndVides([_|ListeInd], [_|ListeCases], AccIndBloques, RAccIndBloques):-
     appendIndVides(ListeInd, ListeCases, AccIndBloques, RAccIndBloques).
 
-compterCasesBloquees([], [], _, _, _, NbBloque, NbBloque, AccIndBloques, AccIndBloques).
-compterCasesBloquees([Ind|ListeInd], [[0, 0]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
+%compte le nombre de cases vides affectées par le coup > cases bloquées par le coup pour cette forme
+%paramètres : liste des indices affectés; liste des cases affectées; forme jouée, indice joué; numéro du joueur;
+%               compteur de cases bloquées pour pouvoir revenir en arrière en cas de pion identique trouvé;
+%               nombre de cases bloquées résultat; nombre de cases bloquées courant; liste des indices bloqués courant;
+%               liste des indices bloqués résultat; liste des indices ayant été vus deux fois donc plus besoin de décrémenter;
+%               liste des indices ayant été vus deux fois résultat.
+compterCasesBloquees([], [], _, _, _, NbBloque, NbBloque, AccIndBloques, AccIndBloques, AccIndBloquesSous, AccIndBloquesSous).
+compterCasesBloquees([Ind|ListeInd], [[0, 0]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
     \+member(Ind, AccIndBloques),
     NvNbBloque is NbBloque + 1,
     NvAccNb is AccNb + 1,
-    NvAccIndBloques is [Ind|AccIndBloques],
-    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, NvAccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques).
-compterCasesBloquees([_|ListeInd], [[NumJ, Forme]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
+    NvAccIndBloques = [Ind|AccIndBloques],
+    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, NvAccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous).
+compterCasesBloquees([_|ListeInd], [[NumJ, Forme]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
     appendIndVides(ListeInd, ListeCases, AccIndBloques, NvAccIndBloques),
     NvNbBloque is NbBloque - AccNb,
-    compterCasesBloquees([], [], Forme, NumJ, AccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques).
-compterCasesBloquees([_|ListeInd], [_|ListeCases], Forme, NumJ, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
-    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques).
+    compterCasesBloquees([], [], Forme, NumJ, AccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous).
+compterCasesBloquees([Ind|ListeInd], [_|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
+    member(Ind, AccIndBloques),
+    \+member(Ind, AccIndBloquesSous),
+    NvNbBloque is NbBloque - 1,
+    NvAccIndBloquesSous = [Ind|AccIndBloquesSous],
+    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, AccNb, RNbBloque, NvNbBloque, AccIndBloques, RAccIndBloques, NvAccIndBloquesSous, RAccIndBloquesSous).
+compterCasesBloquees([_|ListeInd], [_|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
+    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous).
 
+%NbBloque3 final pas bon +/- 1 ou 2
+%à partir d'un coup et d'un plateau, calcule le nombre de mouvements bloqués dans les 3 quadruplets
 casesBloquees(Grille, NumJ, Ind, Forme, NbBloque3):-
-    associationLigne(Ind, ListeLiAssoc),
-    select(Ind, ListeLiAssoc, ListeLi),
-    associationColonne(Ind, ListeCoAssoc),
-    select(Ind, ListeCoAssoc, ListeCo),
-    associationCarre(Ind, ListeCaAssoc),
-    select(Ind, ListeCaAssoc, ListeCa),
+    associationLigne(Ind, ListeLi),
+    associationColonne(Ind, ListeCo),
+    associationCarre(Ind, ListeCa),
     recupIndices(Grille, ListeLi, ListeLiInd),
     recupIndices(Grille, ListeCo, ListeCoInd),
     recupIndices(Grille, ListeCa, ListeCaInd),
-    compterCasesBloquees(ListeLi, ListeLiInd, Forme, NumJ, 0, NbBloque1, 0, [], AccIndBloques1),
-    compterCasesBloquees(ListeCo, ListeCoInd, Forme, NumJ, 0, NbBloque2, NbBloque1, AccIndBloques1, AccIndBloques2),
-    compterCasesBloquees(ListeCa, ListeCaInd, Forme, NumJ, 0, NbBloque3, NbBloque2, AccIndBloques2, _).
+    compterCasesBloquees(ListeLi, ListeLiInd, Forme, NumJ, 0, NbBloque1, 0, [], AccIndBloques1, [], AccIndBloquesSous1),
+    compterCasesBloquees(ListeCo, ListeCoInd, Forme, NumJ, 0, NbBloque2, NbBloque1, AccIndBloques1, AccIndBloques2, AccIndBloquesSous1, AccIndBloquesSous2),
+    compterCasesBloquees(ListeCa, ListeCaInd, Forme, NumJ, 0, NbBloque3, NbBloque2, AccIndBloques2, _, AccIndBloquesSous2, _).
 
+%joue un coup et récupère le nombre de mouvements bloqués
 casesBloqueesParCoup(Grille, ListeInd, [NumJ, LP], Ind, Forme, NbBloque):-
     jouerCoup(Grille, ListeInd, [NumJ, LP], Ind, Forme, NvGrille, _, _),
     casesBloquees(NvGrille, NumJ, Ind, Forme, NbBloque).
 
+%récupère le coup bloquant le plus de mouvements
 choisirCoupBloqueLePlus([], R, R).
 choisirCoupBloqueLePlus([[NbBloque, Ind, Forme]|ListeNbIndForme], [NbBloqueComp, _, _], R):-
     NbBloque > NbBloqueComp,
@@ -283,13 +304,30 @@ choisirCoupBloqueLePlus([[NbBloque, _, _]|ListeNbIndForme], [NbBloqueComp, IndCo
     NbBloque =< NbBloqueComp,
     choisirCoupBloqueLePlus(ListeNbIndForme, [NbBloqueComp, IndComp, FormeComp], R).
 
+%récupère le nombre de mouvements bloqués pour chaque coup
+findallCasesBloqueesParCoup(_, _, _, [], _, []).
+findallCasesBloqueesParCoup(Grille, ListeInd, J, [[Ind, Forme]|ListeIndForme], AccIndForme, [[NbBloque, Ind, Forme]|ListeNbIndForme]):-
+    \+member([Ind, Forme], AccIndForme),
+    casesBloqueesParCoup(Grille, ListeInd, J, Ind, Forme, NbBloque),
+    findallCasesBloqueesParCoup(Grille, ListeInd, J, ListeIndForme, [[Ind, Forme]|AccIndForme], ListeNbIndForme).
+findallCasesBloqueesParCoup(Grille, ListeInd, J, [[_, _]|ListeIndForme], AccIndForme, ListeNbIndForme):-
+    findallCasesBloqueesParCoup(Grille, ListeInd, J, ListeIndForme, AccIndForme, ListeNbIndForme).
+
+%récupère les différents coups avec leur nombre de mouvements bloqués
+findallCasesBloqueesParCoup(Grille, ListeInd, J, ListeNbIndForme):-
+    findall([Ind, Forme], jouerCoup(Grille, ListeInd, J, Ind, Forme, _, _, _), ListeIndForme),
+    list_to_set(ListeIndForme, SetIndForme),
+    findallCasesBloqueesParCoup(Grille, ListeInd, J, SetIndForme, [], ListeNbIndForme).
+
+%récupère le coup bloquant le plus de mouvements parmi tous les différents coups possibles
 choisirCoupBloqueLePlus(Grille, ListeInd, J, IndFinal, FormeFinale):-
-    findall([NbBloque, Ind, Forme], casesBloqueesParCoup(Grille, ListeInd, J, Ind, Forme, NbBloque), [Triplet|ListeNbIndForme]),
+    findallCasesBloqueesParCoup(Grille, ListeInd, J, [Triplet|ListeNbIndForme]),
     choisirCoupBloqueLePlus(ListeNbIndForme, Triplet, [_, IndFinal, FormeFinale]).
+% -----------------
 
 %joue un coup en priorisant : un coup gagnant, puis un coup bloquant un coup gagnant adverse sans lui fournir d'option gagnante
 jouerCoupPrioGagnant(Grille, ListeInd, J, IndFinal, Forme, NvGrille, NvListeInd, NvJ):-
-    etatPreFinalTest(Grille, ListeInd, Ind, Forme),%TODO : fix peut-être buggé
+    etatPreFinalTest(Grille, ListeInd, Ind, Forme),%TODO : needs fix
     choisirPion(J, NumJ, [_, Forme], NvJ),
     placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, NvJ, IndFinal).
 %TODO ameliorations : bloquer le plus de possibilités, largeur un étage sur coup adverse > étages suivant sur combinaisons d'au moins 2 > score heuristique en fonction des W/L
@@ -300,8 +338,7 @@ jouerCoupPrioGagnant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ)
     choisirPion(J, NumJ, [_, Forme], NvJ),
     choisirInd(ListeInd, Ind, NvListeInd),
     placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
-
-
+%findall([Ind, Forme], jouerCoup('[|]'('[|]'(1, '[|]'(1, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(2, '[|]'(1, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(1, '[|]'(1, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(2, '[|]'(1, '[]')), '[]')))))))))))))))), '[|]'(2, '[|]'(3, '[|]'(4, '[|]'(5, '[|]'(6, '[|]'(8, '[|]'(9, '[|]'(11, '[|]'(12, '[|]'(13, '[|]'(14, '[|]'(15, '[]')))))))))))), '[|]'(1, '[|]'('[|]'('[|]'(0, '[|]'(1, '[]')), '[|]'('[|]'(2, '[|]'(2, '[]')), '[|]'('[|]'(2, '[|]'(3, '[]')), '[|]'('[|]'(2, '[|]'(4, '[]')), '[]')))), '[]')), Ind, Forme, _, _, _), ListeIndForme).
 %fonction heuristique
 %objectif du jeu : être le dernier à placer un pion différent sur une ligne un carré ou une colonne.
 %il faut prendre en compte que l'IA adverse va essayer elle aussi de gagner, donc par conséquent il faut privilégier les chemins ou elle essaie de nous bloquer pour ne pas être naïf
