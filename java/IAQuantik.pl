@@ -132,73 +132,50 @@ jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
 	choisirInd(ListeInd, Ind, NvListeInd),
 	placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]).
 
+%en testant un état du jeu pour savoir s'il est à un coup de la fin, on cherche à compléter un quadruplet gagnant 
+%si ce n'est pas possible car le coup est bloqué, on cherche à bloquer ce coup également pour éviter la défaite
+%de plus on évite également de donner un coup gagnant à l'adversaire en bloquant son coup.
+% -----------------
 %teste les quadruplets pour récupérer, le cas échéant, la seule case vide et la forme requise pour gagner
-etatPreFinal(ListePions, ListeInd, Ind, Forme):-
-    nth1(Pos, ListePions, [0, 0], ListePion),
-    nth1(Pos, ListeInd, Ind),
-    nth1(Pos, ListePion, [_, 2], ListePio),
-    nth1(Pos, ListePio, [_, 3], ListePi),
-    nth1(Pos, ListePi, [_, 4], ListeP),
-    ListeP = [],
-    Forme = 1,
-    !.
-etatPreFinal(ListePions, ListeInd, Ind, Forme):-
-    nth1(Pos, ListePions, [_, 1], ListePion),
-    nth1(Pos, ListePion, [0, 0], ListePio),
-    nth1(Pos, ListeInd, Ind),
-    nth1(Pos, ListePio, [_, 3], ListePi),
-    nth1(Pos, ListePi, [_, 4], ListeP),
-    ListeP = [],
-    Forme = 2,
-    !.
-etatPreFinal(ListePions, ListeInd, Ind, Forme):-
-    nth1(Pos, ListePions, [_, 1], ListePion),
-    nth1(Pos, ListePion, [_, 2], ListePio),
-    nth1(Pos, ListePio, [0, 0], ListePi),
-    nth1(Pos, ListeInd, Ind),
-    nth1(Pos, ListePi, [_, 4], ListeP),
-    ListeP = [],
-    Forme = 3,
-    !.
-etatPreFinal(ListePions, ListeInd, Ind, Forme):-
-    nth1(Pos, ListePions, [_, 1], ListePion),
-    nth1(Pos, ListePion, [_, 2], ListePio),
-    nth1(Pos, ListePio, [_, 3], ListePi),
-    nth1(Pos, ListePi, [0, 0], ListeP),
-    nth1(Pos, ListeInd, Ind),
-    ListeP = [],
-    Forme = 4.
+estPreFinal(ListePion, FormeManquante):-
+    select([_, 2], ListePion, ListePion1),
+    select([_, 3], ListePion1, ListePion2),
+    select([_, 4], ListePion2, _),
+    FormeManquante = 1.
+estPreFinal(ListePion, FormeManquante):-
+    select([_, 1], ListePion, ListePion1),
+    select([_, 3], ListePion1, ListePion2),
+    select([_, 4], ListePion2, _),
+    FormeManquante = 2.
+estPreFinal(ListePion, FormeManquante):-
+    select([_, 1], ListePion, ListePion1),
+    select([_, 2], ListePion1, ListePion2),
+    select([_, 4], ListePion2, _),
+    FormeManquante = 3.
+estPreFinal(ListePion, FormeManquante):-
+    select([_, 1], ListePion, ListePion1),
+    select([_, 2], ListePion1, ListePion2),
+    select([_, 3], ListePion2, _),
+    FormeManquante = 4.
 
-estPreFinal(LP1, _, _, LI1, _, _, IndCible, FormeManquante):-
-    etatPreFinal(LP1, LI1, IndCible, FormeManquante),
-    !.
-estPreFinal(_, LP2, _, _, LI2, _, IndCible, FormeManquante):-
-    etatPreFinal(LP2, LI2, IndCible, FormeManquante),
-    !.
-estPreFinal(_, _, LP3, _, _, LI3, IndCible, FormeManquante):-
-    etatPreFinal(LP3, LI3, IndCible, FormeManquante),
-    !.
-estPreFinal(_, _, _, _, _, _, IndCible, FormeManquante):-
-    IndCible = -1,
-    FormeManquante = -1.
-
-etatPreFinalTest(_, [], _, _):-
+etatPreFinal(_, [], _, _):-
     !,
     fail.
 %TODO : optimisation : ne pas tester plusieurs fois les mêmes combinaisons
-etatPreFinalTest(Grille, [Ind|ListeInd], IndCible2, FormeManquante2):-
+etatPreFinal(Grille, [Ind|_], Ind, FormeManquante):-
     associationLigne(Ind, ListeLi),
-    associationColonne(Ind, ListeCo),
-    associationCarre(Ind, ListeCa),
     recupIndices(Grille, ListeLi, ListeLiInd),
-    recupIndices(Grille, ListeCo, ListeCoInd), %TODO refactor hunk
+    estPreFinal(ListeLiInd, FormeManquante).%TODO refactor
+etatPreFinal(Grille, [Ind|_], Ind, FormeManquante):-
+    associationColonne(Ind, ListeCo),
+    recupIndices(Grille, ListeCo, ListeCoInd),
+    estPreFinal(ListeCoInd, FormeManquante).
+etatPreFinal(Grille, [Ind|_], Ind, FormeManquante):-
+    associationCarre(Ind, ListeCa),
     recupIndices(Grille, ListeCa, ListeCaInd),
-    nth1(Ind, Grille, P),
-    LLi = [P|ListeLiInd],
-    LCo = [P|ListeCoInd],
-    LCa = [P|ListeCaInd],
-    estPreFinal(LLi, LCo, LCa, ListeLi, ListeCo, ListeCa, IndCible, FormeManquante),
-    (IndCible \= -1, IndCible2 is IndCible, FormeManquante2 is FormeManquante, ! ; etatPreFinalTest(Grille, ListeInd, IndCible2, FormeManquante2)).
+    estPreFinal(ListeCaInd, FormeManquante).
+etatPreFinal(Grille, [_|ListeInd], Ind, FormeManquante):-
+    etatPreFinal(Grille, ListeInd, Ind, FormeManquante).
 
 %recherche un indice bloquant pour une case donnée
 choisirIndBloquant(ListeInd, Ind, IndCible):-
@@ -222,13 +199,9 @@ indPasBloque(Grille, Ind, Forme, NumJ):-
     recupIndices(Grille, ListeLi, ListeLiInd),
     recupIndices(Grille, ListeCo, ListeCoInd),
     recupIndices(Grille, ListeCa, ListeCaInd),
-    nth1(Ind, Grille, P),
-    LLi = [P|ListeLiInd],
-    LCo = [P|ListeCoInd],
-    LCa = [P|ListeCaInd],
-    \+member([NumJ, Forme], LLi),
-    \+member([NumJ, Forme], LCo),
-    \+member([NumJ, Forme], LCa).
+    \+member([NumJ, Forme], ListeLiInd),
+    \+member([NumJ, Forme], ListeCoInd),
+    \+member([NumJ, Forme], ListeCaInd).
 
 %tente de jouer le coup gagnant, sinon recherche une option de blocage
 placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, Ind):-
@@ -239,7 +212,8 @@ placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd
     choisirIndBloquant(ListeInd, Ind, IndCible),
     delete(IndCible, ListeInd, NvListeInd),
     placer(Grille, NvGrille, NumJ, IndCible, [_, Forme]),
-    \+etatPreFinalTest(NvGrille, NvListeInd, IndCible, Forme).
+    \+etatPreFinal(NvGrille, NvListeInd, IndCible, Forme).
+% -----------------
 
 %compter les cases blocables avec un placement et retourner la meilleure
 % -----------------
@@ -277,7 +251,7 @@ compterCasesBloquees([Ind|ListeInd], [_|ListeCases], Forme, NumJ, AccNb, RNbBloq
 compterCasesBloquees([_|ListeInd], [_|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
     compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous).
 
-%NbBloque3 final pas bon +/- 1 ou 2
+%TODO NbBloque3 final pas bon +/- 1 ou 2
 %à partir d'un coup et d'un plateau, calcule le nombre de mouvements bloqués dans les 3 quadruplets
 casesBloquees(Grille, NumJ, Ind, Forme, NbBloque3):-
     associationLigne(Ind, ListeLi),
@@ -327,9 +301,9 @@ choisirCoupBloqueLePlus(Grille, ListeInd, J, IndFinal, FormeFinale):-
 
 %joue un coup en priorisant : un coup gagnant, puis un coup bloquant un coup gagnant adverse sans lui fournir d'option gagnante
 jouerCoupPrioGagnant(Grille, ListeInd, J, IndFinal, Forme, NvGrille, NvListeInd, NvJ):-
-    etatPreFinalTest(Grille, ListeInd, Ind, Forme),%TODO : needs fix
-    choisirPion(J, NumJ, [_, Forme], NvJ),
-    placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, NvJ, IndFinal).
+    etatPreFinal(Grille, ListeInd, Ind, Forme),
+    choisirPion(J, NumJ, [_, Forme], NvJ),%TODO : si pas pion, poser autre pion
+    placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndFinal).
 %TODO ameliorations : bloquer le plus de possibilités, largeur un étage sur coup adverse > étages suivant sur combinaisons d'au moins 2 > score heuristique en fonction des W/L
 %bloquer plusieurs  coups gagnants adverse ?
 jouerCoupPrioGagnant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
@@ -445,6 +419,7 @@ cm_heuristique(Depart,Solution):-
 recupH(Depart,X):-cm_heuristique(Depart,[[[X|_]|_]]).
 %Exécuter avec quelque chose de la forme : recupH([[[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[1, [[2, 1], [2, 2], [2, 3], [2, 4]]],[2, [[2, 1], [2, 2], [2, 3], [2, 4]]],1],S).
 %c'est à dire Etat du plateau, indices restants, J1, J2, ?premier indice?
+
 % parcours en largeur
 % -----------------
 jouerCoupLargeur([Grille|ListeGrille], ListeInd, J, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ):-

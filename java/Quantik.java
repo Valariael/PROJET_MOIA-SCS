@@ -65,7 +65,6 @@ public class Quantik
         );
         try
         {
-            System.out.println(jouerCoupGagnantOuBloquant);
             //implémentation courante sert à tester jouerCoupPrioGagnant
             if (jouerCoupGagnantOuBloquant.hasMoreSolutions())
             {
@@ -82,7 +81,6 @@ public class Quantik
                 coup.setPropriete(0);
 
                 System.out.println(coup.toString());
-                System.out.println(this.toString());
             }
             else
             {
@@ -126,7 +124,6 @@ public class Quantik
                 "jouerCoup",
                 new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionPl()), NvGrille, NvListeInd, NvAdv}
         );
-        System.out.println(jcoup.oneSolution().toString());
         //changement du plateau
         this.grille = jcoup.oneSolution().get("NvGrille");
         this.indices = jcoup.oneSolution().get("NvListeInd");
