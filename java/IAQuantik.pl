@@ -338,7 +338,7 @@ jouerCoupPrioGagnant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ)
     choisirPion(J, NumJ, [_, Forme], NvJ),
     choisirInd(ListeInd, Ind, NvListeInd),
     placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
-%findall([Ind, Forme], jouerCoup('[|]'('[|]'(1, '[|]'(1, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(2, '[|]'(1, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(1, '[|]'(1, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(0, '[|]'(0, '[]')), '[|]'('[|]'(2, '[|]'(1, '[]')), '[]')))))))))))))))), '[|]'(2, '[|]'(3, '[|]'(4, '[|]'(5, '[|]'(6, '[|]'(8, '[|]'(9, '[|]'(11, '[|]'(12, '[|]'(13, '[|]'(14, '[|]'(15, '[]')))))))))))), '[|]'(1, '[|]'('[|]'('[|]'(0, '[|]'(1, '[]')), '[|]'('[|]'(2, '[|]'(2, '[]')), '[|]'('[|]'(2, '[|]'(3, '[]')), '[|]'('[|]'(2, '[|]'(4, '[]')), '[]')))), '[]')), Ind, Forme, _, _, _), ListeIndForme).
+
 %fonction heuristique
 %objectif du jeu : être le dernier à placer un pion différent sur une ligne un carré ou une colonne.
 %il faut prendre en compte que l'IA adverse va essayer elle aussi de gagner, donc par conséquent il faut privilégier les chemins ou elle essaie de nous bloquer pour ne pas être naïf
