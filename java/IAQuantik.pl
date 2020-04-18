@@ -367,79 +367,90 @@ jouerCoupAmeliore(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ
     \+etatFinalTest(NvGrille2,Ind)).
 
 %nouvelle heuristique : plus on bloque de pions 
-fctHeuristique(Grille,ListeInd,_,J2,_,Cout):- fctAdverse(Grille,ListeInd,J2,Cout).
+fctHeuristique(Grille,ListeInd,_,J2,_,Cout):- Cout is 1.%fctAdverse(Grille,ListeInd,J2,Cout).
                                                  %fctJoueur(Grille,ListeInd,J1,Cout2),
                                                  %Cout is Cout1 + Cout2.
+
+verifGene(_,[],_,_,1). 
+verifGene(Grille, [L|Q], Forme, Joueur,Cout):-nth1(L, Grille, [Coul, Fm]),
+                                              (Coul = Joueur ; Forme \= Fm),
+                                              verifGene(Grille, Q ,Forme, Joueur,Cout).
+
+
 fctAdverse(_,[],_,0).
 fctAdverse(Grille,ListeInd,[Joueur,[_,_]|Q],Cout):-fctAdverse(Grille,ListeInd,[Joueur,Q],Cout).
-fctAdverse(Grille,ListeInd,[Joueur,[_,Forme]|Q],Cout):-fctAdverse(Grille,ListeInd,[Joueur,Q],Cout1),verifGene(Grille,ListeInd,Joueur, Forme,Cout2),Cout is Cout1 + Cout2.
-verifGene(_,[],_,_,1). 
-verifGene(Grille, [L|Q], Forme, Joueur,Cout):-
-nth1(L, Grille, [Coul, Fm]),
-(Coul = Joueur ; Forme \= Fm),
-verifGene(Grille, Q ,Forme, Joueur,Cout).
+fctAdverse(Grille,ListeInd,[Joueur,[_,Forme]|Q],Cout):-fctAdverse(Grille,ListeInd,[Joueur,Q],Cout1),
+                                                       verifGene(Grille,ListeInd,Joueur, Forme,Cout2),Cout is Cout1 + Cout2.
+
+
 
                                              
 %trouver une solution, si aucune solution avec profondeurVJ2 --> Aucune possibilité pour l'adversaire de gagner -> victoire ou égalité alliée
 %compte les solutions 
 compteurSol([_|Q],C2):-compteurSol(Q,C), C2 is C + 1.
 compteurSol([],0).
+
+
 %profondeurVJ2(_,_,_,_,_,_):-!.
 % Génération du prochain mouvement avec coût estimé
-heuristique([Grille,LInd,J1,J2,Ind],Cout):-fctHeuristique(Grille,LInd,J1,J2,Ind,Cout).
+heuristique([Grille,LInd,J1,J2,Ind],Cout):-Cout is 1.%fctHeuristique(Grille,LInd,J1,J2,Ind,Cout).
 
-deplaceH([Grille|ListeGrille], ListeInd, J, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ,Cout):-
-    jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ),
-    heuristique([Grille,NvListeInd,J,J2,Ind],Cout).
+deplaceH(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ,Cout):-jouerCoupPrioGagnant(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ),
+                                                                           heuristique([NvGrille,NvListeInd,J,J2,Ind],Cout).
 
 % Génération de la liste des parcours suivants
-parcoursSuivant([[Grille|ListeGrille], ListeInd, J1, J2, _], ListeParcours):-
-    findall([Cout,[NvGrille,Grille|ListeGrille],NvListeInd, J2, NvJ1, Ind], deplaceH([Grille|ListeGrille], ListeInd, J1, J2, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ1,Cout), ListeParcours).
+parcoursSuivant([Grille, ListeInd, J1, J2, _], ListeParcours):-findall([Cout,NvGrille,NvListeInd, J2, NvJ1, Ind], deplaceH(Grille, ListeInd, J1, J2, Ind, NvGrille, NvListeInd, NvJ1,Cout), ListeParcours).
+
+
 coutReel(X,Cout):-heuristique(X,Cout).
+
+
 % Insertion d'un parcours dans une liste
 insereC([],Parcours,[Parcours]).
-insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[Cout|Chemin]|Result]):-
-    Cout < NCout,
-    insereC(Next, [NCout|NChemin], Result).
-insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[NCout|NChemin],[Cout|Chemin]|Next]):-
-    Cout > NCout.
-insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[NCout|NChemin],[Cout|Chemin]|Next]):-
-    Cout == NCout,
-    coutReel(Chemin, Cout0),
-    coutReel(NChemin, Cout1),
-    Cout0 >= Cout1.
-insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[Cout|Chemin]|Result]):-
-    Cout == NCout,
-    coutReel(Chemin, Cout0),
-    coutReel(NChemin, Cout1),
-    Cout0 < Cout1,
-    insereC(Next, [NCout|NChemin], Result).
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[Cout|Chemin]|Result]):-Cout < NCout,
+                                                                      insereC(Next, [NCout|NChemin], Result).
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[NCout|NChemin],[Cout|Chemin]|Next]):-Cout > NCout.
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[NCout|NChemin],[Cout|Chemin]|Next]):-Cout == NCout,
+                                                                                    coutReel(Chemin, Cout0),
+                                                                                    coutReel(NChemin, Cout1),
+                                                                                    Cout0 >= Cout1.
+insereC([[Cout|Chemin]|Next],[NCout|NChemin],[[Cout|Chemin]|Result]):-Cout == NCout,
+                                                                      coutReel(Chemin, Cout0),
+                                                                      coutReel(NChemin, Cout1),
+                                                                      Cout0 < Cout1,
+                                                                      insereC(Next, [NCout|NChemin], Result).
 
 % Fusion de deux listes
 insere([],Result,Result).
-insere([Parcours|LP],Liste,Result):-
-    insereC(Liste, Parcours, Partiel),
-    insere(LP, Partiel, Result).
-
-% Recherche de solution
-parcoursH([[C,[[Grille|ListeGrille], ListeInd, J1, J2, Ind]|Historique]|_],[[C,[[Grille|ListeGrille], ListeInd, J1, J2, Ind]]|Historique]):-
-    etatFinalTest(Grille,Ind). % Ajouter un ! pour avoir uniquement la meilleure solution
-parcoursH([[_,Chemin]|Liste], Solution):-
-    parcoursSuivant(Chemin, ListeNouveaux),
-    insere(ListeNouveaux, Liste, NouvelleListe),
-    choisirXmeilleures(NouvelleListe,100,ListeMeilleure),
-    parcoursH(ListeMeilleure, Solution).
+insere([Parcours|LP],Liste,Result):-insereC(Liste, Parcours, Partiel),
+                                    insere(LP, Partiel, Result).
 
 choisirXmeilleures(_,0,[]).
 choisirXmeilleures([L|Q],X,S):-X2 is X-1,choisirXmeilleures(Q,X2,S2),S =[L|S2].
-% Génération de la solution avec heuristique à partir d'une grille de départ (pas forcément la grille vide)
-cm_heuristique(Depart,Solution):-
-    heuristique(Depart, Cout),
-    parcoursH([[Cout, Depart]], [_,Los]),
-    reverse(Los,Solution).
 
-%récupération du prochain déplacement à effectuer : rentrer les infos nécéssaires (Grille, joueurs etc)
+% Recherche de solution
+parcoursH([[Cout, [NvGrille,NvListeInd,J2,NvJ,Ind,[Grille,ListeInd,J,Jo]]]]|_],[[Cout, [NvGrille,NvListeInd,J2,NvJ,Ind,[Grille,ListeInd,J,Jo]]]]):-etatFinalTest(Grille,Ind). % Ajouter un ! pour avoir uniquement la meilleure solution
+parcoursH([[_,Chemin]|Liste], Solution):-parcoursSuivant(Chemin, ListeNouveaux),
+                                         insere(ListeNouveaux, Liste, NouvelleListe),
+                                         %choisirXmeilleures(NouvelleListe,100,ListeMeilleure),
+                                         parcoursH(NouvelleListe, Solution).
+
+%1)On joue le premier coup avec jouerCoupPrioGagnant 
+%2) on récupère l'état de la partie après jouerCoupPrioGagnant
+%3) on applique l'heuristique pour déterminer le meilleur coup si pas de coup vainqueur
+%On a besoin de : l'état de la partie après le premier coup et de l'état de la partie au niveau n
+
+
+% Génération de la solution avec heuristique à partir d'une grille de départ (pas forcément la grille vide)
+cm_heuristique([Grille,ListeInd,J,J2],Solution):-jouerCoupPrioGagnant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ),
+                                                 heuristique([NvGrille,NvListeInd,J2,NvJ,Ind,[Grille,ListeInd,J,J2]], Cout),
+                                                 %pour récup une solution ou notre joueur est gagnant?
+                                                 parcoursH([[Cout, [NvGrille,NvListeInd,J2,NvJ,Ind,[Grille,ListeInd,[Nb,_],J2]]]], [_,[_,_,_,[Nb,_],_,_]]),
+                                                 reverse(Los,Solution).
+
 recupH(Depart,X):-cm_heuristique(Depart,[[[X|_]|_]]).
+%récupération du prochain déplacement à effectuer : rentrer les infos nécéssaires (Grille, joueurs etc)
+
 %Exécuter avec quelque chose de la forme : recupH([[[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[1, [[2, 1], [2, 2], [2, 3], [2, 4]]],[2, [[2, 1], [2, 2], [2, 3], [2, 4]]],1],S).
 %c'est à dire Etat du plateau, indices restants, J1, J2, ?premier indice?
 
