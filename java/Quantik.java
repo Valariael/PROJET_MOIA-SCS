@@ -2,11 +2,20 @@ import org.jpl7.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Une instance de Quantik conserve l'état du jeu et intéragit avec le moteur Prolog
+ * pour réaliser les actions de jeu ainsi que détecter les fin de partie.
+ */
 public class Quantik
-{//TODO : refaire doc fct en javadoc
-    private Term joueurSelf, joueurAdv, grille, indices, dernierJoueur;
+{
+    private Term joueurSelf, joueurAdv, grille, indices;
     private int dernierePos;
-    //consulte le fichier prolog de l'IA
+    private boolean isBlanc;
+
+    /**
+     * Initialise le moteur Prolog en consultant le fichier d'IA.
+     * @throws Exception en cas d'échec du consult
+     */
     public Quantik() throws Exception
     {
         Query consult = new Query(
@@ -14,42 +23,62 @@ public class Quantik
                 new Term[] {new Atom("IAQuantik.pl")}
         );
         if (!consult.hasSolution()) throw new Exception("Echec consult");
+        consult.close();
     }
-    //Initialise une partie à partir des prédicats pl
+
+    /**
+     * Initialise l'état du jeu dans l'objet Quantik courant à partir des prédicats d'initialisation..
+     * @param isBlanc vrai si l'IA joue les pions blancs, faux autrement
+     */
     public void initPartie(boolean isBlanc)
     {
+        this.isBlanc = isBlanc;
+
         Map<String, Term> solution1, solution2;
         Variable X = new Variable("X");
-        //création d'un J1 via prolog
+
+        //Création du joueur 1
         Query joueur1 = new Query(
                 "joueur1",
                 new Term[] {X}
         );
         solution1 = joueur1.oneSolution();
-        //création d'un J2 via prolog
+        joueur1.close();
+
+        //Création du joueur 2
         Query joueur2 = new Query(
                 "joueur2",
                 new Term[] {X}
         );
         solution2 = joueur2.oneSolution();
-        //création de la grille
+        joueur2.close();
+
+        //Création de la grille
         Query grille = new Query(
                 "plateau",
                 new Term[] {new org.jpl7.Integer(16), X}
         );
         this.grille = grille.oneSolution().get("X");
-        //création de la liste d'indices
+        grille.close();
+
+        //Création de la liste d'indices
         Query indices = new Query(
                 "listeIndice",
                 new Term[] {new org.jpl7.Integer(1), X}
         );
         this.indices = indices.oneSolution().get("X");
+        indices.close();
 
+        //Affectation des états en fonction de la couleur de pion
         joueurSelf = (isBlanc ? solution1.get("X") : solution2.get("X"));
         joueurAdv = (isBlanc ? solution2.get("X") : solution1.get("X"));
     }
 
-    //Renvoie le meilleur coup à effectuer pour le joueur courant
+    /**
+     * Si possible, joue et récupère le prochain coup de l'IA sous la forme d'une instance Coup.
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup getSelfCoup()
     {
         Coup coup = new Coup();
@@ -61,7 +90,7 @@ public class Quantik
 
         Query jouerCoupGagnantOuBloquant = new Query(
                 "jouerCoupPrioGagnant",
-                new Term[] {this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
+                new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
         );
         try
         {
@@ -73,22 +102,21 @@ public class Quantik
                 this.grille = solution.get("NvGrille");
                 this.indices = solution.get("NvListeInd");
                 this.joueurSelf = solution.get("NvJ");
-                dernierJoueur = joueurSelf;
                 coup.setLigneColonnePl(solution.get("Ind").intValue());
                 dernierePos = solution.get("Ind").intValue();
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
-                coup.setPropriete(0);
+                coup.setPropriete(computePropriete());
 
                 System.out.println(coup.toString());
-            }
-            else
+            } else
             {
+                System.exit(-1);
                 Variable X = new Variable("X");
                 //recherche du coup à effectuer
                 Query rechercheCoup = new Query(
                         "heuristique",//TODO une fois l'heuristique créée, récupérer le meilleur coup possible
-                        new Term[] {X}
+                        new Term[]{X}
                 );
                 //On joue le coup récupéré
             /*Query jcoup = new Query(
@@ -101,8 +129,7 @@ public class Quantik
             this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();
             lastj = joueurSelf;*/
             }
-        }
-        catch (PrologException e)
+        } catch (PrologException e)//TODO : rm when fin
         {
             e.printStackTrace();
         }
@@ -110,7 +137,11 @@ public class Quantik
         return coup;
     }
 
-    //joue le coup ordonné par l'adversaire
+    /**
+     * Fait jouer à l'adversaire un coup fourni.
+     * Met également à jour l'état du jeu.
+     * @param coup l'instance Coup à jouer
+     */
     public void putAdvCoup(Coup coup)
     {
         //Récupération de la case utilisée par l'adversaire
@@ -119,37 +150,38 @@ public class Quantik
         Variable NvGrille = new Variable("NvGrille");
         Variable NvListeInd = new Variable("NvListeInd");
         Variable NvAdv = new Variable("NvAdv");
-        //requète pour jouer un coup
-        Query jcoup = new Query(
+
+        Query jouerCoup = new Query(
                 "jouerCoup",
                 new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionPl()), NvGrille, NvListeInd, NvAdv}
         );
-        //changement du plateau
-        this.grille = jcoup.oneSolution().get("NvGrille");
-        this.indices = jcoup.oneSolution().get("NvListeInd");
-        this.joueurAdv = jcoup.oneSolution().get("NvAdv");
-        dernierJoueur = joueurAdv;
+
+        //Mise à jour de l'état du jeu
+        this.grille = jouerCoup.oneSolution().get("NvGrille");
+        this.indices = jouerCoup.oneSolution().get("NvListeInd");
+        this.joueurAdv = jouerCoup.oneSolution().get("NvAdv");
+        jouerCoup.close();
         dernierePos = indice;
     }
 
-    public int vainqueur()
+    /**
+     * Calcule la propriété de l'état du jeu : CONT:0 / GAGNE:1 / NUL:2 / PERDU:3.
+     * @return un entier représentant la propriété de l'état du jeu
+     */
+    public int computePropriete()//TODO: handle partie perdue
     {
-        Query victoire = new Query(
+        Query etatFinal = new Query(
                 "etatFinalTest",
                 new Term[] {this.grille, new org.jpl7.Integer(this.dernierePos)}
         );
-        if (victoire.hasSolution())
-        {
-                if(dernierJoueur.equals(joueurSelf))
-                {
-                        return 1;
-                }
-                else
-                {
-                        return 2;
-                }
-        }
-        return 0;//TODO : close all queries to free prolog engine
+
+        int propriete;
+        if (etatFinal.hasSolution()) propriete = 1;
+        else if (this.indices.toTermArray().length == 0) propriete = 2;
+        else propriete = 0;
+        etatFinal.close();
+
+        return propriete;
     }
 
     public String toString()
@@ -172,6 +204,13 @@ public class Quantik
         return sb.toString();
     }
 
+    /**
+     * Cette fonction aurait hypothétiquement pu stocker dans un fichier tous les états de jeu
+     * ayant une fin (victoire, défaite ou nul).
+     * Avec un traitement supplémentaire on aurait pu conserver un ratio de victoire pour chaque mouvement,
+     * conduisant ainsi au choix du meilleur mouvement possible.
+     * Cette idée était perdue d'avance dû au nombre de solutions possible, néanmoins ce fût intéressant. :)
+     */
     @Deprecated
     public static void computeSolutions()
     {
