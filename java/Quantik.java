@@ -177,7 +177,6 @@ public class Quantik
     {
         try
         {
-
             Query consult = new Query(
                     "consult",
                     new Term[] {new Atom("IAQuantik.pl")}

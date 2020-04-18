@@ -302,16 +302,39 @@ choisirCoupBloqueLePlus(Grille, ListeInd, J, IndFinal, FormeFinale):-
 %joue un coup en priorisant : un coup gagnant, puis un coup bloquant un coup gagnant adverse sans lui fournir d'option gagnante
 jouerCoupPrioGagnant(Grille, ListeInd, J, IndFinal, Forme, NvGrille, NvListeInd, NvJ):-
     etatPreFinal(Grille, ListeInd, Ind, Forme),
-    choisirPion(J, NumJ, [_, Forme], NvJ),%TODO : si pas pion, poser autre pion
+    choisirPion(J, NumJ, [_, Forme], NvJ),
     placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndFinal).
-%TODO ameliorations : bloquer le plus de possibilités, largeur un étage sur coup adverse > étages suivant sur combinaisons d'au moins 2 > score heuristique en fonction des W/L
-%bloquer plusieurs  coups gagnants adverse ?
+%TODO ameliorations : largeur un étage sur coup adverse > étages suivant sur combinaisons d'au moins 2 > score heuristique en fonction des W/L
+%bloquer plusieurs coups gagnants adverse ? jouer ses pions n'ayant jamais été joués, miroir until priogagnant/turn numnber
 jouerCoupPrioGagnant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
     %choisir un coup bloquant le plus de coups possibles
     choisirCoupBloqueLePlus(Grille, ListeInd, J, Ind, Forme),
     choisirPion(J, NumJ, [_, Forme], NvJ),
     choisirInd(ListeInd, Ind, NvListeInd),
     placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
+
+associationMiroir(1, 16).
+associationMiroir(16, 1).
+associationMiroir(2, 15).
+associationMiroir(15, 2).
+associationMiroir(3, 14).
+associationMiroir(14, 3).
+associationMiroir(4, 13).
+associationMiroir(13, 4).
+associationMiroir(5, 12).
+associationMiroir(12, 5).
+associationMiroir(6, 11).
+associationMiroir(11, 6).
+associationMiroir(7, 10).
+associationMiroir(10, 7).
+associationMiroir(8, 9).
+associationMiroir(9, 8).
+
+%TODO: integrer etatPreFinal
+jouerCoupMiroir(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible):-
+    associationMiroir(Ind, IndCible),
+    jouerCoup(Grille, ListeInd, J, IndCible, Forme, NvGrille, NvListeInd, NvJ).
+
 
 %fonction heuristique
 %objectif du jeu : être le dernier à placer un pion différent sur une ligne un carré ou une colonne.
