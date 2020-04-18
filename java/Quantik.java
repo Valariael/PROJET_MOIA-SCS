@@ -88,16 +88,34 @@ public class Quantik
         Variable NvListeInd = new Variable("NvListeInd");
         Variable NvJ = new Variable("NvJ");
 
-        Query jouerCoupGagnantOuBloquant = new Query(
-                "jouerCoupPrioGagnant",
+        Query jouerCoupGagnantBloquant = new Query(
+                "jouerCoupGagnantBloquant",
                 new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
         );
-        try
+        if (jouerCoupGagnantBloquant.hasMoreSolutions())
         {
-            //implémentation courante sert à tester jouerCoupPrioGagnant
-            if (jouerCoupGagnantOuBloquant.hasMoreSolutions())
+            Map<String, Term> solution = jouerCoupGagnantBloquant.nextSolution();
+
+            this.grille = solution.get("NvGrille");
+            this.indices = solution.get("NvListeInd");
+            this.joueurSelf = solution.get("NvJ");
+            coup.setLigneColonnePl(solution.get("Ind").intValue());
+            dernierePos = solution.get("Ind").intValue();
+            coup.setPionPl(solution.get("Forme").intValue());
+            coup.setBloque(0);
+            coup.setPropriete(computePropriete());
+
+            System.out.println(coup.toString());
+        }
+        else
+        {
+            Query jouerMeilleurCoupRatioEtBloque = new Query(
+                    "jouerMeilleurCoupRatioEtBloque",
+                    new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
+            );
+            if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
             {
-                Map<String, Term> solution = jouerCoupGagnantOuBloquant.nextSolution();
+                Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
 
                 this.grille = solution.get("NvGrille");
                 this.indices = solution.get("NvListeInd");
@@ -109,29 +127,26 @@ public class Quantik
                 coup.setPropriete(computePropriete());
 
                 System.out.println(coup.toString());
-            } else
+            }
+            else
             {
                 System.exit(-1);
-                Variable X = new Variable("X");
+                /*Variable X = new Variable("X");
                 //recherche du coup à effectuer
                 Query rechercheCoup = new Query(
                         "heuristique",//TODO une fois l'heuristique créée, récupérer le meilleur coup possible
                         new Term[]{X}
                 );
                 //On joue le coup récupéré
-            /*Query jcoup = new Query(
-                    "jouercoup",
-                    new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvJ}
-            );
-            //on modifie le plateau (ajouter la modif de la dernière position utilisée aussi)
-            this.grille = jcoup.oneSolution().get("NvGrille").toString();
-            this.indices = jcoup.oneSolution().get("NvInd").toString();
-            this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();
-            lastj = joueurSelf;*/
+                Query jcoup = new Query(
+                        "jouercoup",
+                        new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvJ}
+                );
+                //on modifie le plateau (ajouter la modif de la dernière position utilisée aussi)
+                this.grille = jcoup.oneSolution().get("NvGrille").toString();
+                this.indices = jcoup.oneSolution().get("NvInd").toString();
+                this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();*/
             }
-        } catch (PrologException e)//TODO : rm when fin
-        {
-            e.printStackTrace();
         }
 
         return coup;
