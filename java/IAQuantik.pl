@@ -423,20 +423,6 @@ jouerMeilleurCoupRatioEtBloque(Grille, ListeInd, J, J2, IndCible, FormeCible, Gr
 
 %trouver un moyen de compter le nombre de solutions de profondeurVJ2...
 
-%récupère les cas de victoires du joueur 2 seulement
-hoisirIndAmeliore().
-
-%joue un coup en prévoyant les coups gagnants
-jouerCoupAmeliore(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
-    choisirPion(J, NumJ, [Nombre, Forme], NvJ),
-    choisirIndAmeliore(ListeInd, Ind, NvListeInd, Grille),
-    placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]),
-    (etatFinalTest(NvGrille,Ind) ;
-    choisirPion(J2, NumJ2, [Nombre2, Forme2], NvJ2),
-    choisirIndAmeliore(NvListeInd, Ind, NvListeInd, NvGrille),
-    placer(NvGrille, NvGrille2, NumJ2, Ind, [Nombre2, Forme2]),
-    \+etatFinalTest(NvGrille2,Ind)).
-
 %nouvelle heuristique : plus on bloque de pions 
 fctHeuristique(Grille,ListeInd,_,J2,_,Cout):- Cout is 1.%fctAdverse(Grille,ListeInd,J2,Cout).
                                                  %fctJoueur(Grille,ListeInd,J1,Cout2),
