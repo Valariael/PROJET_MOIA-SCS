@@ -606,3 +606,116 @@ jeuProfondeurGagnant(HistInd, RNumJ):-
     joueur2(J2),
     profondeurGagnant([Grille], ListeInd, J1, J2, -1, HistInd, RNumJ).
 % -----------------
+% -----------------
+%tests 
+% -----------------
+% -----------------
+
+:-begin_tests(test_plateau).
+test("plateauT1",[fail]):-plateau(1,[2,0]).
+test("plateauT2",[true]):-plateau(5,[[0,0],[0,0],[0,0],[0,0],[0,0]]).
+test("plateauT3",[fail]):-plateau(3,[[0,0],[0,0],[0,0],[0,0]]).
+test("plateauT4",[true]):-plateau(0,[]).
+test("plateauT5",true(X=[[0,0],[0,0],[0,0]])):-plateau(3,X).
+:-end_tests(test_plateau).
+
+:-begin_tests(test_listeIndice).
+test("listeIndiceT1",[true]):-listeIndice(1,[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]).
+test("listeIndiceT2",[true]):-listeIndice(16,[16]).
+test("listeIndiceT3",[fail]):-listeIndice(0,[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]).
+test("listeIndiceT4",[true]):-listeIndice(17,[]).
+test("listeIndiceT5",true(X=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])):-listeIndice(1,X).
+:-end_tests(test_listeIndice).
+
+
+:-begin_tests(test_joueurs).
+test("joueur1T1",[true]):-joueur1([1,[[2, 1], [2, 2], [2, 3], [2, 4]]]).
+test("joueur2T1",[true]):-joueur2([2,[[2, 1], [2, 2], [2, 3], [2, 4]]]).
+test("joueur1T2",[fail]):-joueur1([2,[[2, 1], [2, 2], [2, 3], [2, 4]]]).
+test("joueur2T2",[fail]):-joueur2([1,[[2, 1], [2, 2], [2, 3], [2, 4]]]).
+test("joueur1T3",true(X=[1,[[2, 1], [2, 2], [2, 3], [2, 4]]])):-joueur1(X).
+test("joueur2T3",true(X=[2,[[2, 1], [2, 2], [2, 3], [2, 4]]])):-joueur2(X).
+:-end_tests(test_joueurs).
+
+
+:-begin_tests(test_placerForme).
+test("placerFormeT1",[true]):-placerForme([[0,0],[0,0],[0,0]],[[0,0],[1,3],[0,0]],2,1,3).
+test("placerFormeT2",[fail]):-placerForme([[0,0],[2,4],[0,0]],[[0,0],[1,3],[2,4],[0,0]],2,1,3).
+test("placerFormeT3",[fail]):-placerForme([[0,0],[2,4],[0,0]],[[0,0],[2,4],[1,3],[0,0]],2,1,3).
+%test("placerFormeT4",true(X=[[0,0],[2,4],[0,0]]):-placerForme([[0,0],[0,0],[0,0]],X,2,2,4).  %ERROR: /home/aurelien/Documents/ProjetMOIA/PROJET_MOIA-SCS/java/IAQuantik.pl:646:90: Syntax error: Operator expected
+%test("placerFormeT5",true(X=4):-placerForme([[0,0],[0,0],[0,0]],[[0,0],[1,3],[0,0]],2,2,X).
+test("placerFormeT6",true(X=1)):-placerForme([[0,0],[0,0],[0,0]],[[0,0],[1,3],[0,0]],2,X,3).
+test("placerFormeT7",all(X=[2])):-placerForme([[0,0],[0,0],[0,0]],[[0,0],[1,3],[0,0]],X,1,3).
+:-end_tests(test_placerForme).
+
+
+:-begin_tests(test_placerCorrect).
+test("placerCorrectT1",[true]):-placerCorrect(1).
+test("placerCorrectT2",[true]):-placerCorrect(16).
+test("placerCorrectT3",[fail]):-placerCorrect(17).
+test("placerCorrectT4",[fail]):-placerCorrect(0).
+%test("placerCorrectT5",all(X=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])):-placerCorrect(X).
+:-end_tests(test_placerCorrect).
+
+
+:-begin_tests(test_associationCarre).
+test("associationCarreT1",[true]):-associationCarre(1,[2,5,6]).
+test("associationCarreT2",[true]):-associationCarre(7,[3,4,8]).
+test("associationCarreT3",[true]):-associationCarre(10,[9,13,14]).
+test("associationCarreT4",[true]):-associationCarre(16,[11,12,15]).
+test("associationCarreT5",[fail]):-associationCarre(12,[3,4,8]).
+test("associationCarreT5",[fail]):-associationCarre(8,[10,3,7]).
+test("associationCarreT6",true(X=[10,13,14])):-associationCarre(9,X).
+%test("associationCarreT4",true(X=[11,15,16]):-associationCarre(12,X).%ERROR: /home/aurelien/Documents/ProjetMOIA/PROJET_MOIA-SCS/java/IAQuantik.pl:669:68: Syntax error: Operator expected
+test("associationCarreT7",true(X=8)):-associationCarre(X,[3,4,7]).
+test("associationCarreT8",true(X=2)):-associationCarre(X,[1,5,6]).
+:-end_tests(test_associationCarre).
+
+:-begin_tests(test_associationLigne).
+test("associationLigneT1",[true]):-associationLigne(1,[2,3,4]).
+test("associationLigneT2",[true]):-associationLigne(7,[5,6,8]).
+test("associationLigneT3",[true]):-associationLigne(10,[9,11,12]).
+test("associationLigneT4",[true]):-associationLigne(16,[13,14,15]).
+test("associationLigneT5",[fail]):-associationLigne(12,[3,4,8]).
+test("associationLigneT6",[fail]):-associationLigne(8,[10,3,7]).
+test("associationLigneT7",true(X=[10,11,12])):-associationLigne(9,X).
+test("associationLigneT8",true(X=15)):-associationLigne(X,[13,14,16]).
+test("associationLigneT9",true(X=2)):-associationLigne(X,[1,3,4]).
+:-end_tests(test_associationLigne).
+
+
+:-begin_tests(test_associationColonne).
+test("associationColonneT1",[true]):-associationColonne(9,[1,5,13]).
+test("associationColonneT2",[true]):-associationColonne(7,[3,11,15]).
+test("associationColonneT3",[true]):-associationColonne(10,[2,6,14]).
+test("associationColonneT4",[true]):-associationColonne(16,[4,8,12]).
+test("associationColonneT5",[fail]):-associationColonne(12,[3,4,8]).
+test("associationColonneT6",[fail]):-associationColonne(8,[10,3,7]).
+test("associationColonneT7",true(X=[1,5,13])):-associationColonne(9,X).
+test("associationColonneT8",true(X=14)):-associationColonne(X,[2,6,10]).
+test("associationColonneT9",true(X=3)):-associationColonne(X,[7,11,15]).
+:-end_tests(test_associationColonne).
+
+
+%Warning: /home/aurelien/Documents/ProjetMOIA/PROJET_MOIA-SCS/java/IAQuantik.pl:706:
+%PL-Unit: Test verifContrainteT5: Test succeeded with choicepoint
+:-begin_tests(test_verifContrainte).
+test("verifContrainteT1",[true]):-verifContrainte([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,3,4],2,1).
+test("verifContrainteT2",[true]):-verifContrainte([[0, 0],[0, 0],[1, 2],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[3,11,15],2,1).
+test("verifContrainteT3",[true]):-verifContrainte([[0, 0],[0, 0],[2,3],[1, 2],[0, 0],[2, 2],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[3,11,15],2,1).
+test("verifContrainteT4",[fail]):-verifContrainte([[0, 0],[2, 2],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,3,4],2,1).
+test("verifContrainteT5",[true]):-verifContrainte([[0, 0],[2, 3],[1,2],[1, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,3,4],2,1).
+test("verifContrainteT5",[true]):-verifContrainte([[0, 0],[2, 2],[1,2],[1, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[],2,1).
+:-end_tests(test_verifContrainte).
+
+%Warning: /home/aurelien/Documents/ProjetMOIA/PROJET_MOIA-SCS/java/IAQuantik.pl:716:
+%PL-Unit: Test placerContrainteT5: Test succeeded with choicepoint
+
+:-begin_tests(test_placerContrainte).
+test("placerContrainteT1",[true]):-placerContrainte([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],1,3,[2,1]).
+test("placerContrainteT2",[true]):-placerContrainte([[0, 0],[0, 0],[1, 2],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],1,7,[2,3]).
+test("placerContrainteT3",[true]):-placerContrainte([[0, 0],[0, 0],[2,3],[1, 2],[0, 0],[2, 2],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],2,9,[2,4]).
+test("placerContrainteT4",[fail]):-placerContrainte([[0, 0],[2, 2],[0, 0],[0, 0],[2, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],1,1,[2,1]).
+test("placerContrainteT5",[true]):-placerContrainte([[0, 0],[2, 3],[1,2],[1, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],1,14,[2,2]).
+test("placerContrainteT5",[fail]):-placerContrainte([[0, 0],[2, 2],[1,2],[1, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],2,16,[2,1]).
+:-end_tests(test_placerContrainte).
