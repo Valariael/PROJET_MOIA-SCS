@@ -484,11 +484,13 @@ choisirXmeilleures([L|Q], X, S):-
 
 heuristique(Grille, ListeInd, [NumJ, LP], J2, NumJ, Ind, Forme, NbBloque, Victoire, Defaite):-
     casesBloquees(Grille, NumJ, Ind, Forme, NbBloque),
-    calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, J2, [NumJ, LP], Ind]], NumJ, Victoire, Defaite).
+    calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, J2, [NumJ, LP], Ind]], NumJ, Victoire, Defaite),
+    !.
 heuristique(Grille, ListeInd, [NumJ2, LP2], [NumJ, LP1], NumJ, Ind, Forme, NbBloque, Victoire, Defaite):-
     casesBloquees(Grille, NumJ2, Ind, Forme, NbBloquePos),
     NbBloque = 0 - NbBloquePos,
-    calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, [NumJ, LP1], [NumJ2, LP2], Ind]], NumJ, Defaite, Victoire).
+    calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, [NumJ, LP1], [NumJ2, LP2], Ind]], NumJ, Defaite, Victoire),
+    !.
 
 deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque, Victoire, Defaite):-
     jouerCoup(Grille, ListeInd, J1, Ind, Forme, NvGrille, NvListeInd, NvJ1),
