@@ -313,6 +313,9 @@ jouerCoupPrioGagnantBloque(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd
     choisirInd(ListeInd, Ind, NvListeInd),
     placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
 
+%jouer en miroir
+% -----------------
+%récupère l'indice associé en symétrie centrale
 associationMiroir(1, 16).
 associationMiroir(16, 1).
 associationMiroir(2, 15).
@@ -331,38 +334,59 @@ associationMiroir(8, 9).
 associationMiroir(9, 8).
 
 %TODO: integrer etatPreFinal
+%joue le même coup que celui en paramètre mais en miroir
 jouerCoupMiroir(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible):-
     associationMiroir(Ind, IndCible),
     jouerCoup(Grille, ListeInd, J, IndCible, Forme, NvGrille, NvListeInd, NvJ).
+% -----------------
 
+% -----------------
+%joue un coup gagnant si possible, sinon bloque la possibilité pour l'adversaire
 jouerCoupGagnantBloquant(Grille, ListeInd, J, IndFinal, Forme, NvGrille, NvListeInd, NvJ):-
     etatPreFinal(Grille, ListeInd, Ind, Forme),
     choisirPion(J, NumJ, [_, Forme], NvJ),
     placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndFinal).
+% -----------------
 
+%calculer le nombre de victoires et défaites en largeur limite de 2
+% -----------------
+%parcours les grilles de l'étage et augmente de 1 le compteur des victoires ou défaites si un quadruplet gagnant est détecté
+%renvoie dans ListeParcoursCont les états non finaux
 victoireDefaite([], [], Victoire, Defaite, _, Victoire, Defaite).
+%victoire soi-même
 victoireDefaite([[Grille, _, _, [NumJ, _], Ind]|ListeParcours], ListeParcoursCont, Victoire, Defaite, NumJ, RVictoire, RDefaite):-
     etatFinalTest(Grille, Ind),
     NvVictoire is Victoire + 1,
     victoireDefaite(ListeParcours, ListeParcoursCont, NvVictoire, Defaite, NumJ, RVictoire, RDefaite).
+%victoire adverse
 victoireDefaite([[Grille, _, _, _, Ind]|ListeParcours], ListeParcoursCont, Victoire, Defaite, NumJ, RVictoire, RDefaite):-
     etatFinalTest(Grille, Ind),
     NvDefaite is Defaite + 1,
     victoireDefaite(ListeParcours, ListeParcoursCont, Victoire, NvDefaite, NumJ, RVictoire, RDefaite).
+%match nul
 victoireDefaite([[_, [], _, _, _]|ListeParcours], ListeParcoursCont, Victoire, Defaite, NumJ, RVictoire, RDefaite):-
     victoireDefaite(ListeParcours, ListeParcoursCont, Victoire, Defaite, NumJ, RVictoire, RDefaite).
+%partie continue
 victoireDefaite([Parcours|ListeParcours], [Parcours|ListeParcoursCont], Victoire, Defaite, NumJ, RVictoire, RDefaite):-
     victoireDefaite(ListeParcours, ListeParcoursCont, Victoire, Defaite, NumJ, RVictoire, RDefaite).
 
 calculerVictoireDefaiteLargeurLimite(ListeParcours, NumJ, Victoire, Defaite, RVictoire, RDefaite):-
+    %deuxième étage
     deplacementSuivantLargeur(ListeParcours, [], NvListeParcours),
     victoireDefaite(NvListeParcours, _, Victoire, Defaite, NumJ, RVictoire, RDefaite).
 
+%lance une recherche des états gagnants en largeur, sur une profondeur de 2
 calculerVictoireDefaiteLargeurLimite(ListeParcours, NumJ, RVictoire, RDefaite):-
+    %premier étage
     deplacementSuivantLargeur(ListeParcours, [], NvListeParcours),
+    %initialisation du compteur et comptage sur le 1er étage
     victoireDefaite(NvListeParcours, ListeParcoursCont, 1, 1, NumJ, Victoire, Defaite),
     calculerVictoireDefaiteLargeurLimite(ListeParcoursCont, NumJ, Victoire, Defaite, RVictoire, RDefaite).
+% -----------------
 
+%jouer le coup avec le meilleur ratio W/L proche (largeur limite 2) et sinon le coup bloquant le plus de cases
+% -----------------
+%calcule le ratio W/L sous la forme d'un quotient et d'un reste ainsi que le nombre de cases bloquées par le coup
 calculerRatioEtBloque([], _, ListeEtatRatioEtBloque, ListeEtatRatioEtBloque).
 %TODO : amélioration ? sommer cases bloquées largeur, reverse car commence en 16, jouer des pions différents de ceux deja placés
 calculerRatioEtBloque([[Grille, ListeInd, [NumJ, J], Ind, Forme]|ListeEtat], J2, ListeEtatRatioEtBloque, RListeEtatRatioEtBloque):-
@@ -372,6 +396,7 @@ calculerRatioEtBloque([[Grille, ListeInd, [NumJ, J], Ind, Forme]|ListeEtat], J2,
     casesBloquees(Grille, NumJ, Ind, Forme, Bloque),
     calculerRatioEtBloque(ListeEtat, J2, [[Grille, ListeInd, [NumJ, J], Quotient, Reste, Bloque, Ind, Forme]|ListeEtatRatioEtBloque], RListeEtatRatioEtBloque).
 
+%compare le coup de l'état analysé avec celui stocké et garde celui avec le plus haut ratio W/L ou nombre de cases bloquées
 choisirMeilleurCoupRatioEtBloque([], Etat, Etat).
 choisirMeilleurCoupRatioEtBloque([[Grille, ListeInd, [NumJ, J], Quotient, Reste, Bloque, Ind, Forme]|ListeEtatRatioEtBloque], [_, _, _, QuotientMax, _, _, _, _], MeilleurEtat):-
     Quotient > QuotientMax,
@@ -388,9 +413,11 @@ choisirMeilleurCoupRatioEtBloque([[Grille, ListeInd, [NumJ, J], Quotient, Reste,
 choisirMeilleurCoupRatioEtBloque([_|ListeEtatRatioEtBloque], Etat, MeilleurEtat):-
     choisirMeilleurCoupRatioEtBloque(ListeEtatRatioEtBloque, Etat, MeilleurEtat).
 
+%remonte le coup avec le plus haut ratio W/L ou nombre de cases bloquées dans la liste d'états
 choisirMeilleurCoupRatioEtBloque([Etat|SetEtatRatioEtBloque], MeilleurEtat):-
     choisirMeilleurCoupRatioEtBloque(SetEtatRatioEtBloque, Etat, MeilleurEtat).
 
+%choisis le meilleur coup ossible suivant le ratio W/L et le nombre de cases bloquées sans donner une configuration permettant de faire gagner l'adversaire
 meilleurCoupRatioEtBloqueSansPreFinal(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]):-
     choisirMeilleurCoupRatioEtBloque(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]),
     \+etatPreFinal(Grille, ListeInd, Ind, Forme).
@@ -400,12 +427,13 @@ meilleurCoupRatioEtBloqueSansPreFinal(SetEtatRatioEtBloque, Etat):-
     select([Grille, ListeInd, Joueur, _, _, _, Ind, Forme], SetEtatRatioEtBloque, NvSetEtatRatioEtBloque),
     meilleurCoupRatioEtBloqueSansPreFinal(NvSetEtatRatioEtBloque, Etat).
 
+%joue le coup avec le plus de possibilités de victoires à court terme ou le coup bloquant le plus de mouvements à l'adversaire
 jouerMeilleurCoupRatioEtBloque(Grille, ListeInd, J, J2, IndCible, FormeCible, GrilleFinale, ListeIndFinale, JoueurFinal):-
     findall([NvGrille, NvListeInd, NvJ, Ind, Forme], jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ), ListeEtat),
     list_to_set(ListeEtat, SetEtat),
     calculerRatioEtBloque(SetEtat, [], J2, SetEtatRatioEtBloque),
     meilleurCoupRatioEtBloqueSansPreFinal(SetEtatRatioEtBloque, [GrilleFinale, ListeIndFinale, JoueurFinal, _, _, _, IndCible, FormeCible]).
-
+% -----------------
 
 %fonction heuristique
 %objectif du jeu : être le dernier à placer un pion différent sur une ligne un carré ou une colonne.
@@ -446,6 +474,7 @@ compteurSol([],0).
 %3) on applique l'heuristique pour déterminer le meilleur coup si pas de coup vainqueur
 %On a besoin de : l'état de la partie après le premier coup et de l'état de la partie au niveau n
 
+%insère l'état candidat dans la liste d'état suivant le ratio de victoires et défaites puis du nombre de cases bloquées
 insereC([], Parcours, [Parcours]).
 insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Result]):-
     Quotient1 is div(Victoire1, Defaite1), 
@@ -471,43 +500,53 @@ insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, In
     insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], Result).
 insereC([EtatCout1|Next], EtatCout2, [EtatCout2, EtatCout1|Next]).%TODO amelioration ? choisir random
 
+%insère les nouveaux états dans la liste d'états
 insere([], Result, Result).
 insere([Parcours|LP], Liste, Result):-
     insereC(Liste, Parcours, Partiel),
     insere(LP, Partiel, Result).
 
+%récupère seulement les X premiers membres de la liste
 choisirXmeilleures(_, 0, []).
 choisirXmeilleures([L|Q], X, S):-
     X2 is X - 1,
     choisirXmeilleures(Q, X2, S2),
     S = [L|S2].
 
+%dans cette implémentation, l'heuristique utlise le nombre de victoires et défaites à court terme, ainsi que le nombre de cases bloquées
+%à partir d'un état du jeu, on calcule ces données pour les renvoyer
 heuristique(Grille, ListeInd, [NumJ, LP], J2, NumJ, Ind, Forme, NbBloque, Victoire, Defaite):-
     casesBloquees(Grille, NumJ, Ind, Forme, NbBloque),
     calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, J2, [NumJ, LP], Ind]], NumJ, Victoire, Defaite),
     !.
-heuristique(Grille, ListeInd, [NumJ2, LP2], [NumJ, LP1], NumJ, Ind, Forme, NbBloque, Victoire, Defaite):-
+%dans le cas de l'adversaire, le nombre de cases bloquées devient négatif
+heuristique(Grille, _, [NumJ2, _], [NumJ, _], NumJ, Ind, Forme, NbBloque, 1, 1):-
     casesBloquees(Grille, NumJ2, Ind, Forme, NbBloquePos),
-    NbBloque = 0 - NbBloquePos,
-    calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, [NumJ, LP1], [NumJ2, LP2], Ind]], NumJ, Defaite, Victoire),
+    NbBloque is 0 - NbBloquePos,
+    %pour réduire le nombre d'opérations répétées sans utilité, on ne calcule plus le ratio W/L adverse
+    %calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, [NumJ, LP1], [NumJ2, LP2], Ind]], NumJ, Defaite, Victoire),
     !.
 
+%joue un coup et calcule les données de l'heuristique
 deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque, Victoire, Defaite):-
     jouerCoup(Grille, ListeInd, J1, Ind, Forme, NvGrille, NvListeInd, NvJ1),
     heuristique(NvGrille, NvListeInd, NvJ1, J2, NumJ, Ind, Forme, NbBloque, Victoire, Defaite).
 
+%si l'état n'est pas gagnant, on récupère les prochaines possibilités
 parcoursSuivant([Grille, ListeInd, J1, J2, IndPre, _, _, _, IndCible, FormeCible], ListeEtatCout, NumJ):-
     \+etatFinalTest(Grille, IndPre),
     findall([NvGrille, NvListeInd, J2, NvJ1, Ind, NbBloque, Victoire, Defaite, IndCible, FormeCible], deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque, Victoire, Defaite), ListeEtatCout).
 
+%met à jour les scores heuristique pour chaque coup possible en additionnant à leur compteur le score des états dont il est l'ancêtre
 miseAJourCoupCout([], ListeCoupCout, ListeCoupCout).
 miseAJourCoupCout([[_, _, _, _, _, NbBloque1, Victoire1, Defaite1, IndCible, FormeCible]|ListeEtatCout], ListeCoupCout, RListeCoupCout):-
     select([NbBloque2, Victoire2, Defaite2, IndCible, FormeCible], ListeCoupCout, NvListeCoupCout),
-    NvNbBloque = NbBloque1 + NbBloque2,
-    NvVictoire = Victoire1 + Victoire2,
-    NvDefaite = Defaite1 + Defaite2,
+    NvNbBloque is NbBloque1 + NbBloque2,
+    NvVictoire is Victoire1 + Victoire2,
+    NvDefaite is Defaite1 + Defaite2,
     miseAJourCoupCout(ListeEtatCout, [[NvNbBloque, NvVictoire, NvDefaite, IndCible, FormeCible]|NvListeCoupCout], RListeCoupCout).
 
+%calcule l'étage suivant sur les meilleurs états courants en mettant à jour les données
 parcoursH([], ListeCoupCout, ListeCoupCout).
 parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
     parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ),
@@ -517,24 +556,30 @@ parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
     choisirXmeilleures(NvListeEtatCout, 10, ListeEtatCoutX),
     parcoursH(ListeEtatCoutX, [NvLC, NumJ], RListeCoupCout).
 parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
+    %cas où findall renvoie une liste vide car il n'y a aucune possibilité ou parcoursSuivant est false car c'est un état final
     (parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ), ListeEtatCoutN = [] ; \+parcoursSuivant(EtatCout, _, NumJ)),
     parcoursH(ListeEtatCout, [LC, NumJ], RListeCoupCout).
 
+
+%identique à deplaceH TODO : remove ?
 deplaceHInit(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, [NumJ, LP], NbBloque, Victoire, Defaite):-
     jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, [NumJ, LP]),
     heuristique(NvGrille, NvListeInd, [NumJ, LP], J2, NumJ, Ind, Forme, NbBloque, Victoire, Defaite).
 
+%copie les données essentielles pour garder en mémoire les coups possibles sous forme minimale
 initCoupCout([], ListeCoupCout, NumJ, [ListeCoupCout, NumJ]).
 initCoupCout([[_, _, _, _, _, NbBloque, Victoire, Defaite, IndCible, FormeCible]|ListeEtatCout], ListeCoupCout, NumJ, RListeCoupCout):-
     initCoupCout(ListeEtatCout, [[NbBloque, Victoire, Defaite, IndCible, FormeCible]|ListeCoupCout], NumJ, RListeCoupCout).
 
+%création des états de jeu pour les prochains coups possibles dans ListeEtatCout et initialisation des accumulateurs correspondants dans ListeCoupCout
 creerEtatsInitiaux(Grille, ListeInd, [NumJ, LP], J2, ListeEtatCout, ListeCoupCout):-
     findall([NvGrille, NvListeInd, J2, NvJ1, Ind, NbBloque, Victoire, Defaite, Ind, Forme], deplaceHInit(Grille, ListeInd, [NumJ, LP], J2, Ind, Forme, NvGrille, NvListeInd, NvJ1, NbBloque, Victoire, Defaite), ListeEtatCout),
     initCoupCout(ListeEtatCout, [], NumJ, ListeCoupCout).
 
+%choisir le meilleur coup suivant leurs données heuristiques
 meilleurCoupCout([], [Ind, Forme, _, _, _], Ind, Forme).
 meilleurCoupCout([[Ind1, Forme1, Victoire1, Defaite1, NbBloque1]|ListeCoupCout], [_, _, Victoire2, Defaite2, _], IndFinal, FormeFinale):-
-    Quotient1 is div(Victoire1, Defaite1), 
+    Quotient1 is div(Victoire1, Defaite1), %TODO : eviter div par zero
     Quotient2 is div(Victoire2, Defaite2), 
     Quotient1 > Quotient2,
     meilleurCoupCout(ListeCoupCout, [Ind1, Forme1, Victoire1, Defaite1, NbBloque1], IndFinal, FormeFinale).
@@ -558,11 +603,21 @@ meilleurCoupCout([[Ind1, Forme1, Victoire1, Defaite1, NbBloque1]|ListeCoupCout],
 meilleurCoupCout([_|ListeCoupCout], EtatCout, IndFinal, FormeFinale):-
     meilleurCoupCout(ListeCoupCout, EtatCout, IndFinal, FormeFinale).
 
+%initialise le choix du meilleur coup possible suivant l'heuristique
 meilleurCoupCout([[CoupCout|ListeCoupCout], _], IndFinal, FormeFinale):-
     meilleurCoupCout(ListeCoupCout, CoupCout, IndFinal, FormeFinale).
 
+%calcule et joue le meilleur coup disponible en faisant un parcours heuristique
+%si un coup gagnant ou empêchant l'adversaire de gagner est possible, le joue en priorité
 coupSuivantHeuristique(Grille, ListeInd, J, _, Ind, Forme, NvGrille, NvListeInd, NvJ):-
     jouerCoupGagnantBloquant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ).
+%initialise d'abord :
+%   -une liste contenant tous les prochains états de jeu possibles avec le score heuristique associé dans ListeEtatCout
+%   -une copie des paires indice/forme avec leur propre accumulateur de score heuristique dans ListeCoupCout
+%     ^- (cette liste se justifie par le fait qu'il est possible de perdre une possibilité meilleure que les autres 
+%         dans le cas où le parcours se termine car seuls des états finaux sont possibles)
+%réalise un parcours heuristique de l'espace d'état tout en mettant à jour les accumulateurs des paires indice/forme de base
+%récupère le meilleur coup disponible et on le joue
 coupSuivantHeuristique(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
     creerEtatsInitiaux(Grille, ListeInd, J, J2, ListeEtatCout, ListeCoupCout),
     parcoursH(ListeEtatCout, ListeCoupCout, NvListeCoupCout),
