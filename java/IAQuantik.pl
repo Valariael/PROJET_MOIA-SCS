@@ -1133,4 +1133,20 @@ test("victoireDefaiteT10",true(X=1)):-victoireDefaite([[[[1, 1],[2, 1],[1, 4],[2
 :-end_tests(test_victoireDefaite).
 
 %TODO calculerVictoireDefaiteLargeurLimite
+:-begin_tests(test_compteurSol).
+test("compteurSolT1",[true]):-compteurSol([1,2,4,9,2,3,4,7],8).
+test("compteurSolT2",true(X=2)):-compteurSol([[1, 1],[0, 0]],X).
+test("compteurSolT3",[fail]):-compteurSol([[1, 1],[0, 0]],3).
+:-end_tests(test_compteurSol).
+
+
+:-begin_tests(test_choisirXmeilleures).
+test("choisirXmeilleuresT1",[true]):-choisirXmeilleures([1,2,4,9,2,3,4,7],3,[1,2,4]).
+test("choisirXmeilleuresT2",[true]):-choisirXmeilleures([1,2,4,9,2,3,4,7],0,[]).
+test("choisirXmeilleuresT3",true(X=[1,2,4,9,2])):-choisirXmeilleures([1,2,4,9,2,3,4,7],5,X).
+test("choisirXmeilleuresT4",[fail]):-choisirXmeilleures([[1, 1],[0, 0]],1,[]).
+test("choisirXmeilleuresT5",[fail]):-choisirXmeilleures([[1, 1],[0, 0]],1,[[1, 1],[0, 0]]).
+test("choisirXmeilleuresT5",[fail]):-choisirXmeilleures([[1, 1],[0, 0]],3,[[1, 1],[0, 0]]).
+test("choisirXmeilleuresT5",[fail]):-choisirXmeilleures([[1, 1],[0, 0]],-1,[[0, 0]]).
+:-end_tests(test_choisirXmeilleures).
 
