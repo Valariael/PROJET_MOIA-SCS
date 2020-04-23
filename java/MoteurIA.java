@@ -72,7 +72,8 @@ public class MoteurIA {
                         break;
 
                     case CODE_COUP_SELF:
-                        coup = jeu.getSelfCoup();
+                        coup = jeu.getSelfCoup();//TODO : si temps de calcul ~5sec, threader pour pouvoir interrompre
+                        dos.writeInt(CODE_OK);
                         dos.writeInt(coup.getBloque());
                         dos.writeInt(coup.getPion());
                         dos.writeInt(coup.getLigne());

@@ -53,16 +53,7 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur)
     TCase caseCible;
     TPion pion;
 
-    //Envoi du signal et réception du prochain coup à jouer.
-    data = htonl(CODE_COUP_SELF);
-    err = send(sockIA, &data, sizeof(int), 0);
-    if (err <= 0)
-    {
-        perror("joueur> erreur send code req coup self IA");
-        shutdownClose(sockIA);
-        return -1;
-    }
-
+    //Réception du prochain coup à jouer.
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
@@ -350,7 +341,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
 //mettre les return au propre
 int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur)
 {
-    int err, joueur = commence, continuer = 1, data,nsfd;
+    int err, joueur = commence, continuer = 1, data, nsfd;
     TCoupReq reqCoup;
     TCoupRep repCoup;
     struct timeval timeout;
@@ -393,17 +384,23 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
         //Si c'est à nous de jouer.
         if (joueur)
         {
+            //Envoi du signal pour récupérer le prochain coup.
+            data = htonl(CODE_COUP_SELF);
+            err = send(sockIA, &data, sizeof(int), 0);
+            if (err <= 0)
+            {
+                perror("joueur> erreur send code req coup self IA");
+                shutdownClose(sockIA);
+                return -4;
+            }
 
-            
+            data = -1;
             FD_ZERO(&readSet);
             FD_SET(sockIA, &readSet);
             FD_SET(sockServeur, &readSet);
-            timeout.tv_usec = 4500000;//TODO change
+            timeout.tv_usec = 4500000;//TODO ajuster
             nsfd = (sockIA > sockServeur  ? sockIA + 1 : sockServeur + 1);
-            printf("nsfd : %d\n",nsfd);
-            printf("sockIA : %d\n",sockIA);
-            printf("sockServeur : %d\n",sockServeur);
-            err = select(nsfd, &readSet, NULL, NULL, &timeout);//TODO corriger bug select
+            err = select(nsfd, &readSet, NULL, NULL, &timeout);
             if (err < 0) 
             {
                 //Erreur au select.
@@ -420,53 +417,64 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             {
                 if (FD_ISSET(sockServeur, &readSet) != 0)
                 {
+                    //Gestion de la réception du TIMEOUT du serveur.
                     err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
                     if (err <= 0)
                     {
-                        perror("joueur> erreur recv : timeout serveur");
+                        perror("joueur> erreur recv : timeout");
                         shutdownClose(sockIA);
                         return -6;
                     } 
                 }
                 if (FD_ISSET(sockIA, &readSet) != 0)
                 {
-                    //Calcul du prochain coup.
-                    err = prochainCoup(sockIA, &reqCoup, couleur);
+                    //Réception de CODE_OK quand le coup est prêt.
+                    err = recvIntFromJava(sockIA, &data);
                     if (err < 0)
                     {
-                        printf("joueur> erreur calcul prochain coup fdIA=%d\n", sockIA);
-                        shutdownClose(sockIA);
-                        return -4;
+                        perror("joueur> erreur recv CODE_OK coup pret");
+                        return -7;
                     }
-
-                    //Envoi du coup calculé.
-                    err = send(sockServeur, &reqCoup, sizeof(TCoupReq), 0); 
-                    if (err <= 0)
-                    {
-                        perror("joueur> erreur send ");
-                        shutdownClose(sockIA);
-                        return -6;
-                    }
-                     //Réception de la validation du coup.
-                    err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
-                    if (err <= 0)
-                    {
-                        perror("joueur> erreur recv rep coup");
-                        shutdownClose(sockServeur);
-                        return -8;
-                    }
-
-                    //Arrêt en cas d'erreur sur le coup joué.
-                    if (repCoup.err != ERR_OK)
-                    {
-                        printf("joueur> erreur sur le coup joué\n");
-                        shutdownClose(sockServeur);
-                        return -7;//TODO: improve
-                    } 
                 }
-            }    
+            } 
 
-           
+            //Si le coup est prêt dans les temps, le transmettre au serveur et recevoir la réponse.
+            if (data == CODE_OK)
+            {
+                //Calcul du prochain coup.
+                err = prochainCoup(sockIA, &reqCoup, couleur);
+                if (err < 0)
+                {
+                    printf("joueur> erreur calcul prochain coup fdIA=%d\n", sockIA);
+                    shutdownClose(sockIA);
+                    return -4;
+                }
+
+                //Envoi du coup calculé.
+                err = send(sockServeur, &reqCoup, sizeof(TCoupReq), 0); 
+                if (err <= 0)
+                {
+                    perror("joueur> erreur send ");
+                    shutdownClose(sockIA);
+                    return -6;
+                }
+                 //Réception de la validation du coup.
+                err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+                if (err <= 0)
+                {
+                    perror("joueur> erreur recv rep coup");
+                    shutdownClose(sockServeur);
+                    return -8;
+                }
+
+                //Arrêt en cas d'erreur sur le coup joué.
+                if (repCoup.err != ERR_OK)
+                {
+                    printf("joueur> erreur sur le coup joué\n");
+                    shutdownClose(sockServeur);
+                    return -7;//TODO: improve
+                }
+            }           
 
             afficherValidationCoup(repCoup, joueur);
 
