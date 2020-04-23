@@ -260,9 +260,8 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 		FD_ZERO(&readSet);
 		FD_SET(sockJoueur1, &readSet);
 		FD_SET(sockJoueur2, &readSet);
-		timeout.tv_sec = 100;//TODO change
+		timeout.tv_usec = 5000000;
 		nsfd = (sockJoueur1 > sockJoueur2 ? sockJoueur1 + 1 : sockJoueur2 + 1);
-
 		err = select(nsfd, &readSet, NULL, NULL, &timeout);
 		if (err < 0) 
 		{
@@ -299,7 +298,6 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 				if (err < 0)
 				{
 					perror("arbitre> erreur traitement coup 1");
-					//TODO: interruption partie ???
 					shutdownCloseBoth(sockJoueur1, sockJoueur2);
 					return -3;
 				}
