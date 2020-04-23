@@ -130,6 +130,7 @@ public class Quantik
             }
             else
             {
+                //coup.setPropriete(3);
                 System.exit(-1);
                 /*Variable X = new Variable("X");
                 //recherche du coup à effectuer

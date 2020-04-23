@@ -245,7 +245,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 
 	return 0;
 }
-
+//TODO vérifier que la couleur ne swap pas à la seconde partie
 int jouerPartie (int sockJoueur1, int sockJoueur2)
 {
 	int err, nsfd, sockJoueurCourant = sockJoueur1, continuerPartie = 1;
@@ -255,7 +255,7 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 	
 	initialiserPartie();
 	while (continuerPartie)
-	{
+	{//TODO refactor shutdown
 		//Préparation du select pour le timeout.
 		FD_ZERO(&readSet);
 		FD_SET(sockJoueur1, &readSet);
@@ -366,6 +366,7 @@ int main (int argc, char **argv)
 	//Processus d'origine doit continuer à pouvoir lancer des nouvelles parties.
 	while (estServeur)
 	{
+		//TODO vérifier terminaison de la seconde partie 
 		//Connexion de deux joueurs pour une partie.
 		err = paireJoueurValides(&sockJoueur1, &sockJoueur2, sockConnexion);
 		if (err < 0)

@@ -403,7 +403,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             printf("nsfd : %d\n",nsfd);
             printf("sockIA : %d\n",sockIA);
             printf("sockServeur : %d\n",sockServeur);
-            err = select(nsfd, &readSet, NULL, NULL, &timeout);//
+            err = select(nsfd, &readSet, NULL, NULL, &timeout);//TODO corriger bug select
             if (err < 0) 
             {
                 //Erreur au select.
@@ -535,7 +535,8 @@ int main (int argc, char **argv)
         portDest,
         portIA,
         err,
-        idJoueur = rand() % 100;//TODO projet fini -> enlver affichages
+        idJoueur = rand() % 100,
+        termine = 6;//TODO projet fini -> enlver affichages
     char* nomMachineDest;
     TPartieReq reqPartie;
     TPartieRep repPartie;
@@ -670,7 +671,13 @@ int main (int argc, char **argv)
             printf("joueur> erreur 2eme partie\n");
             return -11;
         }
-
+        
+        err = send(sockIA,&termine,sizeof(int),0);
+        if (err <= 0)
+        {
+            printf("joueur> erreur terminaison partie IA\n");
+            return -12;
+        }
         shutdownCloseBoth(sock, sockIA);
     }
     else
@@ -683,7 +690,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie\n");
-            return -12;
+            return -13;
         }
 
         //Deuxième manche.
@@ -691,7 +698,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie\n");
-            return -13;
+            return -14;
         }
 
         shutdownClose(sock);
