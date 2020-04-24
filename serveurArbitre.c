@@ -138,7 +138,6 @@ int envoyerRepCoup (int sockJoueur, int sockAutreJoueur, TCoupRep *repCoup)
 	if (err <= 0)
 	{
 		perror("arbitre> erreur send rep coup 1");
-		shutdownCloseBoth(sockJoueur, sockAutreJoueur);
 		return -1;
 	}
 
@@ -147,7 +146,6 @@ int envoyerRepCoup (int sockJoueur, int sockAutreJoueur, TCoupRep *repCoup)
 	if (err <= 0)
 	{
 		perror("arbitre> erreur send rep coup 2");
-		shutdownCloseBoth(sockJoueur, sockAutreJoueur);
 		return -2;
 	}
 
@@ -171,7 +169,6 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 		if (err <= 0)
 		{
 			perror("arbitre> erreur recv coup 1");
-			shutdownCloseBoth(sockJoueur, sockAutreJoueur);
 			return -1;
 		}
 		else
@@ -219,7 +216,6 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 				if (err <= 0)
 				{
 					perror("arbitre> erreur send coup continuer 2");
-					shutdownCloseBoth(sockJoueur, sockAutreJoueur);
 					return -4;
 				}
 			}
@@ -268,7 +264,6 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 			//Erreur au select.
 			perror("arbitre> erreur select");
 			//TODO: interruption partie ???
-			shutdownCloseBoth(sockJoueur1, sockJoueur2);
 			return -1;
 		} 
 		else if (err == 0)
@@ -298,7 +293,6 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 				if (err < 0)
 				{
 					perror("arbitre> erreur traitement coup 1");
-					shutdownCloseBoth(sockJoueur1, sockJoueur2);
 					return -3;
 				}
 				else if (err > 0)
@@ -318,7 +312,6 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 				{
 					perror("arbitre> erreur traitement coup 2");
 					//TODO: interruption partie ???
-					shutdownCloseBoth(sockJoueur1, sockJoueur2);
 					return -4;
 				}
 				else if (err > 0)
@@ -408,6 +401,7 @@ int main (int argc, char **argv)
 	if (err < 0)
 	{
 		printf("arbitre> erreur 1ere partie fdB=%d fdN=%d\n", sockJoueur1, sockJoueur2);
+		shutdownCloseBoth(sockJoueur1,sockJoueur2);
 		return -3;
 	}
 
@@ -416,6 +410,7 @@ int main (int argc, char **argv)
 	if (err < 0)
 	{
 		printf("arbitre> erreur 2eme partie fdB=%d fdN=%d\n", sockJoueur2, sockJoueur1);
+		shutdownCloseBoth(sockJoueur1,sockJoueur2);
 		return -4;
 	}
 

@@ -49,7 +49,8 @@ public class MoteurIA {
             e.printStackTrace();
             System.exit(-1);
         }
-        Coup coup;
+        Coup coup,coupSecours;
+        int coupUtilise;
         try
         {
             socketServeur = new ServerSocket(port);
@@ -72,6 +73,13 @@ public class MoteurIA {
                         break;
 
                     case CODE_COUP_SELF:
+                        coupSecours = jeu.getCoupSecours();//On calcul le coup de secours en premier
+                        dos.writeInt(CODE_OK);
+                        dos.writeInt(coupSecours.getBloque());
+                        dos.writeInt(coupSecours.getPion());
+                        dos.writeInt(coupSecours.getLigne());
+                        dos.writeInt(coupSecours.getColonne());
+                        dos.writeInt(coupSecours.getPropriete());
                         coup = jeu.getSelfCoup();//TODO : si temps de calcul ~5sec, threader pour pouvoir interrompre
                         dos.writeInt(CODE_OK);
                         dos.writeInt(coup.getBloque());
@@ -79,6 +87,8 @@ public class MoteurIA {
                         dos.writeInt(coup.getLigne());
                         dos.writeInt(coup.getColonne());
                         dos.writeInt(coup.getPropriete());
+
+                        
                         break;
 
                     case CODE_COUP_ADV:

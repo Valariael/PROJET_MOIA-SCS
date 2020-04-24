@@ -6,10 +6,10 @@ import java.util.*;
  * Une instance de Quantik conserve l'état du jeu et intéragit avec le moteur Prolog
  * pour réaliser les actions de jeu ainsi que détecter les fin de partie.
  */
-public class Quantik
+public class Quantik extends
 {
-    private Term joueurSelf, joueurAdv, grille, indices;
-    private int dernierePos;
+    private Term joueurSelf, joueurAdv, grille, indices,joueurSelfSecours, grilleSecours, indicesSecours;
+    private int dernierePos,dernierePosSecours;
     private boolean isBlanc;
 
     /**
@@ -59,6 +59,7 @@ public class Quantik
                 new Term[] {new org.jpl7.Integer(16), X}
         );
         this.grille = grille.oneSolution().get("X");
+        this.grilleSecours = this.grille;
         grille.close();
 
         //Création de la liste d'indices
@@ -67,10 +68,12 @@ public class Quantik
                 new Term[] {new org.jpl7.Integer(1), X}
         );
         this.indices = indices.oneSolution().get("X");
+        this.indicesSecours = this.indices;
         indices.close();
 
         //Affectation des états en fonction de la couleur de pion
         joueurSelf = (isBlanc ? solution1.get("X") : solution2.get("X"));
+        joueurSelfSecours = joueurSelf;
         joueurAdv = (isBlanc ? solution2.get("X") : solution1.get("X"));
     }
 
@@ -124,7 +127,7 @@ public class Quantik
                 dernierePos = solution.get("Ind").intValue();
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
-                coup.setPropriete(computePropriete());
+                coup.setPropriete(computePropriete(this.dernierePos));
 
                 System.out.println(coup.toString());
             }
@@ -153,6 +156,61 @@ public class Quantik
         return coup;
     }
 
+
+
+    
+    public Coup getCoupSecours()
+    {
+        Coup coup = new Coup();
+        Variable Ind = new Variable("Ind");
+        Variable Forme = new Variable("Forme");
+        Variable NvGrille = new Variable("NvGrille");
+        Variable NvListeInd = new Variable("NvListeInd");
+        Variable NvJ = new Variable("NvJ");
+
+            Query jouerMeilleurCoupRatioEtBloque = new Query(
+                    "jouerMeilleurCoupRatioEtBloque",
+                    new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
+            );
+            if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
+            {
+                Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
+
+                this.grilleSecours = solution.get("NvGrille");
+                this.indicesSecours = solution.get("NvListeInd");
+                this.joueurSelfSecours = solution.get("NvJ");
+                coup.setLigneColonnePl(solution.get("Ind").intValue());
+                dernierePosSecours = solution.get("Ind").intValue();
+                coup.setPionPl(solution.get("Forme").intValue());
+                coup.setBloque(0);
+                coup.setPropriete(computePropriete(this.dernierePosSecours));
+
+                System.out.println(coup.toString());
+            }
+            else
+            {
+                //coup.setPropriete(3);
+                System.exit(-1);
+                /*Variable X = new Variable("X");
+                //recherche du coup à effectuer
+                Query rechercheCoup = new Query(
+                        "heuristique",//TODO une fois l'heuristique créée, récupérer le meilleur coup possible
+                        new Term[]{X}
+                );
+                //On joue le coup récupéré
+                Query jcoup = new Query(
+                        "jouercoup",
+                        new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvJ}
+                );
+                //on modifie le plateau (ajouter la modif de la dernière position utilisée aussi)
+                this.grille = jcoup.oneSolution().get("NvGrille").toString();
+                this.indices = jcoup.oneSolution().get("NvInd").toString();
+                this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();*/
+            }
+        }
+
+        return coup;
+    }
     /**
      * Fait jouer à l'adversaire un coup fourni.
      * Met également à jour l'état du jeu.
@@ -184,11 +242,11 @@ public class Quantik
      * Calcule la propriété de l'état du jeu : CONT:0 / GAGNE:1 / NUL:2 / PERDU:3.
      * @return un entier représentant la propriété de l'état du jeu
      */
-    public int computePropriete()//TODO: handle partie perdue
+    public int computePropriete(int pos)//TODO: handle partie perdue
     {
         Query etatFinal = new Query(
                 "etatFinalTest",
-                new Term[] {this.grille, new org.jpl7.Integer(this.dernierePos)}
+                new Term[] {this.grille, new org.jpl7.Integer(pos)}
         );
 
         int propriete;

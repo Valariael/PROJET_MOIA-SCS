@@ -31,7 +31,6 @@ int recvIntFromJava(int sock, int *data)
         if (err < 0)
         {
             perror("joueur> erreur recv Java MSG_PEEK");
-            shutdownClose(sock);
             return -1;
         }
     }
@@ -39,7 +38,6 @@ int recvIntFromJava(int sock, int *data)
     if (err <= 0)
     {
         perror("joueur> erreur recv Java");
-        shutdownClose(sock);
         return -2;
     }
     *data = ntohl(*data);
@@ -115,7 +113,6 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     if (err <= 0)
     {
         perror("joueur> erreur send code req coup adv IA");
-        shutdownClose(sockIA);
         return -1;
     }
 
@@ -124,7 +121,6 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     if (err <= 0)
     {
         perror("joueur> erreur send estBloque IA");
-        shutdownClose(sockIA);
         return -2;
     }
 
@@ -133,7 +129,6 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     if (err <= 0)
     {
         perror("joueur> erreur send typePion IA");
-        shutdownClose(sockIA);
         return -3;
     }
 
@@ -142,7 +137,6 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     if (err <= 0)
     {
         perror("joueur> erreur send ligne IA");
-        shutdownClose(sockIA);
         return -4;
     }
 
@@ -151,7 +145,6 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     if (err <= 0)
     {
         perror("joueur> erreur send colonne IA");
-        shutdownClose(sockIA);
         return -5;
     }
 
@@ -160,7 +153,6 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     if (err <= 0)
     {
         perror("joueur> erreur send colonne IA");
-        shutdownClose(sockIA);
         return -6;
     }
 
@@ -266,8 +258,8 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
             if (err <= 0)
             {
                 perror("joueur> erreur send req coup");
-                shutdownClose(sockServeur); //TODO select read + write pour gérer la réception du timeout
-                return -5;
+//TODO select read + write pour gérer la réception du timeout
+                return -1;
             }
 
             //Réception de la validation du coup.
@@ -275,16 +267,14 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup");
-                shutdownClose(sockServeur);
-                return -6;
+                return -2;
             }
 
             //Arrêt en cas d'erreur sur le coup joué.
             if (repCoup.err != ERR_OK)
             {
                 printf("joueur> erreur sur le coup joué\n");
-                shutdownClose(sockServeur);
-                return -7;//TODO: improve
+                return -3;//TODO: improve
             }
 
             afficherValidationCoup(repCoup, joueur);
@@ -308,8 +298,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup adverse");
-                shutdownClose(sockServeur);
-                return -8;
+                return -4;
             }
 
             afficherValidationCoup(repCoup, joueur);
@@ -329,8 +318,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
                 if (err <= 0)
                 {
                     perror("joueur> erreur recv req coup adverse");
-                    shutdownClose(sockServeur);
-                    return -9;
+                    return -5;
                 }
             }
         }
@@ -342,7 +330,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
 int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur)
 {
     int err, joueur = commence, continuer = 1, data, nsfd;
-    TCoupReq reqCoup;
+    TCoupReq reqCoup,reqCoupSecours;
     TCoupRep repCoup;
     struct timeval timeout;
 	fd_set readSet;
@@ -362,20 +350,17 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
     if (err <= 0)
     {
         perror("joueur> erreur send code nv partie");
-        shutdownClose(sockIA);
         return -1;
     }
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
         perror("joueur> erreur recv code ok init");
-        shutdownClose(sockIA);
         return -2;
     }
     if (data != CODE_OK)
     {
         printf("joueur> erreur init partie !CODE_OK\n");
-        shutdownClose(sockIA);
         return -3;
     }
 
@@ -390,28 +375,50 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             if (err <= 0)
             {
                 perror("joueur> erreur send code req coup self IA");
-                shutdownClose(sockIA);
                 return -4;
             }
-
+            
             data = -1;
             FD_ZERO(&readSet);
             FD_SET(sockIA, &readSet);
             FD_SET(sockServeur, &readSet);
             timeout.tv_usec = 4500000;//TODO ajuster
             nsfd = (sockIA > sockServeur  ? sockIA + 1 : sockServeur + 1);
+            //On réceptionne un premier code_OK pour le coup de secours
+            err = recvIntFromJava(sockIA, &data);
+            if (err < 0)
+            {
+                perror("joueur> erreur recv CODE_OK coup de secours pret");
+                return -5;
+            }
+            //Si le code_OK est bon, on receptionne le coup d'urgence
+            if (data == CODE_OK)
+            {
+                //Calcul du prochain coup.
+                err = prochainCoup(sockIA, &reqCoup, couleur);
+                if (err < 0)
+                {
+                    printf("joueur> erreur calcul prochain coup fdIA=%d\n", sockIA);
+                    return -6;
+                }
+            }
+
             err = select(nsfd, &readSet, NULL, NULL, &timeout);
             if (err < 0) 
             {
                 //Erreur au select.
                 perror("joueur> erreur select");
-                shutdownClose(sockIA);
-                return -5;
+                return -7;
             } 
-            else if (err == 0)
+            else if (err == 0 && data == CODE_OK)
             {
-                printf("On est là nous");
-                //TODO gérer le cas timeout avec le coup d'urgence pour ne jamais risquer timeout
+                reqCoup->propCoup = reqCoupSecours->propCoup;
+                reqCoup->estBloque = reqCoupSecours->estBloque;
+                reqCoup->idRequest = reqCoupSecours->idRequest;
+                reqCoup->numPartie = reqCoupSecours->numPartie;
+                reqCoup->pion = reqCoupSecours->pion;
+                reqCoup->posPion = reqCoupSecours->posPion;
+                //On change manuellement les valeurs de reqCoup pour celles du coup de secours
             }
             else
             {
@@ -422,8 +429,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                     if (err <= 0)
                     {
                         perror("joueur> erreur recv : timeout");
-                        shutdownClose(sockIA);
-                        return -6;
+                        return -8;
                     } 
                 }
                 if (FD_ISSET(sockIA, &readSet) != 0)
@@ -433,7 +439,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                     if (err < 0)
                     {
                         perror("joueur> erreur recv CODE_OK coup pret");
-                        return -7;
+                        return -9;
                     }
                 }
             } 
@@ -446,8 +452,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                 if (err < 0)
                 {
                     printf("joueur> erreur calcul prochain coup fdIA=%d\n", sockIA);
-                    shutdownClose(sockIA);
-                    return -4;
+                    return -10;
                 }
 
                 //Envoi du coup calculé.
@@ -455,24 +460,21 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                 if (err <= 0)
                 {
                     perror("joueur> erreur send ");
-                    shutdownClose(sockIA);
-                    return -6;
+                    return -11;
                 }
                  //Réception de la validation du coup.
                 err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
                 if (err <= 0)
                 {
                     perror("joueur> erreur recv rep coup");
-                    shutdownClose(sockServeur);
-                    return -8;
+                    return -12;
                 }
 
                 //Arrêt en cas d'erreur sur le coup joué.
                 if (repCoup.err != ERR_OK)
                 {
                     printf("joueur> erreur sur le coup joué\n");
-                    shutdownClose(sockServeur);
-                    return -7;//TODO: improve
+                    return -13;//TODO: improve
                 }
             }           
 
@@ -497,8 +499,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup adverse");
-                shutdownClose(sockServeur);
-                return -8;
+                return -14;
             }
 
             afficherValidationCoup(repCoup, joueur);
@@ -518,8 +519,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                 if (err <= 0)
                 {
                     perror("joueur> erreur recv req coup adverse");
-                    shutdownClose(sockServeur);
-                    return -9;
+                    return -15;
                 }
                 
                 //Envoi du coup adverse à l'IA.
@@ -527,7 +527,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                 if (err < 0)
                 {
                     printf("joueur> erreur envoi coup adverse IA fdIA=%d\n", sockIA);
-                    return -10;
+                    return -16;
                 }
             }
         }
@@ -669,6 +669,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie\n");
+            shutDownCloseBoth(sock,sockIA);
             return -10;
         }
 
@@ -677,6 +678,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie\n");
+            shutDownCloseBoth(sock,sockIA);
             return -11;
         }
         
@@ -698,6 +700,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie\n");
+            shutdownClose(sock);
             return -13;
         }
 
@@ -706,6 +709,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie\n");
+            shutdownClose(sock);
             return -14;
         }
 
