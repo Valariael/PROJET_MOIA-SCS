@@ -53,7 +53,7 @@ placerContrainte(Grille, Joueur, Pos, [_, Forme]):-
     nth1(Pos, Grille, [Coul, Fr]),
     Coul = 0,
     Fr = 0,
-    placerCorrect(Pos),
+    %placerCorrect(Pos), réduction des traitements inutiles
     associationLigne(Pos, Liste),
     verifContrainte(Grille, Liste, Forme, Joueur),
     associationColonne(Pos, Liste2),
@@ -63,7 +63,7 @@ placerContrainte(Grille, Joueur, Pos, [_, Forme]):-
 
 %place une forme en vérifiant les contraintes
 placer(Grille, NouvelleGrille, Joueur, Pos, [Nb, Forme]):-
-    placerCorrect(Pos),
+    %placerCorrect(Pos),
     placerContrainte(Grille, Joueur, Pos, [Nb, Forme]),
     placerForme(Grille, NouvelleGrille, Pos, Joueur, Forme).
 
@@ -469,28 +469,28 @@ compteurSol([],0).
 
 %insère l'état candidat dans la liste d'état suivant le ratio de victoires et défaites puis du nombre de cases bloquées
 insereC([], Parcours, [Parcours]).
-insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Result]):-
-    Quotient1 is div(Victoire1, Defaite1), 
-    Quotient2 is div(Victoire2, Defaite2), 
-    Quotient1 > Quotient2,
-    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], Result).
-insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Result]):-
-    Quotient1 is div(Victoire1, Defaite1), 
-    Quotient2 is div(Victoire2, Defaite2), 
-    Quotient1 == Quotient2,
-    Reste1 is mod(Victoire1, Defaite1),
-    Reste2 is mod(Victoire2, Defaite2),
-    Reste1 > Reste2,
-    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], Result).
-insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Result]):-
-    Quotient1 is div(Victoire1, Defaite1), 
-    Quotient2 is div(Victoire2, Defaite2), 
-    Quotient1 == Quotient2,
-    Reste1 is mod(Victoire1, Defaite1),
-    Reste2 is mod(Victoire2, Defaite2),
-    Reste1 == Reste2,
+%insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Result]):-
+%    Quotient1 is div(Victoire1, Defaite1), 
+%    Quotient2 is div(Victoire2, Defaite2), 
+%    Quotient1 > Quotient2,
+%    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], Result).
+%insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, Victoire1, Defaite1, IndCible1, FormeCible1]|Result]):-
+%    Quotient1 is div(Victoire1, Defaite1), 
+%    Quotient2 is div(Victoire2, Defaite2), 
+%    Quotient1 == Quotient2,
+%    Reste1 is mod(Victoire1, Defaite1),
+%    Reste2 is mod(Victoire2, Defaite2),
+%    Reste1 > Reste2,
+%    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], Result).
+insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]|Result]):-
+%    Quotient1 is div(Victoire1, Defaite1), 
+%    Quotient2 is div(Victoire2, Defaite2), 
+%    Quotient1 == Quotient2,
+%    Reste1 is mod(Victoire1, Defaite1),
+%    Reste2 is mod(Victoire2, Defaite2),
+%    Reste1 == Reste2,
     NbBloque1 > NbBloque2,
-    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, Victoire2, Defaite2, IndCible2, FormeCible2], Result).
+    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], Result).
 insereC([EtatCout1|Next], EtatCout2, [EtatCout2, EtatCout1|Next]).%TODO amelioration ? choisir random
 
 %insère les nouveaux états dans la liste d'états
@@ -508,12 +508,13 @@ choisirXmeilleures([L|Q], X, S):-
 
 %dans cette implémentation, l'heuristique utlise le nombre de victoires et défaites à court terme, ainsi que le nombre de cases bloquées
 %à partir d'un état du jeu, on calcule ces données pour les renvoyer
-heuristique(Grille, ListeInd, [NumJ, LP], J2, NumJ, Ind, Forme, NbBloque, Victoire, Defaite):-
+heuristique(Grille, _, [NumJ, _], _, NumJ, Ind, Forme, NbBloque):-
     casesBloquees(Grille, NumJ, Ind, Forme, NbBloque),
-    calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, J2, [NumJ, LP], Ind]], NumJ, Victoire, Defaite),
+    %trop long à calculer à chaque fois > incrémentation dans parcoursH des CoupCout
+    %calculerVictoireDefaiteLargeurLimite([[[Grille], ListeInd, J2, [NumJ, LP], Ind]], NumJ, Victoire, Defaite),
     !.
 %dans le cas de l'adversaire, le nombre de cases bloquées devient négatif
-heuristique(Grille, _, [NumJ2, _], [NumJ, _], NumJ, Ind, Forme, NbBloque, 1, 1):-
+heuristique(Grille, _, [NumJ2, _], [NumJ, _], NumJ, Ind, Forme, NbBloque):-
     casesBloquees(Grille, NumJ2, Ind, Forme, NbBloquePos),
     NbBloque is 0 - NbBloquePos,
     %pour réduire le nombre d'opérations répétées sans utilité, on ne calcule plus le ratio W/L adverse
@@ -521,23 +522,21 @@ heuristique(Grille, _, [NumJ2, _], [NumJ, _], NumJ, Ind, Forme, NbBloque, 1, 1):
     !.
 
 %joue un coup et calcule les données de l'heuristique
-deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque, Victoire, Defaite):-
+deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque):-
     jouerCoup(Grille, ListeInd, J1, Ind, Forme, NvGrille, NvListeInd, NvJ1),
-    heuristique(NvGrille, NvListeInd, NvJ1, J2, NumJ, Ind, Forme, NbBloque, Victoire, Defaite).
+    heuristique(NvGrille, NvListeInd, NvJ1, J2, NumJ, Ind, Forme, NbBloque).
 
 %si l'état n'est pas gagnant, on récupère les prochaines possibilités
-parcoursSuivant([Grille, ListeInd, J1, J2, IndPre, _, _, _, IndCible, FormeCible], ListeEtatCout, NumJ):-
+parcoursSuivant([Grille, ListeInd, J1, J2, IndPre, _, IndCible, FormeCible], ListeEtatCout, NumJ):-
     \+etatFinalTest(Grille, IndPre),
-    findall([NvGrille, NvListeInd, J2, NvJ1, Ind, NbBloque, Victoire, Defaite, IndCible, FormeCible], deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque, Victoire, Defaite), ListeEtatCout).
+    findall([NvGrille, NvListeInd, J2, NvJ1, Ind, NbBloque, IndCible, FormeCible], deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque), ListeEtatCout).
 
 %met à jour les scores heuristique pour chaque coup possible en additionnant à leur compteur le score des états dont il est l'ancêtre
 miseAJourCoupCout([], ListeCoupCout, ListeCoupCout).
-miseAJourCoupCout([[_, _, _, _, _, NbBloque1, Victoire1, Defaite1, IndCible, FormeCible]|ListeEtatCout], ListeCoupCout, RListeCoupCout):-
-    select([NbBloque2, Victoire2, Defaite2, IndCible, FormeCible], ListeCoupCout, NvListeCoupCout),
+miseAJourCoupCout([[_, _, _, _, _, NbBloque1, IndCible, FormeCible]|ListeEtatCout], ListeCoupCout, RListeCoupCout):-
+    select([NbBloque2, Victoire, Defaite, IndCible, FormeCible], ListeCoupCout, NvListeCoupCout),
     NvNbBloque is NbBloque1 + NbBloque2,
-    NvVictoire is Victoire1 + Victoire2,
-    NvDefaite is Defaite1 + Defaite2,
-    miseAJourCoupCout(ListeEtatCout, [[NvNbBloque, NvVictoire, NvDefaite, IndCible, FormeCible]|NvListeCoupCout], RListeCoupCout).
+    miseAJourCoupCout(ListeEtatCout, [[NvNbBloque, Victoire, Defaite, IndCible, FormeCible]|NvListeCoupCout], RListeCoupCout).
 
 %calcule l'étage suivant sur les meilleurs états courants en mettant à jour les données
 parcoursH([], ListeCoupCout, ListeCoupCout).
@@ -546,27 +545,39 @@ parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
     ListeEtatCoutN \= [],
     miseAJourCoupCout(ListeEtatCoutN, LC, NvLC),
     insere(ListeEtatCoutN, ListeEtatCout, NvListeEtatCout),
-    choisirXmeilleures(NvListeEtatCout, 10, ListeEtatCoutX),
+    choisirXmeilleures(NvListeEtatCout, 41, ListeEtatCoutX),%max 41 stack size default
     parcoursH(ListeEtatCoutX, [NvLC, NumJ], RListeCoupCout).
 parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
-    %cas où findall renvoie une liste vide car il n'y a aucune possibilité ou parcoursSuivant est false car c'est un état final
-    (parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ), ListeEtatCoutN = [] ; \+parcoursSuivant(EtatCout, _, NumJ)),
+    %cas où findall renvoie une liste vide car il n'y a aucune possibilité
+    parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ), 
+    ListeEtatCoutN = [],
     parcoursH(ListeEtatCout, [LC, NumJ], RListeCoupCout).
+parcoursH([[Grille, ListeInd, _, [NumJ, _], Ind, NbBloque, IndCible, FormeCible]|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
+    %cas où parcoursSuivant est false car c'est un état final gagnant
+    select([NbBloque, Victoire, Defaite, IndCible, FormeCible], LC, NvLC),
+    NvVictoire is Victoire + 1,
+    parcoursH(ListeEtatCout, [[[NbBloque, NvVictoire, Defaite, IndCible, FormeCible]|NvLC], NumJ], RListeCoupCout).
+parcoursH([[Grille, ListeInd, [NumJ, _], _, Ind, NbBloque, IndCible, FormeCible]|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
+    %cas où parcoursSuivant est false car c'est un état final perdant
+    select([NbBloque, Victoire, Defaite, IndCible, FormeCible], LC, NvLC),
+    NvDefaite is Defaite + 1,
+    parcoursH(ListeEtatCout, [[[NbBloque, Victoire, NvDefaite, IndCible, FormeCible]|NvLC], NumJ], RListeCoupCout).
+parcoursH([E|LE], [LC, NumJ], R):-%poubelle pour les états en trop...
+    parcoursH(LE, [LC, NumJ], R ).
 
-
-%identique à deplaceH TODO : remove ?
-deplaceHInit(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, [NumJ, LP], NbBloque, Victoire, Defaite):-
+%identique à deplaceH mais retourne la forme en plus
+deplaceHInit(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, [NumJ, LP], NbBloque):-
     jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, [NumJ, LP]),
-    heuristique(NvGrille, NvListeInd, [NumJ, LP], J2, NumJ, Ind, Forme, NbBloque, Victoire, Defaite).
+    heuristique(NvGrille, NvListeInd, [NumJ, LP], J2, NumJ, Ind, Forme, NbBloque).
 
 %copie les données essentielles pour garder en mémoire les coups possibles sous forme minimale
 initCoupCout([], ListeCoupCout, NumJ, [ListeCoupCout, NumJ]).
-initCoupCout([[_, _, _, _, _, NbBloque, Victoire, Defaite, IndCible, FormeCible]|ListeEtatCout], ListeCoupCout, NumJ, RListeCoupCout):-
-    initCoupCout(ListeEtatCout, [[NbBloque, Victoire, Defaite, IndCible, FormeCible]|ListeCoupCout], NumJ, RListeCoupCout).
+initCoupCout([[_, _, _, _, _, NbBloque, IndCible, FormeCible]|ListeEtatCout], ListeCoupCout, NumJ, RListeCoupCout):-
+    initCoupCout(ListeEtatCout, [[NbBloque, 1, 1, IndCible, FormeCible]|ListeCoupCout], NumJ, RListeCoupCout).
 
 %création des états de jeu pour les prochains coups possibles dans ListeEtatCout et initialisation des accumulateurs correspondants dans ListeCoupCout
 creerEtatsInitiaux(Grille, ListeInd, [NumJ, LP], J2, ListeEtatCout, ListeCoupCout):-
-    findall([NvGrille, NvListeInd, J2, NvJ1, Ind, NbBloque, Victoire, Defaite, Ind, Forme], deplaceHInit(Grille, ListeInd, [NumJ, LP], J2, Ind, Forme, NvGrille, NvListeInd, NvJ1, NbBloque, Victoire, Defaite), ListeEtatCout),
+    findall([NvGrille, NvListeInd, J2, NvJ1, Ind, NbBloque, Ind, Forme], deplaceHInit(Grille, ListeInd, [NumJ, LP], J2, Ind, Forme, NvGrille, NvListeInd, NvJ1, NbBloque), ListeEtatCout),
     initCoupCout(ListeEtatCout, [], NumJ, ListeCoupCout).
 
 %choisir le meilleur coup suivant leurs données heuristiques
