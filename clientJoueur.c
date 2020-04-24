@@ -382,52 +382,16 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             FD_ZERO(&readSet);
             FD_SET(sockIA, &readSet);
             FD_SET(sockServeur, &readSet);
-            timeout.tv_usec = 4500000;//TODO ajuster
             nsfd = (sockIA > sockServeur  ? sockIA + 1 : sockServeur + 1);
             //On réceptionne un premier code_OK pour le coup de secours
-            err = recvIntFromJava(sockIA, &data);
-            if (err < 0)
-            {
-                perror("joueur> erreur recv CODE_OK coup de secours pret");
-                return -5;
-            }
-            //Si le code_OK est bon, on receptionne le coup d'urgence
-            if (data == CODE_OK)
-            {
-                //Calcul du prochain coup.
-                err = prochainCoup(sockIA, &reqCoup, couleur);
-                if (err < 0)
-                {
-                    printf("joueur> erreur calcul prochain coup fdIA=%d\n", sockIA);
-                    return -6;
-                }
-            }
-
-            err = select(nsfd, &readSet, NULL, NULL, &timeout);
-            if (err < 0) 
+            
+            err = select(nsfd, &readSet, NULL, NULL, NULL);
+            if (err <= 0) 
             {
                 //Erreur au select.
                 perror("joueur> erreur select");
                 return -7;
-            } 
-            else if (err == 0 && data == CODE_OK)
-            {
-                int prop, numPar, bloq;
-                TCase caseCible;
-                TPion pion;
-                prop = reqCoupSecours.propCoup;
-                bloq = reqCoupSecours.estBloque;
-                numPar = reqCoupSecours.numPartie;
-                pion = reqCoupSecours.pion;
-                caseCible = reqCoupSecours.posPion;
-                reqCoup.propCoup = prop;
-                reqCoup.estBloque = bloq;
-                reqCoup.idRequest = COUP;
-                reqCoup.numPartie = numPar;
-                reqCoup.pion = pion;
-                reqCoup.posPion = caseCible;
-                //On change manuellement les valeurs de reqCoup pour celles du coup de secours
-            }
+            }     
             else
             {
                 if (FD_ISSET(sockServeur, &readSet) != 0)

@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.lang.Integer;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import java.time.*;
+import java.util.concurrent.*;
 public class MoteurIA {
     public static final int CODE_NV_PARTIE_BLANC = 1;
     public static final int CODE_NV_PARTIE_NOIR = 2;
@@ -73,22 +74,30 @@ public class MoteurIA {
                         break;
 
                     case CODE_COUP_SELF:
-                        coupSecours = jeu.getCoupSecours();//On calcul le coup de secours en premier
-                        dos.writeInt(CODE_OK);
-                        dos.writeInt(coupSecours.getBloque());
-                        dos.writeInt(coupSecours.getPion());
-                        dos.writeInt(coupSecours.getLigne());
-                        dos.writeInt(coupSecours.getColonne());
-                        dos.writeInt(coupSecours.getPropriete());
-                        coup = jeu.getSelfCoup();//TODO : si temps de calcul ~5sec, threader pour pouvoir interrompre
-                        dos.writeInt(CODE_OK);
-                        dos.writeInt(coup.getBloque());
-                        dos.writeInt(coup.getPion());
-                        dos.writeInt(coup.getLigne());
-                        dos.writeInt(coup.getColonne());
-                        dos.writeInt(coup.getPropriete());
-
                         
+                        
+                        final Duration timeout = Duration.ofSeconds(4);
+                        ExecutorService executor = Executors.newSingleThreadExecutor();
+                        Future<Coup> future = executor.submit(jeu);
+                        try {
+                            coup = future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+                            dos.writeInt(CODE_OK);
+                            dos.writeInt(coup.getBloque());
+                            dos.writeInt(coup.getPion());
+                            dos.writeInt(coup.getLigne());
+                            dos.writeInt(coup.getColonne());
+                            dos.writeInt(coup.getPropriete());
+                        } catch (Exception e) {
+                            future.cancel(true);
+                            coupSecours = jeu.getCoupSecours();//On calcul le coup de secours en premier
+                            dos.writeInt(CODE_OK);
+                            dos.writeInt(coupSecours.getBloque());
+                            dos.writeInt(coupSecours.getPion());
+                            dos.writeInt(coupSecours.getLigne());
+                            dos.writeInt(coupSecours.getColonne());
+                            dos.writeInt(coupSecours.getPropriete());
+                        }
+                        executor.shutdownNow();
                         break;
 
                     case CODE_COUP_ADV:

@@ -1,17 +1,17 @@
 import org.jpl7.*;
 import java.io.*;
 import java.util.*;
-
+import java.util.concurrent.*;
 /**
  * Une instance de Quantik conserve l'état du jeu et intéragit avec le moteur Prolog
  * pour réaliser les actions de jeu ainsi que détecter les fin de partie.
  */
-public class Quantik
+public class Quantik implements Callable<Coup>
 {
-    private Term joueurSelf, joueurAdv, grille, indices,joueurSelfSecours, grilleSecours, indicesSecours;
+    private Term joueurSelf, joueurAdv, grille, indices;
     private int dernierePos,dernierePosSecours;
     private boolean isBlanc;
-
+    private Coup coupCourant;
     /**
      * Initialise le moteur Prolog en consultant le fichier d'IA.
      * @throws Exception en cas d'échec du consult
@@ -59,7 +59,6 @@ public class Quantik
                 new Term[] {new org.jpl7.Integer(16), X}
         );
         this.grille = grille.oneSolution().get("X");
-        this.grilleSecours = this.grille;
         grille.close();
 
         //Création de la liste d'indices
@@ -68,12 +67,10 @@ public class Quantik
                 new Term[] {new org.jpl7.Integer(1), X}
         );
         this.indices = indices.oneSolution().get("X");
-        this.indicesSecours = this.indices;
         indices.close();
 
         //Affectation des états en fonction de la couleur de pion
         joueurSelf = (isBlanc ? solution1.get("X") : solution2.get("X"));
-        joueurSelfSecours = joueurSelf;
         joueurAdv = (isBlanc ? solution2.get("X") : solution1.get("X"));
     }
 
@@ -82,7 +79,7 @@ public class Quantik
      * Met également à jour l'état du jeu.
      * @return une instance Coup représentant le coup joué
      */
-    public Coup getSelfCoup()
+    public Coup call() throws Exception
     {
         Coup coup = new Coup();
         Variable Ind = new Variable("Ind");
@@ -90,7 +87,6 @@ public class Quantik
         Variable NvGrille = new Variable("NvGrille");
         Variable NvListeInd = new Variable("NvListeInd");
         Variable NvJ = new Variable("NvJ");
-
         Query jouerCoupGagnantBloquant = new Query(
                 "jouerCoupGagnantBloquant",
                 new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
@@ -176,14 +172,14 @@ public class Quantik
             {
                 Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
 
-                this.grilleSecours = solution.get("NvGrille");
-                this.indicesSecours = solution.get("NvListeInd");
-                this.joueurSelfSecours = solution.get("NvJ");
+                this.grille = solution.get("NvGrille");
+                this.indices = solution.get("NvListeInd");
+                this.joueurSelf = solution.get("NvJ");
                 coup.setLigneColonnePl(solution.get("Ind").intValue());
-                dernierePosSecours = solution.get("Ind").intValue();
+                dernierePos = solution.get("Ind").intValue();
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
-                coup.setPropriete(computePropriete(this.dernierePosSecours));
+                coup.setPropriete(computePropriete(this.dernierePos));
 
                 System.out.println(coup.toString());
             }
