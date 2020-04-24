@@ -3,8 +3,14 @@
 #sh soloPlay.sh portServeur portIAJoueur1 portIAJoueur2
 
 if [ $# -ne 3 ]; then
-	echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2>"
-	exit -1
+	if [ $# -ne 4 ]; then
+		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> [*]"
+		exit -1
+	else
+		binaireFourni=true
+	fi
+else
+	binaireFourni=false
 fi
 
 clear
@@ -38,7 +44,11 @@ if [ $err -ne "0" ]; then
 	echo "Erreur à la compilation du serveur/client !"
 	exit -1
 fi
-./serveurArbitre $1 &
+if [ "$binaireFourni" = true ]; then
+	./quantikServeur $1 &
+else
+	./serveurArbitre $1 &
+fi
 echo "Serveur lancé."
 
 ./clientJoueur 127.0.0.1 $1 noir N $2 &
