@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#sh soloPlay.sh portServeur portIAJoueur1 portIAJoueur2
+#sh soloPlay.sh portServeur portIAJoueur1 portIAJoueur2 [*]
+#n'importe quoi en 4ème paramètre pour exécuter avec le binaire de serveur fourni
 
 if [ $# -ne 3 ]; then
 	if [ $# -ne 4 ]; then

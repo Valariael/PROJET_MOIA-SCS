@@ -229,29 +229,21 @@ appendIndVides([_|ListeInd], [_|ListeCases], AccIndBloques, RAccIndBloques):-
 %paramètres : liste des indices affectés; liste des cases affectées; forme jouée, indice joué; numéro du joueur;
 %               compteur de cases bloquées pour pouvoir revenir en arrière en cas de pion identique trouvé;
 %               nombre de cases bloquées résultat; nombre de cases bloquées courant; liste des indices bloqués courant;
-%               liste des indices bloqués résultat; liste des indices ayant été vus deux fois donc plus besoin de décrémenter;
-%               liste des indices ayant été vus deux fois résultat.
-compterCasesBloquees([], [], _, _, _, NbBloque, NbBloque, AccIndBloques, AccIndBloques, AccIndBloquesSous, AccIndBloquesSous).
-compterCasesBloquees([Ind|ListeInd], [[0, 0]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
+%               liste des indices bloqués résultat.
+compterCasesBloquees([], [], _, _, _, NbBloque, NbBloque, AccIndBloques, AccIndBloques).
+compterCasesBloquees([Ind|ListeInd], [[0, 0]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
     \+member(Ind, AccIndBloques),
     NvNbBloque is NbBloque + 1,
     NvAccNb is AccNb + 1,
     NvAccIndBloques = [Ind|AccIndBloques],
-    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, NvAccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous).
-compterCasesBloquees([_|ListeInd], [[NumJ, Forme]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
+    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, NvAccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques).
+compterCasesBloquees([_|ListeInd], [[NumJ, Forme]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
     appendIndVides(ListeInd, ListeCases, AccIndBloques, NvAccIndBloques),
     NvNbBloque is NbBloque - AccNb,
-    compterCasesBloquees([], [], Forme, NumJ, AccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous).
-compterCasesBloquees([Ind|ListeInd], [_|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
-    member(Ind, AccIndBloques),
-    \+member(Ind, AccIndBloquesSous),
-    NvNbBloque is NbBloque - 1,
-    NvAccIndBloquesSous = [Ind|AccIndBloquesSous],
-    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, AccNb, RNbBloque, NvNbBloque, AccIndBloques, RAccIndBloques, NvAccIndBloquesSous, RAccIndBloquesSous).
-compterCasesBloquees([_|ListeInd], [_|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous):-
-    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques, AccIndBloquesSous, RAccIndBloquesSous).
+    compterCasesBloquees([], [], Forme, NumJ, AccNb, RNbBloque, NvNbBloque, NvAccIndBloques, RAccIndBloques).
+compterCasesBloquees([_|ListeInd], [_|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
+    compterCasesBloquees(ListeInd, ListeCases, Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques).
 
-%TODO NbBloque3 final pas bon +/- 1 ou 2
 %à partir d'un coup et d'un plateau, calcule le nombre de mouvements bloqués dans les 3 quadruplets
 casesBloquees(Grille, NumJ, Ind, Forme, NbBloque3):-
     associationLigne(Ind, ListeLi),
@@ -260,9 +252,10 @@ casesBloquees(Grille, NumJ, Ind, Forme, NbBloque3):-
     recupIndices(Grille, ListeLi, ListeLiInd),
     recupIndices(Grille, ListeCo, ListeCoInd),
     recupIndices(Grille, ListeCa, ListeCaInd),
-    compterCasesBloquees(ListeLi, ListeLiInd, Forme, NumJ, 0, NbBloque1, 0, [], AccIndBloques1, [], AccIndBloquesSous1),
-    compterCasesBloquees(ListeCo, ListeCoInd, Forme, NumJ, 0, NbBloque2, NbBloque1, AccIndBloques1, AccIndBloques2, AccIndBloquesSous1, AccIndBloquesSous2),
-    compterCasesBloquees(ListeCa, ListeCaInd, Forme, NumJ, 0, NbBloque3, NbBloque2, AccIndBloques2, _, AccIndBloquesSous2, _).
+    compterCasesBloquees(ListeLi, ListeLiInd, Forme, NumJ, 0, NbBloque1, 0, [], AccIndBloques1),
+    compterCasesBloquees(ListeCo, ListeCoInd, Forme, NumJ, 0, NbBloque2, NbBloque1, AccIndBloques1, AccIndBloques2),
+    compterCasesBloquees(ListeCa, ListeCaInd, Forme, NumJ, 0, NbBloque3, NbBloque2, AccIndBloques2, _),
+    !.
 
 %joue un coup et récupère le nombre de mouvements bloqués
 casesBloqueesParCoup(Grille, ListeInd, [NumJ, LP], Ind, Forme, NbBloque):-
