@@ -412,12 +412,20 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             } 
             else if (err == 0 && data == CODE_OK)
             {
-                reqCoup->propCoup = reqCoupSecours->propCoup;
-                reqCoup->estBloque = reqCoupSecours->estBloque;
-                reqCoup->idRequest = reqCoupSecours->idRequest;
-                reqCoup->numPartie = reqCoupSecours->numPartie;
-                reqCoup->pion = reqCoupSecours->pion;
-                reqCoup->posPion = reqCoupSecours->posPion;
+                int prop, numPar, bloq;
+                TCase caseCible;
+                TPion pion;
+                prop = reqCoupSecours.propCoup;
+                bloq = reqCoupSecours.estBloque;
+                numPar = reqCoupSecours.numPartie;
+                pion = reqCoupSecours.pion;
+                caseCible = reqCoupSecours.posPion;
+                reqCoup.propCoup = prop;
+                reqCoup.estBloque = bloq;
+                reqCoup.idRequest = COUP;
+                reqCoup.numPartie = numPar;
+                reqCoup.pion = pion;
+                reqCoup.posPion = caseCible;
                 //On change manuellement les valeurs de reqCoup pour celles du coup de secours
             }
             else
@@ -669,7 +677,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie\n");
-            shutDownCloseBoth(sock,sockIA);
+            shutdownCloseBoth(sock,sockIA);
             return -10;
         }
 
@@ -678,7 +686,7 @@ int main (int argc, char **argv)
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie\n");
-            shutDownCloseBoth(sock,sockIA);
+            shutdownCloseBoth(sock,sockIA);
             return -11;
         }
         

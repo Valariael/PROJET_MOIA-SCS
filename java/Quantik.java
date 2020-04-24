@@ -6,7 +6,7 @@ import java.util.*;
  * Une instance de Quantik conserve l'état du jeu et intéragit avec le moteur Prolog
  * pour réaliser les actions de jeu ainsi que détecter les fin de partie.
  */
-public class Quantik extends
+public class Quantik
 {
     private Term joueurSelf, joueurAdv, grille, indices,joueurSelfSecours, grilleSecours, indicesSecours;
     private int dernierePos,dernierePosSecours;
@@ -106,7 +106,7 @@ public class Quantik extends
             dernierePos = solution.get("Ind").intValue();
             coup.setPionPl(solution.get("Forme").intValue());
             coup.setBloque(0);
-            coup.setPropriete(computePropriete());
+            coup.setPropriete(computePropriete(dernierePos));
 
             System.out.println(coup.toString());
         }
@@ -207,7 +207,6 @@ public class Quantik extends
                 this.indices = jcoup.oneSolution().get("NvInd").toString();
                 this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();*/
             }
-        }
 
         return coup;
     }
