@@ -90,8 +90,9 @@ public class MoteurIA {
                             dos.writeInt(coup.getColonne());
                             dos.writeInt(coup.getPropriete());
                         } catch (Exception e) {
+                            e.printStackTrace();
                             future.cancel(true);
-                            coupSecours = jeu.getCoupSecours();//On calcul le coup de secours en premier
+                            coupSecours = jeu.getCoupSecours();
                             dos.writeInt(CODE_OK);
                             dos.writeInt(coupSecours.getBloque());
                             dos.writeInt(coupSecours.getPion());

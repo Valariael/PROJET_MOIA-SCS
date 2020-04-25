@@ -106,7 +106,7 @@ public class Quantik implements Callable<Coup>
 
             System.out.println(coup.toString());
         }
-        else if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2) || (this.indices.toTermArray().length < 10) )
+        else if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 10) )
         {
             Query jouerMeilleurCoupRatioEtBloque = new Query(
                     "jouerMeilleurCoupRatioEtBloque",
@@ -114,6 +114,7 @@ public class Quantik implements Callable<Coup>
             );
             if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
             {
+                System.out.println("On passe ici");
                 Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
 
                 this.grille = solution.get("NvGrille");
@@ -131,7 +132,6 @@ public class Quantik implements Callable<Coup>
             {
                 coup.setBloque(1);
                 coup.setPropriete(3);
-                System.exit(-1);
                 /*Variable X = new Variable("X");
                 //recherche du coup à effectuer
                 Query rechercheCoup = new Query(
@@ -155,7 +155,7 @@ public class Quantik implements Callable<Coup>
             /*jouerCoupMiroir(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible):-
             associationMiroir(Ind, IndCible),
             jouerCoup(Grille, ListeInd, J, IndCible, Forme, NvGrille, NvListeInd, NvJ).*/
-
+            
              Variable IndCible = new Variable("IndCible");
              Query jouerCoupMiroir = new Query(
                     "jouerCoupMiroir",
@@ -180,7 +180,6 @@ public class Quantik implements Callable<Coup>
             {
                 coup.setBloque(1);
                 coup.setPropriete(3);
-                System.exit(-1);
             }
         }
 
@@ -215,14 +214,12 @@ public class Quantik implements Callable<Coup>
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
                 coup.setPropriete(computePropriete(this.dernierePos));
-                System.out.println(this.toString());
                 System.out.println(coup.toString());
             }
             else
             {
                 coup.setBloque(1);
                 coup.setPropriete(3);
-                System.exit(-1);
                 /*Variable X = new Variable("X");
                 //recherche du coup à effectuer
                 Query rechercheCoup = new Query(
