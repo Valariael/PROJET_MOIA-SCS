@@ -106,7 +106,7 @@ public class Quantik implements Callable<Coup>
 
             System.out.println(coup.toString());
         }
-        else if (((isBlanc || (!isBlanc && this.indices.toTermArray().length > 6)) && numPartie == 1) ||((!isBlanc || (isBlanc && this.indices.toTermArray().length > 6)) && numPartie == 2))
+        else if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2) || (this.indices.toTermArray().length < 10) )
         {
             Query jouerMeilleurCoupRatioEtBloque = new Query(
                     "jouerMeilleurCoupRatioEtBloque",
