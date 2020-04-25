@@ -327,14 +327,13 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
     return 0;
 }
 //mettre les return au propre
-int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur)
+int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur, int* num)
 {
     int err, joueur = commence, continuer = 1, data, nsfd;
     TCoupReq reqCoup,reqCoupSecours;
     TCoupRep repCoup;
     struct timeval timeout;
 	fd_set readSet;
-
     printf("joueur> id=%d commence ? %d\n", idJoueur, commence);
 
     //Envoi du signal d'initialisation de partie.
@@ -346,10 +345,17 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
     {
         data = htonl(CODE_NV_PARTIE_NOIR);
     }
+    
     err = send(sockIA, &data, sizeof(int), 0);
     if (err <= 0)
     {
         perror("joueur> erreur send code nv partie");
+        return -1;
+    }
+    err = send(sockIA, num, sizeof(int), 0);
+    if (err <= 0)
+    {
+        perror("joueur> erreur send num partie");
         return -1;
     }
     err = recvIntFromJava(sockIA, &data);
@@ -516,7 +522,8 @@ int main (int argc, char **argv)
         portIA,
         err,
         idJoueur = rand() % 100,
-        termine = 6;//TODO projet fini -> enlver affichages
+        termine = 6,
+        num = 1;//TODO projet fini -> enlver affichages
     char* nomMachineDest;
     TPartieReq reqPartie;
     TPartieRep repPartie;
@@ -637,16 +644,16 @@ int main (int argc, char **argv)
         printf("joueur> début jeu IA\n");
 
         //Première manche.
-        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, idJoueur);
+        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, idJoueur, &num);
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie\n");
             shutdownCloseBoth(sock,sockIA);
             return -10;
         }
-
+        num++;
         //Deuxième manche.
-        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, idJoueur);
+        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, idJoueur, &num);
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie\n");

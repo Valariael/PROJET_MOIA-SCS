@@ -51,7 +51,7 @@ public class MoteurIA {
             System.exit(-1);
         }
         Coup coup,coupSecours;
-        int coupUtilise;
+        int coupUtilise,numPartie;
         try
         {
             socketServeur = new ServerSocket(port);
@@ -64,19 +64,21 @@ public class MoteurIA {
                 switch (codeReq)
                 {
                     case CODE_NV_PARTIE_BLANC:
-                        jeu.initPartie(true);
+                        numPartie =dis.readInt();
+                        jeu.initPartie(true, numPartie);
                         dos.writeInt(CODE_OK);
                         break;
 
                     case CODE_NV_PARTIE_NOIR:
-                        jeu.initPartie(false);
+                        numPartie =dis.readInt();
+                        jeu.initPartie(false,numPartie);
                         dos.writeInt(CODE_OK);
                         break;
 
                     case CODE_COUP_SELF:
                         
                         
-                        final Duration timeout = Duration.ofSeconds(4);
+                        final Duration timeout = Duration.ofSeconds(4);//TODO voir si on peut pas pousser le timeout un peu plus loin
                         ExecutorService executor = Executors.newSingleThreadExecutor();
                         Future<Coup> future = executor.submit(jeu);
                         try {

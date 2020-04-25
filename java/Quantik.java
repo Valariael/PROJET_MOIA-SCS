@@ -9,7 +9,7 @@ import java.util.concurrent.*;
 public class Quantik implements Callable<Coup>
 {
     private Term joueurSelf, joueurAdv, grille, indices;
-    private int dernierePos,dernierePosSecours;
+    private int dernierePos, formeAdv,numPartie;
     private boolean isBlanc;
     private Coup coupCourant;
     /**
@@ -30,10 +30,11 @@ public class Quantik implements Callable<Coup>
      * Initialise l'état du jeu dans l'objet Quantik courant à partir des prédicats d'initialisation..
      * @param isBlanc vrai si l'IA joue les pions blancs, faux autrement
      */
-    public void initPartie(boolean isBlanc)
+    public void initPartie(boolean isBlanc, int numPartie)
     {
         this.isBlanc = isBlanc;
-
+        this.numPartie = numPartie;
+        System.out.println("Numéro de partie : "+numPartie);
         Map<String, Term> solution1, solution2;
         Variable X = new Variable("X");
 
@@ -106,7 +107,7 @@ public class Quantik implements Callable<Coup>
 
             System.out.println(coup.toString());
         }
-        else
+        else if (((isBlanc || (!isBlanc && this.indices.toTermArray().length > 6)) && numPartie == 1) ||((!isBlanc || (isBlanc && this.indices.toTermArray().length > 6)) && numPartie == 2))
         {
             Query jouerMeilleurCoupRatioEtBloque = new Query(
                     "jouerMeilleurCoupRatioEtBloque",
@@ -129,7 +130,8 @@ public class Quantik implements Callable<Coup>
             }
             else
             {
-                //coup.setPropriete(3);
+                coup.setBloque(1);
+                coup.setPropriete(3);
                 System.exit(-1);
                 /*Variable X = new Variable("X");
                 //recherche du coup à effectuer
@@ -146,6 +148,40 @@ public class Quantik implements Callable<Coup>
                 this.grille = jcoup.oneSolution().get("NvGrille").toString();
                 this.indices = jcoup.oneSolution().get("NvInd").toString();
                 this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();*/
+            }
+        }
+        else
+        {
+
+            /*jouerCoupMiroir(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible):-
+            associationMiroir(Ind, IndCible),
+            jouerCoup(Grille, ListeInd, J, IndCible, Forme, NvGrille, NvListeInd, NvJ).*/
+
+             Variable IndCible = new Variable("IndCible");
+             Query jouerCoupMiroir = new Query(
+                    "jouerCoupMiroir",
+                    new Term[]{this.grille, this.indices, this.joueurSelf, new org.jpl7.Integer(dernierePos), new org.jpl7.Integer(formeAdv), NvGrille, NvListeInd, NvJ,IndCible}
+            );
+            if (jouerCoupMiroir.hasMoreSolutions())
+            {
+                Map<String, Term> solution = jouerCoupMiroir.nextSolution();
+                this.grille = solution.get("NvGrille");
+                this.indices = solution.get("NvListeInd");
+                this.joueurSelf = solution.get("NvJ");
+                coup.setLigneColonnePl(solution.get("IndCible").intValue());
+                dernierePos = solution.get("IndCible").intValue();
+                coup.setPionPl(formeAdv);
+                coup.setBloque(0);
+                coup.setPropriete(computePropriete(this.dernierePos));
+
+                System.out.println(coup.toString());
+                
+            }
+            else
+            {
+                coup.setBloque(1);
+                coup.setPropriete(3);
+                System.exit(-1);
             }
         }
 
@@ -180,12 +216,13 @@ public class Quantik implements Callable<Coup>
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
                 coup.setPropriete(computePropriete(this.dernierePos));
-
+                System.out.println(this.toString());
                 System.out.println(coup.toString());
             }
             else
             {
-                //coup.setPropriete(3);
+                coup.setBloque(1);
+                coup.setPropriete(3);
                 System.exit(-1);
                 /*Variable X = new Variable("X");
                 //recherche du coup à effectuer
@@ -229,6 +266,7 @@ public class Quantik implements Callable<Coup>
         this.grille = jouerCoup.oneSolution().get("NvGrille");
         this.indices = jouerCoup.oneSolution().get("NvListeInd");
         this.joueurAdv = jouerCoup.oneSolution().get("NvAdv");
+        this.formeAdv =coup.getPionPl();
         jouerCoup.close();
         dernierePos = indice;
     }
