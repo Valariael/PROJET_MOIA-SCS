@@ -82,99 +82,121 @@ public class Quantik implements Callable<Coup>
     public Coup call() throws Exception
     {
         Coup coup = new Coup();
+        boolean bloque = false;
         Variable Ind = new Variable("Ind");
         Variable Forme = new Variable("Forme");
         Variable NvGrille = new Variable("NvGrille");
         Variable NvListeInd = new Variable("NvListeInd");
         Variable NvJ = new Variable("NvJ");
-        Query jouerCoupGagnantBloquant = new Query(
-                "jouerCoupGagnantBloquant",
-                new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
-        );
-        if (jouerCoupGagnantBloquant.hasMoreSolutions())
-        {
-            Map<String, Term> solution = jouerCoupGagnantBloquant.nextSolution();
 
-            this.grille = solution.get("NvGrille");
-            this.indices = solution.get("NvListeInd");
-            this.joueurSelf = solution.get("NvJ");
-            coup.setLigneColonnePl(solution.get("Ind").intValue());
-            dernierePos = solution.get("Ind").intValue();
-            coup.setPionPl(solution.get("Forme").intValue());
-            coup.setBloque(0);
-            coup.setPropriete(computePropriete(dernierePos));
-            jouerCoupGagnantBloquant.close();
-            System.out.println(coup.toString());
-        }
-        else if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 10) )
+        //Si on joue en premier ou que l'on est pas en début de partie
+        if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 10) )
         {
+            //Calculer le prochain coup avec le parcours heuristique
             Query coupSuivantHeuristique = new Query(
                     "coupSuivantHeuristique",
                     new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
             );
-            //coupSuivantHeuristique(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ)
+
             if (coupSuivantHeuristique.hasMoreSolutions())
             {
-                System.out.println("On passe ici");
                 Map<String, Term> solution = coupSuivantHeuristique.nextSolution();
 
                 this.grille = solution.get("NvGrille");
                 this.indices = solution.get("NvListeInd");
                 this.joueurSelf = solution.get("NvJ");
-                coup.setLigneColonnePl(solution.get("Ind").intValue());
                 dernierePos = solution.get("Ind").intValue();
+
+                coup.setLigneColonnePl(solution.get("Ind").intValue());
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
                 coup.setPropriete(computePropriete(this.dernierePos));
+
                 coupSuivantHeuristique.close();
-                System.out.println(coup.toString());
+                System.out.println("...................................... coup heuristique");
             }
             else
             {
-                coup.setBloque(1);
-                coup.setPropriete(3);
+                bloque = true;
             }
         }
+        //Sinon si on joue en deuxième et que l'on est en début de partie
         else
         {
+            //Jouer le même coup que l'adversaire mais en symétrie centrale
+            Variable IndCible = new Variable("IndCible");
 
-            /*jouerCoupMiroir(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible):-
-            associationMiroir(Ind, IndCible),
-            jouerCoup(Grille, ListeInd, J, IndCible, Forme, NvGrille, NvListeInd, NvJ).*/
-            
-             Variable IndCible = new Variable("IndCible");
-             Query jouerCoupMiroir = new Query(
+            Query jouerCoupMiroir = new Query(
                     "jouerCoupMiroir",
                     new Term[]{this.grille, this.indices, this.joueurSelf, new org.jpl7.Integer(dernierePos), new org.jpl7.Integer(formeAdv), NvGrille, NvListeInd, NvJ,IndCible}
             );
+
             if (jouerCoupMiroir.hasMoreSolutions())
             {
                 Map<String, Term> solution = jouerCoupMiroir.nextSolution();
+
                 this.grille = solution.get("NvGrille");
                 this.indices = solution.get("NvListeInd");
                 this.joueurSelf = solution.get("NvJ");
-                coup.setLigneColonnePl(solution.get("IndCible").intValue());
                 dernierePos = solution.get("IndCible").intValue();
+
+                coup.setLigneColonnePl(solution.get("IndCible").intValue());
                 coup.setPionPl(formeAdv);
                 coup.setBloque(0);
                 coup.setPropriete(computePropriete(this.dernierePos));
+
                 jouerCoupMiroir.close();
-                System.out.println(coup.toString());
-                
+                System.out.println("...................................... coup miroir");
             }
             else
             {
-                coup.setBloque(1);
-                coup.setPropriete(3);
+                //Si c'est impossible de jouer en miroir sans donner une victoire à l'adversaire au prochain coup
+                //Récupérer le coup ayant le meilleur ratio de victoires proches ou le plus de mouvements adverses bloqués
+                Query jouerMeilleurCoupRatioEtBloque = new Query(
+                        "jouerMeilleurCoupRatioEtBloque",
+                        new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
+                );
+
+                if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
+                {
+                    Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
+
+                    this.grille = solution.get("NvGrille");
+                    this.indices = solution.get("NvListeInd");
+                    this.joueurSelf = solution.get("NvJ");
+                    dernierePos = solution.get("Ind").intValue();
+
+                    coup.setLigneColonnePl(solution.get("Ind").intValue());
+                    coup.setPionPl(solution.get("Forme").intValue());
+                    coup.setBloque(0);
+                    coup.setPropriete(computePropriete(this.dernierePos));
+
+                    jouerMeilleurCoupRatioEtBloque.close();
+                    System.out.println("...................................... coup ratio bloque");
+                }
+                else
+                {
+                    bloque = true;
+                }
             }
+        }
+
+        //Si aucune des tentatives précédentes n'a réussi c'est que l'on est bloqué
+        if (bloque)
+        {
+            System.out.println("...................................... BLOQUE");
+            coup.setBloque(1);
+            coup.setPropriete(3);
         }
 
         return coup;
     }
 
-
-
-    
+    /**
+     * Permet de jouer et récupérer le coup avec le meilleur ratio de victoire/défaite ou le plus de cases bloquées
+     * si le parcours heuristique prend trop de temps.
+     * @return une instance Coup représentant le mouvement calculé
+     */
     public Coup getCoupSecours()
     {
         Coup coup = new Coup();
@@ -184,48 +206,37 @@ public class Quantik implements Callable<Coup>
         Variable NvListeInd = new Variable("NvListeInd");
         Variable NvJ = new Variable("NvJ");
 
-            Query jouerMeilleurCoupRatioEtBloque = new Query(
-                    "jouerMeilleurCoupRatioEtBloque",
-                    new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
-            );
-            if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
-            {
-                Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
+        Query jouerMeilleurCoupRatioEtBloque = new Query(
+                "jouerMeilleurCoupRatioEtBloque",
+                new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
+        );
 
-                this.grille = solution.get("NvGrille");
-                this.indices = solution.get("NvListeInd");
-                this.joueurSelf = solution.get("NvJ");
-                coup.setLigneColonnePl(solution.get("Ind").intValue());
-                dernierePos = solution.get("Ind").intValue();
-                coup.setPionPl(solution.get("Forme").intValue());
-                coup.setBloque(0);
-                coup.setPropriete(computePropriete(this.dernierePos));
-                jouerMeilleurCoupRatioEtBloque.close();
-                System.out.println(coup.toString());
-            }
-            else
-            {
-                coup.setBloque(1);
-                coup.setPropriete(3);
-                /*Variable X = new Variable("X");
-                //recherche du coup à effectuer
-                Query rechercheCoup = new Query(
-                        "heuristique",//TODO une fois l'heuristique créée, récupérer le meilleur coup possible
-                        new Term[]{X}
-                );
-                //On joue le coup récupéré
-                Query jcoup = new Query(
-                        "jouercoup",
-                        new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvJ}
-                );
-                //on modifie le plateau (ajouter la modif de la dernière position utilisée aussi)
-                this.grille = jcoup.oneSolution().get("NvGrille").toString();
-                this.indices = jcoup.oneSolution().get("NvInd").toString();
-                this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();*/
-            }
+        if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
+        {
+            Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
+
+            this.grille = solution.get("NvGrille");
+            this.indices = solution.get("NvListeInd");
+            this.joueurSelf = solution.get("NvJ");
+            dernierePos = solution.get("Ind").intValue();
+
+            coup.setLigneColonnePl(solution.get("Ind").intValue());
+            coup.setPionPl(solution.get("Forme").intValue());
+            coup.setBloque(0);
+            coup.setPropriete(computePropriete(this.dernierePos));
+
+            jouerMeilleurCoupRatioEtBloque.close();
+            System.out.println("...................................... coup secours");
+        }
+        else
+        {
+            coup.setBloque(1);
+            coup.setPropriete(3);
+        }
 
         return coup;
     }
+
     /**
      * Fait jouer à l'adversaire un coup fourni.
      * Met également à jour l'état du jeu.

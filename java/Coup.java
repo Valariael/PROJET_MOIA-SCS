@@ -4,7 +4,7 @@
 public class Coup
 {
     // Un Coup est représenté sous la même forme que la structure en C du côté client.
-    private int bloque, pion, ligne, colonne, propriete;//TODO : propriete + blocage
+    private int bloque, pion, ligne, colonne, propriete;
 
     public Coup(){}
 
@@ -44,7 +44,6 @@ public class Coup
 
     /**
      * Setter pour stocker le pion venant de prolog, les numéros étant décalés.
-     * @return un entier représentant le pion du coup
      */
     public void setPionPl(int pion)
     {
