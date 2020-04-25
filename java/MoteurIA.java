@@ -78,7 +78,7 @@ public class MoteurIA {
                     case CODE_COUP_SELF:
                         
                         
-                        final Duration timeout = Duration.ofSeconds(4);//TODO voir si on peut pas pousser le timeout un peu plus loin
+                        final Duration timeout = Duration.ofSeconds(3);//TODO voir si on peut pas pousser le timeout un peu plus loin
                         ExecutorService executor = Executors.newSingleThreadExecutor();
                         Future<Coup> future = executor.submit(jeu);
                         try {

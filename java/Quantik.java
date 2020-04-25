@@ -103,7 +103,7 @@ public class Quantik implements Callable<Coup>
             coup.setPionPl(solution.get("Forme").intValue());
             coup.setBloque(0);
             coup.setPropriete(computePropriete(dernierePos));
-
+            jouerCoupGagnantBloquant.close();
             System.out.println(coup.toString());
         }
         else if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 10) )
@@ -126,28 +126,13 @@ public class Quantik implements Callable<Coup>
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
                 coup.setPropriete(computePropriete(this.dernierePos));
-
+                coupSuivantHeuristique.close();
                 System.out.println(coup.toString());
             }
             else
             {
                 coup.setBloque(1);
                 coup.setPropriete(3);
-                /*Variable X = new Variable("X");
-                //recherche du coup à effectuer
-                Query rechercheCoup = new Query(
-                        "heuristique",//TODO une fois l'heuristique créée, récupérer le meilleur coup possible
-                        new Term[]{X}
-                );
-                //On joue le coup récupéré
-                Query jcoup = new Query(
-                        "jouercoup",
-                        new Term[] {this.grille, this.indices, this.joueurAdv, new org.jpl7.Integer(indice), new org.jpl7.Integer(coup.getPionInt()), NvGrille, NvInd, NvJ}
-                );
-                //on modifie le plateau (ajouter la modif de la dernière position utilisée aussi)
-                this.grille = jcoup.oneSolution().get("NvGrille").toString();
-                this.indices = jcoup.oneSolution().get("NvInd").toString();
-                this.joueurAdv = jcoup.oneSolution().get("NvAdv").toString();*/
             }
         }
         else
@@ -173,7 +158,7 @@ public class Quantik implements Callable<Coup>
                 coup.setPionPl(formeAdv);
                 coup.setBloque(0);
                 coup.setPropriete(computePropriete(this.dernierePos));
-
+                jouerCoupMiroir.close();
                 System.out.println(coup.toString());
                 
             }
@@ -215,6 +200,7 @@ public class Quantik implements Callable<Coup>
                 coup.setPionPl(solution.get("Forme").intValue());
                 coup.setBloque(0);
                 coup.setPropriete(computePropriete(this.dernierePos));
+                jouerMeilleurCoupRatioEtBloque.close();
                 System.out.println(coup.toString());
             }
             else
