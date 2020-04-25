@@ -108,14 +108,15 @@ public class Quantik implements Callable<Coup>
         }
         else if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 10) )
         {
-            Query jouerMeilleurCoupRatioEtBloque = new Query(
-                    "jouerMeilleurCoupRatioEtBloque",
+            Query coupSuivantHeuristique = new Query(
+                    "coupSuivantHeuristique",
                     new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
             );
-            if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
+            //coupSuivantHeuristique(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ)
+            if (coupSuivantHeuristique.hasMoreSolutions())
             {
                 System.out.println("On passe ici");
-                Map<String, Term> solution = jouerMeilleurCoupRatioEtBloque.nextSolution();
+                Map<String, Term> solution = coupSuivantHeuristique.nextSolution();
 
                 this.grille = solution.get("NvGrille");
                 this.indices = solution.get("NvListeInd");
