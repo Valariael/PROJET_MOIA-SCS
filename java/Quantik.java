@@ -34,7 +34,6 @@ public class Quantik implements Callable<Coup>
     {
         this.isBlanc = isBlanc;
         this.numPartie = numPartie;
-        System.out.println("Numéro de partie : "+numPartie);
         Map<String, Term> solution1, solution2;
         Variable X = new Variable("X");
 
