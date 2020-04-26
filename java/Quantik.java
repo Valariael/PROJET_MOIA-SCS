@@ -82,7 +82,7 @@ public class Quantik implements Callable<Coup>
     public Coup call() throws Exception
     {
         Coup coup = new Coup();
-        boolean bloque = false;
+        boolean peutJouer = true;
         Variable Ind = new Variable("Ind");
         Variable Forme = new Variable("Forme");
         Variable NvGrille = new Variable("NvGrille");
@@ -117,7 +117,7 @@ public class Quantik implements Callable<Coup>
             }
             else
             {
-                bloque = true;
+                peutJouer = false;
             }
         }
         //Sinon si on joue en deuxième et que l'on est en début de partie
@@ -176,14 +176,41 @@ public class Quantik implements Callable<Coup>
                 }
                 else
                 {
-                    bloque = true;
+                    peutJouer = false;
                 }
             }
         }
 
-        //Si aucune des tentatives précédentes n'a réussi c'est que l'on est bloqué
-        if (bloque)
+        if (peutJouer)
         {
+            return coup;
+        }
+        //Si aucune des tentatives précédentes n'a réussi on tente n'importe quel coup
+        Query jouerCoup = new Query(
+                "jouerCoup",
+                new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
+        );
+
+        if (jouerCoup.hasMoreSolutions())
+        {
+            Map<String, Term> solution = jouerCoup.nextSolution();
+
+            this.grille = solution.get("NvGrille");//TODO : refactor duplicates
+            this.indices = solution.get("NvListeInd");
+            this.joueurSelf = solution.get("NvJ");
+            dernierePos = solution.get("Ind").intValue();
+
+            coup.setLigneColonnePl(solution.get("Ind").intValue());
+            coup.setPionPl(solution.get("Forme").intValue());
+            coup.setBloque(0);
+            coup.setPropriete(computePropriete(this.dernierePos));
+
+            jouerCoup.close();
+            System.out.println("...................................... coup defaut");
+        }
+        else
+        {
+            //Si aucune des tentatives précédentes n'a réussi c'est que l'on est bloqué
             System.out.println("...................................... BLOQUE");
             coup.setBloque(1);
             coup.setPropriete(3);

@@ -210,9 +210,9 @@ placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd
 placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndCible):-
     indPasBloque(Grille, Ind, Forme, NumJ),
     choisirIndBloquant(ListeInd, Ind, IndCible),
-    delete(IndCible, ListeInd, NvListeInd),
     placer(Grille, NvGrille, NumJ, IndCible, [_, Forme]),
-    \+etatPreFinal(NvGrille, NvListeInd, IndCible, Forme).
+    select(IndCible, ListeInd, NvListeInd),
+    bloqueOuPasPreFinal(NvGrille, NvListeInd, NumJ).
 % -----------------
 
 %compter les cases blocables avec un placement et retourner la meilleure
@@ -328,10 +328,10 @@ associationMiroir(9, 8).
 
 %TODO: integrer etatPreFinal
 %joue le même coup que celui en paramètre mais en miroir
-jouerCoupMiroir(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible):-
+jouerCoupMiroir(Grille, ListeInd, [NumJ, ListePion], Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible):-
     associationMiroir(Ind, IndCible),
-    jouerCoup(Grille, ListeInd, J, IndCible, Forme, NvGrille, NvListeInd, NvJ),
-    \+etatPreFinal(NvGrille, NvListeInd, IndCible, _).
+    jouerCoup(Grille, ListeInd, [NumJ, ListePion], IndCible, Forme, NvGrille, NvListeInd, NvJ),
+    bloqueOuPasPreFinal(NvGrille, NvListeInd, NumJ).
 % -----------------
 
 % -----------------
@@ -405,7 +405,7 @@ choisirMeilleurCoupRatioEtBloque([[Grille, ListeInd, [NumJ, J], Quotient, Reste,
     Bloque > BloqueMax,
     choisirMeilleurCoupRatioEtBloque(ListeEtatRatioEtBloque, [Grille, ListeInd, [NumJ, J], Quotient, Reste, Bloque, Ind, Forme], MeilleurEtat).
 choisirMeilleurCoupRatioEtBloque([_|ListeEtatRatioEtBloque], Etat, MeilleurEtat):-
-    choisirMeilleurCoupRatioEtBloque(ListeEtatRatioEtBloque, Etat, MeilleurEtat).%TODO : ajouter test etat prefinal et indpasbloque
+    choisirMeilleurCoupRatioEtBloque(ListeEtatRatioEtBloque, Etat, MeilleurEtat).
 
 %remonte le coup avec le plus haut ratio W/L ou nombre de cases bloquées dans la liste d'états
 choisirMeilleurCoupRatioEtBloque([Etat|SetEtatRatioEtBloque], MeilleurEtat):-
@@ -414,7 +414,7 @@ choisirMeilleurCoupRatioEtBloque([Etat|SetEtatRatioEtBloque], MeilleurEtat):-
 %choisis le meilleur coup ossible suivant le ratio W/L et le nombre de cases bloquées sans donner une configuration permettant de faire gagner l'adversaire
 meilleurCoupRatioEtBloqueSansPreFinal(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]):-
     choisirMeilleurCoupRatioEtBloque(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]),
-    \+etatPreFinal(Grille, ListeInd, Ind, Forme).
+    \+etatPreFinal(Grille, ListeInd, Ind, Forme). %TODO : verif succes en tout temps
 meilleurCoupRatioEtBloqueSansPreFinal(SetEtatRatioEtBloque, Etat):-
     choisirMeilleurCoupRatioEtBloque(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]),
     etatPreFinal(Grille, ListeInd, Ind, Forme),
@@ -440,7 +440,7 @@ insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]
     Quotient1 is div(Victoire1, Defaite1), 
     Quotient2 is div(Victoire2, Defaite2), 
     Quotient1 > Quotient2,
-    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], Result).
+    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], Result, LC).
 insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]|Result], LC):-
     select([_, Victoire1, Defaite1, IndCible1, FormeCible1], LC, _),
     select([_, Victoire2, Defaite2, IndCible2, FormeCible2], LC, _),
@@ -450,7 +450,7 @@ insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]
     Reste1 is mod(Victoire1, Defaite1),
     Reste2 is mod(Victoire2, Defaite2),
     Reste1 > Reste2,
-    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], Result).
+    insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], Result, LC).
 insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]|Next], [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], [[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]|Result], LC):-
     select([_, Victoire1, Defaite1, IndCible1, FormeCible1], LC, _),
     select([_, Victoire2, Defaite2, IndCible2, FormeCible2], LC, _),
@@ -547,26 +547,26 @@ initCoupCout([[_, _, _, _, _, NbBloque, IndCible, FormeCible]|ListeEtatCout], Li
     initCoupCout(ListeEtatCout, [[NbBloque, 1, 1, IndCible, FormeCible]|ListeCoupCout], NumJ, RListeCoupCout).
 
 %création des états de jeu pour les prochains coups possibles dans ListeEtatCout et initialisation des accumulateurs correspondants dans ListeCoupCout
-creerEtatsInitiaux(Grille, ListeInd, [NumJ, LP], J2, ListeEtatCout, ListeCoupCout):-
+creerEtatsInitiaux(Grille, ListeInd, [NumJ, LP], J2, SetEtatCout, ListeCoupCout):-
     setof([NvGrille, NvListeInd, J2, NvJ1, Ind, NbBloque, Ind, Forme], deplaceHInit(Grille, ListeInd, [NumJ, LP], J2, Ind, Forme, NvGrille, NvListeInd, NvJ1, NbBloque), SetEtatCout),
-    initCoupCout(SetEtatCout, [], NumJ, ListeCoupCout).
+    initCoupCout(SetEtatCout, [], NumJ, ListeCoupCout).%TODO vérifier que les fonctions appelées pas des setof soient deterministes
 
-%choisir le meilleur coup suivant leurs données heuristiques
-meilleurCoupCout([], [_, _, _, Ind, Forme], Ind, Forme).
-meilleurCoupCout([[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|ListeCoupCout], [_, Victoire2, Defaite2, _, _], IndFinal, FormeFinale):-
-    Quotient1 is div(Victoire1, Defaite1),
+%ordonner les coups disponibles suivant l'heuristique
+coupCoutInsereC([], CoupCout, [CoupCout]).
+coupCoutInsereC([[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|Next], [NbBloque2, Victoire2, Defaite2, Ind2, Forme2], [[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|Result]):-
+    Quotient1 is div(Victoire1, Defaite1), 
     Quotient2 is div(Victoire2, Defaite2), 
     Quotient1 > Quotient2,
-    meilleurCoupCout(ListeCoupCout, [NbBloque1, Victoire1, Defaite1, Ind1, Forme1], IndFinal, FormeFinale).
-meilleurCoupCout([[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|ListeCoupCout], [_, Victoire2, Defaite2, _, _], IndFinal, FormeFinale):-
+    coupCoutInsereC(Next, [NbBloque2, Victoire2, Defaite2, Ind2, Forme2], Result).
+coupCoutInsereC([[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|Next], [NbBloque2, Victoire2, Defaite2, Ind2, Forme2], [[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|Result]):-
     Quotient1 is div(Victoire1, Defaite1), 
     Quotient2 is div(Victoire2, Defaite2), 
     Quotient1 == Quotient2,
     Reste1 is mod(Victoire1, Defaite1),
     Reste2 is mod(Victoire2, Defaite2),
     Reste1 > Reste2,
-    meilleurCoupCout(ListeCoupCout, [NbBloque1, Victoire1, Defaite1, Ind1, Forme1], IndFinal, FormeFinale).
-meilleurCoupCout([[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|ListeCoupCout], [NbBloque2, Victoire2, Defaite2, _, _], IndFinal, FormeFinale):-
+    coupCoutInsereC(Next, [NbBloque2, Victoire2, Defaite2, Ind2, Forme2], Result).
+coupCoutInsereC([[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|Next], [NbBloque2, Victoire2, Defaite2, Ind2, Forme2], [[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|Result]):-
     Quotient1 is div(Victoire1, Defaite1), 
     Quotient2 is div(Victoire2, Defaite2), 
     Quotient1 == Quotient2,
@@ -574,13 +574,28 @@ meilleurCoupCout([[NbBloque1, Victoire1, Defaite1, Ind1, Forme1]|ListeCoupCout],
     Reste2 is mod(Victoire2, Defaite2),
     Reste1 == Reste2,
     NbBloque1 > NbBloque2,
-    meilleurCoupCout(ListeCoupCout, [NbBloque1, Victoire1, Defaite1, Ind1, Forme1], IndFinal, FormeFinale).
-meilleurCoupCout([_|ListeCoupCout], EtatCout, IndFinal, FormeFinale):-
-    meilleurCoupCout(ListeCoupCout, EtatCout, IndFinal, FormeFinale).
+    coupCoutInsereC(Next, [NbBloque2, Victoire2, Defaite2, Ind2, Forme2], Result).
+coupCoutInsereC([CoupCout1|Next], CoupCout2, [CoupCout2, CoupCout1|Next]).
+
+coupCoutInsere([], Result, Result).
+coupCoutInsere([CoupCout|ListeCoupCout], Liste, Result):-
+    coupCoutInsereC(Liste, CoupCout, Partiel),
+    coupCoutInsere(ListeCoupCout, Partiel, Result).
+
+bloqueOuPasPreFinal(Grille, ListeInd, _):-
+    \+etatPreFinal(Grille, ListeInd, _, _).
+bloqueOuPasPreFinal(Grille, ListeInd, NumJ):-
+    forall(etatPreFinal(Grille, ListeInd, Ind, Forme), \+indPasBloque(Grille, Ind, Forme, NumJ)).
 
 %initialise le choix du meilleur coup possible suivant l'heuristique
-meilleurCoupCout([[CoupCout|ListeCoupCout], _], IndFinal, FormeFinale):-
-    meilleurCoupCout(ListeCoupCout, CoupCout, IndFinal, FormeFinale).
+meilleurCoupCout([], _, _, _, _, _, _, _, _):-
+    !,
+    fail.
+meilleurCoupCout([[NbBloque, Victoire, Defaite, IndFinal, FormeFinale]|_], Grille, ListeInd, [NumJ, ListePion], IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
+    jouerCoup(Grille, ListeInd, [NumJ, ListePion], IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ),
+    bloqueOuPasPreFinal(NvGrille, NvListeInd, NumJ).
+meilleurCoupCout([_|ListeCoupCout], Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
+    meilleurCoupCout(ListeCoupCout, Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ).
 
 %calcule et joue le meilleur coup disponible en faisant un parcours heuristique
 %si un coup gagnant ou empêchant l'adversaire de gagner est possible, le joue en priorité
@@ -595,9 +610,9 @@ coupSuivantHeuristique(Grille, ListeInd, J, _, Ind, Forme, NvGrille, NvListeInd,
 %récupère le meilleur coup disponible et on le joue
 coupSuivantHeuristique(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
     creerEtatsInitiaux(Grille, ListeInd, J, J2, ListeEtatCout, ListeCoupCout),
-    parcoursH(ListeEtatCout, ListeCoupCout, NvListeCoupCout),
-    meilleurCoupCout(NvListeCoupCout, Ind, Forme),
-    jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ).
+    parcoursH(ListeEtatCout, ListeCoupCout, [[HeadCoupCout|NvListeCoupCout], _]),
+    coupCoutInsere(NvListeCoupCout, [HeadCoupCout], RListeCoupCout),
+    (meilleurCoupCout(RListeCoupCout, Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ) ; !, fail).
 
 % parcours en largeur
 % -----------------
@@ -680,11 +695,12 @@ jeuProfondeurGagnant(HistInd, RNumJ):-
     joueur2(J2),
     profondeurGagnant([Grille], ListeInd, J1, J2, -1, HistInd, RNumJ).
 % -----------------
+
+% -----------------
 % -----------------
 %tests 
 % -----------------
 % -----------------
-
 
 :-begin_tests(test_plateau).
 test("plateauT1",[fail]):-plateau(1,[2,0]).
