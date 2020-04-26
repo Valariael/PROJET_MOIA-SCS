@@ -90,7 +90,7 @@ public class Quantik implements Callable<Coup>
         Variable NvJ = new Variable("NvJ");
 
         //Si on joue en premier ou que l'on est pas en début de partie
-        if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 10) )
+        if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 12) )
         {
             //Calculer le prochain coup avec le parcours heuristique
             Query coupSuivantHeuristique = new Query(
@@ -257,10 +257,36 @@ public class Quantik implements Callable<Coup>
         }
         else
         {
-            coup.setBloque(1);
-            coup.setPropriete(3);
-        }
+            Query jouerCoup = new Query(
+                    "jouerCoup",
+                    new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
+            );
 
+            if (jouerCoup.hasMoreSolutions())
+            {
+                Map<String, Term> solution = jouerCoup.nextSolution();
+
+                this.grille = solution.get("NvGrille");//TODO : refactor duplicates
+                this.indices = solution.get("NvListeInd");
+                this.joueurSelf = solution.get("NvJ");
+                dernierePos = solution.get("Ind").intValue();
+
+                coup.setLigneColonnePl(solution.get("Ind").intValue());
+                coup.setPionPl(solution.get("Forme").intValue());
+                coup.setBloque(0);
+                coup.setPropriete(computePropriete(this.dernierePos));
+
+                jouerCoup.close();
+                System.out.println("...................................... coup defaut");
+            }
+            else
+            {
+                //Si aucune des tentatives précédentes n'a réussi c'est que l'on est bloqué
+                System.out.println("...................................... BLOQUE");
+                coup.setBloque(1);
+                coup.setPropriete(3);
+            }
+        }
         return coup;
     }
 

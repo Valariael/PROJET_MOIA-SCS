@@ -215,14 +215,13 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
     }
 }
 
-int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
+int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int num)
 {
     int err, joueur = commence, continuer = 1, data;
     TCoupReq reqCoup;
     TCoupRep repCoup;
     TCase caseCible;
     TPion pion;
-
     printf("joueur> id=%d commence ? %d\n", idJoueur, commence);
 
     while (continuer)
@@ -234,6 +233,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur)
             printf("estBloque (0|1) : ");
             scanf("%d", &data);
             reqCoup.estBloque = data;
+            reqCoup.numPartie = num;
             printf("typePion (0:CYLINDRE|1:PAVE|2:SPHERE|3:TETRAEDRE) : ");
             scanf("%d", &data);
             pion.typePion = data;
@@ -676,16 +676,16 @@ int main (int argc, char **argv)
         printf("joueur> début jeu manuel\n");
 
         //Première manche.
-        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, idJoueur);
+        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, idJoueur,num);
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie\n");
             shutdownClose(sock);
             return -13;
         }
-
+        num++;
         //Deuxième manche.
-        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, idJoueur);
+        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, idJoueur, num);
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie\n");
