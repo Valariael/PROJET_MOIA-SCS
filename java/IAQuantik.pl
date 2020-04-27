@@ -518,7 +518,7 @@ parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
     ListeEtatCoutN \= [],
     miseAJourCoupCout(ListeEtatCoutN, LC, NvLC),
     insere(ListeEtatCoutN, ListeEtatCout, NvListeEtatCout, LC),
-    choisirXmeilleures(NvListeEtatCout, 10, ListeEtatCoutX),%max 15 pour insere sur WL sans timeout / maxmax 41 stack size default
+    choisirXmeilleures(NvListeEtatCout, 3, ListeEtatCoutX),%max 4/thread / max 15 pour insere sur WL sans timeout / maxmax 41 stack size default
     parcoursH(ListeEtatCoutX, [NvLC, NumJ], RListeCoupCout).
 parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout):-
     %cas où findall renvoie une liste vide car il n'y a aucune possibilité
@@ -599,6 +599,16 @@ meilleurCoupCout([[NbBloque, Victoire, Defaite, IndFinal, FormeFinale]|_], Grill
 meilleurCoupCout([_|ListeCoupCout], Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
     meilleurCoupCout(ListeCoupCout, Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ).
 
+threadParcoursH(ListeEtatCout, LCoupCout):-
+    parcoursH(ListeEtatCout, LCoupCout, [[RCoupCout|_], _]),
+    thread_exit(RCoupCout).
+
+allThreadsCaseH(ListeEtatCout, [ListeCoupCout, NumJ], NvCoupCout):-
+    select([Grille, ListeInd, J1, J2, Ind, NbBloque, IndCible, FormeCible], ListeEtatCout, _),
+    select([NbBloque, Victoire, Defaite, IndCible, FormeCible], ListeCoupCout, _),
+    thread_create(threadParcoursH([[Grille, ListeInd, J1, J2, Ind, NbBloque, IndCible, FormeCible]], [[[NbBloque, Victoire, Defaite, IndCible, FormeCible]], NumJ]), ThreadH, []),
+    thread_join(ThreadH, exited(NvCoupCout)).
+
 %calcule et joue le meilleur coup disponible en faisant un parcours heuristique
 %si un coup gagnant ou empêchant l'adversaire de gagner est possible, le joue en priorité
 coupSuivantHeuristique(Grille, ListeInd, J, _, Ind, Forme, NvGrille, NvListeInd, NvJ):-
@@ -612,7 +622,8 @@ coupSuivantHeuristique(Grille, ListeInd, J, _, Ind, Forme, NvGrille, NvListeInd,
 %récupère le meilleur coup disponible et on le joue
 coupSuivantHeuristique(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, NvJ):-
     creerEtatsInitiaux(Grille, ListeInd, J, J2, ListeEtatCout, ListeCoupCout),
-    parcoursH(ListeEtatCout, ListeCoupCout, [[HeadCoupCout|NvListeCoupCout], _]),
+    %parcoursH(ListeEtatCout, ListeCoupCout, [[HeadCoupCout|NvListeCoupCout], _]),
+    findall(CoupCout, allThreadsCaseH(ListeEtatCout, ListeCoupCout, CoupCout), [HeadCoupCout|NvListeCoupCout]),
     coupCoutInsere(NvListeCoupCout, [HeadCoupCout], RListeCoupCout),
     (meilleurCoupCout(RListeCoupCout, Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ) ; !, fail).
 
