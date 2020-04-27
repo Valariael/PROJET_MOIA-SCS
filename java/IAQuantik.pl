@@ -230,6 +230,8 @@ appendIndVides([_|ListeInd], [_|ListeCases], AccIndBloques, RAccIndBloques):-
 %               compteur de cases bloquées pour pouvoir revenir en arrière en cas de pion identique trouvé;
 %               nombre de cases bloquées résultat; nombre de cases bloquées courant; liste des indices bloqués courant;
 %               liste des indices bloqués résultat.
+
+%tests !
 compterCasesBloquees([], [], _, _, _, NbBloque, NbBloque, AccIndBloques, AccIndBloques).
 compterCasesBloquees([Ind|ListeInd], [[0, 0]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
     \+member(Ind, AccIndBloques),
@@ -1134,3 +1136,43 @@ test("choisirXmeilleuresT5",[fail]):-choisirXmeilleures([[1, 1],[0, 0]],3,[[1, 1
 test("choisirXmeilleuresT5",[fail]):-choisirXmeilleures([[1, 1],[0, 0]],-1,[[0, 0]]).
 :-end_tests(test_choisirXmeilleures).
 
+
+
+
+
+:-begin_tests(test_compterCasesBloquees).
+test("compterCasesBloqueesT1",[true]):-compterCasesBloquees([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[[1, 1],[2, 1],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],3,1,3,3,3,4,4).
+test("compterCasesBloqueesT2",[true]):-compterCasesBloquees([1,2,3,4,5,6,9,10,11,12,13,14,15,16],[[1, 1],[2, 1],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],3,1,3,3,3,4,4).
+%test("compterCasesBloqueesT4",[fail]):-compterCasesBloquees([1,2,3,4,5,6,7,8,9,10,11,12,16],[[1, 1],[2, 1],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],3,1,3,3,3,4,4).
+test("compterCasesBloqueesT3",[true]):-compterCasesBloquees([],[],3,1,3,3,3,4,4).
+test("compterCasesBloqueesT4",true(X=3)):-compterCasesBloquees([],[],3,1,3,X,3,4,4).
+test("compterCasesBloqueesT5",true(X=3)):-compterCasesBloquees([],[],3,1,3,3,X,4,4).
+test("compterCasesBloqueesT6",true(X=4)):-compterCasesBloquees([],[],3,1,3,3,3,X,4).
+test("compterCasesBloqueesT7",true(X=4)):-compterCasesBloquees([],[],3,1,3,3,3,4,X).
+test("compterCasesBloqueesT8",true(X=3)):-compterCasesBloquees([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[[1, 1],[2, 1],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],3,1,3,X,3,4,4).
+test("compterCasesBloqueesT9",true(X=4)):-compterCasesBloquees([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[[1, 1],[2, 1],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],3,1,3,3,3,X,4).
+test("compterCasesBloqueesT10",true(X=4)):-compterCasesBloquees([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[[1, 1],[2, 1],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],3,1,3,3,3,4,X).
+:-end_tests(test_compterCasesBloquees).
+%à modifier, caseBloque a l'air de renvoyer true tout le temps...
+:-begin_tests(test_casesBloquees).
+test("casesBloqueesT1",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,4).
+test("casesBloqueesT2",[fail]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
+test("casesBloqueesT3",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2],2,3,0).
+test("casesBloqueesT4",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
+test("casesBloqueesT5",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
+test("casesBloqueesT6",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
+test("casesBloqueesT7",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
+test("casesBloqueesT8",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
+:-end_tests(test_casesBloquees).
+casesBloquees(Grille, NumJ, Ind, Forme, NbBloque3):-
+    associationLigne(Ind, ListeLi),
+    associationColonne(Ind, ListeCo),
+    associationCarre(Ind, ListeCa),
+    recupIndices(Grille, ListeLi, ListeLiInd),
+    recupIndices(Grille, ListeCo, ListeCoInd),
+    recupIndices(Grille, ListeCa, ListeCaInd),
+    compterCasesBloquees(ListeLi, ListeLiInd, Forme, NumJ, 0, NbBloque1, 0, [], AccIndBloques1),
+    compterCasesBloquees(ListeCo, ListeCoInd, Forme, NumJ, 0, NbBloque2, NbBloque1, AccIndBloques1, AccIndBloques2),
+    compterCasesBloquees(ListeCa, ListeCaInd, Forme, NumJ, 0, NbBloque3, NbBloque2, AccIndBloques2, _),
+    !.
+%calculer ratio et bloqué?
