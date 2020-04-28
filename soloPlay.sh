@@ -5,7 +5,7 @@
 
 if [ $# -ne 3 ]; then
 	if [ $# -ne 4 ]; then
-		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> [*]"
+		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> (IA : 1 = heuristique, 2= miroir, 3 = meilleur ratio, 4 = coup normal)[*]"
 		exit -1
 	else
 		binaireFourni=true
@@ -32,9 +32,9 @@ if [ $err -ne "0" ]; then
 	echo "Erreur à la compilation du moteur IA !"
 	exit -1
 fi
-java MoteurIA $2 &
+java MoteurIA $2 $4 &
 echo "Moteur IA joueur 1 lancé."
-java MoteurIA $3 &
+java MoteurIA $3  $5 &
 echo "Moteur IA joueur 2 lancé."
 cd ..
 

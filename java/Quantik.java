@@ -146,10 +146,10 @@ public class Quantik implements Callable<Coup>
 
     public Coup jouerCoupMiroirOuMeilleurRatio(Variable Ind,Variable Forme,Variable NvGrille,Variable NvListeInd,Variable NvJ,Variable IndCible)
     {
+        Coup coup = new Coup();
         if(this.indices.toTermArray().length < 16)
         {
 
-        Coup coup = new Coup();
         Query jouerCoupMiroir = new Query(
                     "jouerCoupMiroir",
                     new Term[]{this.grille, this.indices, this.joueurSelf, new org.jpl7.Integer(dernierePos), new org.jpl7.Integer(formeAdv), NvGrille, NvListeInd, NvJ,IndCible}

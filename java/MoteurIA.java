@@ -6,12 +6,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.*;
 import java.util.concurrent.*;
+import org.jpl7.*;
 public class MoteurIA {
     public static final int CODE_NV_PARTIE_BLANC = 1;
     public static final int CODE_NV_PARTIE_NOIR = 2;
     public static final int CODE_COUP_SELF = 3;
     public static final int CODE_COUP_ADV = 4;
-
     public static final int CODE_OK = 0;
 
     public static void main (String[] args)
@@ -21,7 +21,7 @@ public class MoteurIA {
             System.out.println("usage : java -cp \".:/usr/lib/swi-prolog/lib/jpl.jar\" MoteurIA <port>");
             return;
         }
-
+        int typeCoup = 1;//Integer.parseInt(args[1]);
         int port = 0;
         try
         {
@@ -76,31 +76,68 @@ public class MoteurIA {
                         break;
 
                     case CODE_COUP_SELF:
-                        
-                        
-                        final Duration timeout = Duration.ofSeconds(4);//TODO voir si on peut pas pousser le timeout un peu plus loin
-                        ExecutorService executor = Executors.newSingleThreadExecutor();
-                        Future<Coup> future = executor.submit(jeu);
-                        try {
-                            coup = future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+                        Variable Ind = new Variable("Ind");
+                        Variable Forme = new Variable("Forme");
+                        Variable NvGrille = new Variable("NvGrille");
+                        Variable NvListeInd = new Variable("NvListeInd");
+                        Variable NvJ = new Variable("NvJ");
+                        Variable IndCible = new Variable("IndCible");
+                        switch(typeCoup)
+                        {
+                        case 1 :
+                            final Duration timeout = Duration.ofSeconds(4);//TODO voir si on peut pas pousser le timeout un peu plus loin
+                            ExecutorService executor = Executors.newSingleThreadExecutor();
+                            Future<Coup> future = executor.submit(jeu);
+                            try {
+                                coup = future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+                                dos.writeInt(CODE_OK);
+                                dos.writeInt(coup.getBloque());
+                                dos.writeInt(coup.getPion());
+                                dos.writeInt(coup.getLigne());
+                                dos.writeInt(coup.getColonne());
+                                dos.writeInt(coup.getPropriete());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                future.cancel(true);
+                                coupSecours = jeu.getCoupSecours();
+                                dos.writeInt(CODE_OK);
+                                dos.writeInt(coupSecours.getBloque());
+                                dos.writeInt(coupSecours.getPion());
+                                dos.writeInt(coupSecours.getLigne());
+                                dos.writeInt(coupSecours.getColonne());
+                                dos.writeInt(coupSecours.getPropriete());
+                            }
+                            executor.shutdownNow();
+                            break;
+                        case 2 : 
+                            coup = jeu.jouerCoupMiroirOuMeilleurRatio(Ind,Forme,NvGrille,NvListeInd,NvJ,IndCible);
                             dos.writeInt(CODE_OK);
                             dos.writeInt(coup.getBloque());
                             dos.writeInt(coup.getPion());
                             dos.writeInt(coup.getLigne());
                             dos.writeInt(coup.getColonne());
                             dos.writeInt(coup.getPropriete());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            future.cancel(true);
-                            coupSecours = jeu.getCoupSecours();
+                            break;
+                         case 3 : 
+                            coup = jeu. jouerCoupMeilleurRatio(Ind,Forme,NvGrille,NvListeInd,NvJ);
                             dos.writeInt(CODE_OK);
-                            dos.writeInt(coupSecours.getBloque());
-                            dos.writeInt(coupSecours.getPion());
-                            dos.writeInt(coupSecours.getLigne());
-                            dos.writeInt(coupSecours.getColonne());
-                            dos.writeInt(coupSecours.getPropriete());
+                            dos.writeInt(coup.getBloque());
+                            dos.writeInt(coup.getPion());
+                            dos.writeInt(coup.getLigne());
+                            dos.writeInt(coup.getColonne());
+                            dos.writeInt(coup.getPropriete());
+                            break;
+                        case 4 : 
+                            coup = jeu. jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
+                            dos.writeInt(CODE_OK);
+                            dos.writeInt(coup.getBloque());
+                            dos.writeInt(coup.getPion());
+                            dos.writeInt(coup.getLigne());
+                            dos.writeInt(coup.getColonne());
+                            dos.writeInt(coup.getPropriete());
+                            break;
+                    
                         }
-                        executor.shutdownNow();
                         break;
 
                     case CODE_COUP_ADV:
