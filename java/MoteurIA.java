@@ -16,12 +16,12 @@ public class MoteurIA {
 
     public static void main (String[] args)
     {
-        if (args.length != 1)
+        if (args.length != 2)
         {
             System.out.println("usage : java -cp \".:/usr/lib/swi-prolog/lib/jpl.jar\" MoteurIA <port>");
             return;
         }
-        int typeCoup = 1;//Integer.parseInt(args[1]);
+        int typeCoup = Integer.parseInt(args[1]);
         int port = 0;
         try
         {
@@ -119,7 +119,7 @@ public class MoteurIA {
                             dos.writeInt(coup.getPropriete());
                             break;
                          case 3 : 
-                            coup = jeu. jouerCoupMeilleurRatio(Ind,Forme,NvGrille,NvListeInd,NvJ);
+                            coup = jeu.jouerCoupMeilleurRatio(Ind,Forme,NvGrille,NvListeInd,NvJ);
                             dos.writeInt(CODE_OK);
                             dos.writeInt(coup.getBloque());
                             dos.writeInt(coup.getPion());
@@ -128,7 +128,16 @@ public class MoteurIA {
                             dos.writeInt(coup.getPropriete());
                             break;
                         case 4 : 
-                            coup = jeu. jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
+                            coup = jeu.jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
+                            dos.writeInt(CODE_OK);
+                            dos.writeInt(coup.getBloque());
+                            dos.writeInt(coup.getPion());
+                            dos.writeInt(coup.getLigne());
+                            dos.writeInt(coup.getColonne());
+                            dos.writeInt(coup.getPropriete());
+                            break;
+                        case 5 : 
+                            coup = jeu.coupHeuristique(Ind,Forme,NvGrille,NvListeInd,NvJ);
                             dos.writeInt(CODE_OK);
                             dos.writeInt(coup.getBloque());
                             dos.writeInt(coup.getPion());

@@ -3,9 +3,9 @@
 #sh soloPlay.sh portServeur portIAJoueur1 portIAJoueur2 [*]
 #n'importe quoi en 4ème paramètre pour exécuter avec le binaire de serveur fourni
 
-if [ $# -ne 3 ]; then
-	if [ $# -ne 4 ]; then
-		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> (IA : 1 = heuristique, 2= miroir, 3 = meilleur ratio, 4 = coup normal)[*]"
+if [ $# -ne 5 ]; then
+	if [ $# -ne 6 ]; then
+		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> (IA : 1 = call, 2= miroir, 3 = meilleur ratio, 4 = coup normal, 5 heuristique seulement)[*]"
 		exit -1
 	else
 		binaireFourni=true
@@ -34,7 +34,7 @@ if [ $err -ne "0" ]; then
 fi
 java MoteurIA $2 $4 &
 echo "Moteur IA joueur 1 lancé."
-java MoteurIA $3  $5 &
+java MoteurIA $3 $5 &
 echo "Moteur IA joueur 2 lancé."
 cd ..
 

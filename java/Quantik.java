@@ -107,6 +107,9 @@ public class Quantik implements Callable<Coup>
             else
             {
                 peutJouer = false;
+                System.out.println("...................................... BLOQUE");
+                coup.setBloque(1);
+                coup.setPropriete(3);
             }
             return coup;
     }
@@ -214,6 +217,9 @@ public class Quantik implements Callable<Coup>
                 else
                 {
                     peutJouer = false;
+                    System.out.println("...................................... BLOQUE");
+                    coup.setBloque(1);
+                    coup.setPropriete(3);
                 }
                 return coup;
     }
