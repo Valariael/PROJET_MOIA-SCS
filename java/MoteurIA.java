@@ -18,10 +18,10 @@ public class MoteurIA {
     {
         if (args.length != 2)
         {
-            System.out.println("usage : java -cp \".:/usr/lib/swi-prolog/lib/jpl.jar\" MoteurIA <port>");
+            System.out.println("usage : java -cp \".:/usr/lib/swi-prolog/lib/jpl.jar\" MoteurIA <port> <type IA>");
             return;
         }
-        int typeCoup = Integer.parseInt(args[1]);
+        int typeCoup = Integer.parseInt(args[1]);//TODO : try catch + check value
         int port = 0;
         try
         {
@@ -102,7 +102,7 @@ public class MoteurIA {
                                 coupSecours = jeu.getCoupSecours();
                                 dos.writeInt(CODE_OK);
                                 dos.writeInt(coupSecours.getBloque());
-                                dos.writeInt(coupSecours.getPion());
+                                dos.writeInt(coupSecours.getPion());//TODO : refactor all in single function
                                 dos.writeInt(coupSecours.getLigne());
                                 dos.writeInt(coupSecours.getColonne());
                                 dos.writeInt(coupSecours.getPropriete());
