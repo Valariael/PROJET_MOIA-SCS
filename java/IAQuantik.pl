@@ -589,6 +589,23 @@ bloqueOuPasPreFinal(Grille, ListeInd, _):-
 bloqueOuPasPreFinal(Grille, ListeInd, NumJ):-
     forall(etatPreFinal(Grille, ListeInd, Ind, Forme), \+indPasBloque(Grille, Ind, Forme, NumJ)).
 
+%associationLargeurProfondeur(TailleListeIndices,LargeurMax).
+associationLargeurProfondeur(16,20).
+associationLargeurProfondeur(15,20).
+associationLargeurProfondeur(14,20).
+associationLargeurProfondeur(13,20).
+associationLargeurProfondeur(12,20).
+associationLargeurProfondeur(11,20).
+associationLargeurProfondeur(10,20).
+associationLargeurProfondeur(9,20).
+associationLargeurProfondeur(8,30).
+associationLargeurProfondeur(7,50).
+associationLargeurProfondeur(6,100).
+associationLargeurProfondeur(5,250).
+associationLargeurProfondeur(4,500).
+associationLargeurProfondeur(3,1000).
+associationLargeurProfondeur(2,10000).
+associationLargeurProfondeur(1,10000000).
 %initialise le choix du meilleur coup possible suivant l'heuristique
 meilleurCoupCout([], _, _, _, _, _, _, _, _):-
     !,
@@ -1175,15 +1192,33 @@ test("casesBloqueesT6",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0
 test("casesBloqueesT7",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
 test("casesBloqueesT8",[true]):-casesBloquees([[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],2,3,0).
 :-end_tests(test_casesBloquees).
-casesBloquees(Grille, NumJ, Ind, Forme, NbBloque3):-
-    associationLigne(Ind, ListeLi),
-    associationColonne(Ind, ListeCo),
-    associationCarre(Ind, ListeCa),
-    recupIndices(Grille, ListeLi, ListeLiInd),
-    recupIndices(Grille, ListeCo, ListeCoInd),
-    recupIndices(Grille, ListeCa, ListeCaInd),
-    compterCasesBloquees(ListeLi, ListeLiInd, Forme, NumJ, 0, NbBloque1, 0, [], AccIndBloques1),
-    compterCasesBloquees(ListeCo, ListeCoInd, Forme, NumJ, 0, NbBloque2, NbBloque1, AccIndBloques1, AccIndBloques2),
-    compterCasesBloquees(ListeCa, ListeCaInd, Forme, NumJ, 0, NbBloque3, NbBloque2, AccIndBloques2, _),
-    !.
+
 %calculer ratio et bloqué?
+
+:-begin_tests(test_associationLargeurProfondeur).
+test("associationLargeurProfondeurT1",[true]):-associationLargeurProfondeur(16,20).
+test("associationLargeurProfondeurT2",[true]):-associationLargeurProfondeur(15,20).
+test("associationLargeurProfondeurT3",[true]):-associationLargeurProfondeur(14,20).
+test("associationLargeurProfondeurT4",[true]):-associationLargeurProfondeur(13,20).
+test("associationLargeurProfondeurT5",[true]):-associationLargeurProfondeur(12,20).
+test("associationLargeurProfondeurT6",[true]):-associationLargeurProfondeur(11,20).
+test("associationLargeurProfondeurT7",[true]):-associationLargeurProfondeur(10,20).
+test("associationLargeurProfondeurT8",[true]):-associationLargeurProfondeur(9,20).
+test("associationLargeurProfondeurT9",[true]):-associationLargeurProfondeur(8,30).
+test("associationLargeurProfondeurT10",[true]):-associationLargeurProfondeur(7, 50).
+test("associationLargeurProfondeurT11",[true]):-associationLargeurProfondeur(6, 100).
+test("associationLargeurProfondeurT12",[true]):-associationLargeurProfondeur(5, 250).
+test("associationLargeurProfondeurT13",[true]):-associationLargeurProfondeur(4, 500).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(3, 1000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(2, 10000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(1, 10000000).
+test("associationLargeurProfondeurT15",true(X=20)):-associationLargeurProfondeur(16,X).
+test("associationLargeurProfondeurT16",true(X=10000000)):-associationLargeurProfondeur(1,X).
+test("associationLargeurProfondeurT17",true(X=250)):-associationLargeurProfondeur(5, X).
+test("associationLargeurProfondeurT18",true(X=20)):-associationLargeurProfondeur(X, 15).
+test("associationLargeurProfondeurT19",true(X=14)):-associationLargeurProfondeur(X, X).
+test("associationLargeurProfondeurT20",true(X=2)):-associationLargeurProfondeur(X,10000).
+test("associationLargeurProfondeurT22",[fail]):-associationLargeurProfondeur(0, 1000).
+test("associationLargeurProfondeurT23",[fail]):-associationLargeurProfondeur(16,10000).
+test("associationLargeurProfondeurT24",[fail]):-associationLargeurProfondeur(11,21).
+:-end_tests(test_associationLargeurProfondeur).
