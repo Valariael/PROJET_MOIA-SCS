@@ -5,7 +5,8 @@
 
 if [ $# -ne 5 ]; then
 	if [ $# -ne 6 ]; then
-		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> (IA : 1 = call, 2= miroir, 3 = meilleur ratio, 4 = coup normal, 5 heuristique seulement)[*]"
+		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> [*]"
+		echo "Types d'IA : 1 = call heuristique, 2= miroir, 3 = meilleur ratio, 4 = coup normal, 5 heuristique 'seulement'"
 		exit -1
 	else
 		binaireFourni=true

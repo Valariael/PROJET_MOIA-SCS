@@ -12,10 +12,66 @@
 #include "protocolQuantik.h"
 #include "validation.h"
 
+int verifIdRequete (int *sockJoueur, int idAttendu)
+{
+	int err, dataId;
+	TPartieReq partieReq;
+	TCoupReq coupReq;
+	TPartieRep partieRep;
+	TCoupRep coupRep;
+
+	err = recv(*sockJoueur, &dataId, sizeof(TIdReq), MSG_PEEK);
+	if (err <= 0)
+	{
+		perror("arbitre> erreur peek idReq");
+		return -1;
+	}
+
+	if (dataId != idAttendu)
+	{
+		printf("arbitre> erreur idReq incorrect");
+
+		if (dataId == PARTIE)
+		{
+			err = recv(*sockJoueur, &partieReq, sizeof(TPartieReq), 0);
+		}
+		else
+		{
+			err = recv(*sockJoueur, &coupReq, sizeof(TCoupReq), 0);
+		}
+		if (err <= 0)
+		{
+			perror("arbitre> erreur recv vidage tampon");
+			return -2;
+		}
+
+		if (dataId == PARTIE)
+		{
+			partieRep.err = ERR_TYP;
+			err = send(*sockJoueur, &partieRep, sizeof(TPartieRep), 0);
+		}
+		else
+		{
+			coupRep.err = ERR_TYP;
+			err = send(*sockJoueur, &coupRep, sizeof(TCoupRep), 0);
+		}
+		if (err <= 0)
+		{
+			perror("arbitre> erreur send ERR_TYP");
+			return -3;
+		}
+		
+		return -4;
+	}
+
+	return 0;
+}
+
 void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie)
 {
 	int tailleAdr, err;
 	struct sockaddr_in adrJoueur;
+	TPartieRep partieRep;
 
 	//Tant que la connexion d'un joueur n'a pas réussi on réessaie.
 	while (*sockJoueur <= 0)
@@ -30,10 +86,25 @@ void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie)
 		}
 		printf("arbitre> joueur connecté fd=%d\n", *sockJoueur);
 
-		err = recv(*sockJoueur, reqPartie, sizeof(TPartieReq), 0);
+		err = verifIdRequete(sockJoueur, PARTIE);
+		if (err == 0) err = recv(*sockJoueur, reqPartie, sizeof(TPartieReq), 0);
 		if (err <= 0)
-		{//TODO: check idReq is PARTIE not COUP > ERR_TYP
+		{
 			perror("arbitre> erreur recv partie");
+			shutdownClose(*sockJoueur);
+			*sockJoueur = 0;
+			continue;
+		}
+
+		if (reqPartie->coulPion != BLANC && reqPartie->coulPion != NOIR)//TODO : more error handling ?
+		{
+			partieRep.err = ERR_PARTIE;
+			err = send(*sockJoueur, &partieRep, sizeof(TPartieRep), 0);
+			if (err <= 0)
+			{
+				perror("arbitre> erreur send ERR_PARTIE");
+			}
+			printf("arbitre> erreur coulPion req partie\n");
 			shutdownClose(*sockJoueur);
 			*sockJoueur = 0;
 			continue;
@@ -54,7 +125,7 @@ int ackJoueursConnectes (int *sockJoueur, int *sockAutreJoueur, TPartieRep *repP
 		shutdownClose(*sockJoueur);
 		*sockJoueur = 0;
 
-		//En cas d'erreur, envoi d'une réponse ERR_PARTIE ? TODO verif enoncé
+		//En cas d'erreur, envoi d'une réponse ERR_PARTIE à l'autre joueur
 		if (*sockAutreJoueur != 0)
 		{
 			repPartieAutre->err = ERR_PARTIE;
@@ -165,10 +236,19 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 	{
 		//Réception du coup joué.
 		printf("arbitre> recv req coup fd=%d\n", sockJoueur);
-		err = recv(sockJoueur, &reqCoup, sizeof(TCoupReq), 0);//TODO check num partie
+		err = verifIdRequete(&sockJoueur, COUP);
+		if (err == 0) err = recv(sockJoueur, &reqCoup, sizeof(TCoupReq), 0);//TODO verif intervalle valeurs > ERR_COUP
 		if (err <= 0)
 		{
 			perror("arbitre> erreur recv coup 1");
+
+			repCoup.err = ERR_COUP;
+			err = send(sockAutreJoueur, &repCoup, sizeof(TCoupRep), 0);
+			if (err <= 0)
+			{
+				perror("arbitre> erreur send ERR_COUP adversaire");
+			}
+
 			return -1;
 		}
 		else
@@ -263,7 +343,6 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 		{
 			//Erreur au select.
 			perror("arbitre> erreur select");
-			//TODO: interruption partie ???
 			return -1;
 		} 
 		else if (err == 0)
@@ -271,7 +350,7 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 			//Temps de jeu écoulé, envoi de la réponse TIMEOUT.
 			printf("arbitre> fd=%d temps écoulé\n", sockJoueurCourant);
 
-			repCoup.err = ERR_COUP;
+			repCoup.err = ERR_OK;
 			repCoup.validCoup = TIMEOUT;
 			repCoup.propCoup = PERDU;
 

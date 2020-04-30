@@ -726,6 +726,14 @@ jeuProfondeurGagnant(HistInd, RNumJ):-
     profondeurGagnant([Grille], ListeInd, J1, J2, -1, HistInd, RNumJ).
 % -----------------
 
+% TODO : regarder le temps d'exec pour chaque tour
+statistics2():-
+    statistics(walltime,[Start|_]),
+    coupSuivantHeuristique([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ,16], [1, [[2, 1], [2, 2], [2, 3], [2, 4]]], [2, [[2, 1], [2, 2], [2, 3], [2, 4]]], I, F, NvG, NvLi, NvJ),
+    statistics(walltime,[Stop|_]),
+    Runtime is Stop - Start,
+    write('Execution took '), write(Runtime), write(' ms.').
+
 % -----------------
 % -----------------
 %tests 

@@ -21,7 +21,43 @@ typedef enum {
     CODE_COUP_ADV 
 } CodeRepIA;
 
-int recvIntFromJava(int sock, int *data)
+int verifCodeRep (int sock)
+{
+    int err, codeRep;
+
+    err = recv(sock, &codeRep, sizeof(TCodeRep), MSG_PEEK);
+    if (err <= 0)
+    {
+        perror("joueur> erreur peek verif CodeRep");
+        return -1;
+    }
+
+    if (codeRep != ERR_OK)
+    {
+        switch (codeRep)
+        {
+            case ERR_TYP :
+            printf("joueur> erreur sur le type de requête\n");
+            return -2;
+
+            case ERR_PARTIE : 
+            printf("joueur> erreur à la création partie, réessayer\n");
+            return -3;
+
+            case ERR_COUP : 
+            printf("joueur> erreur sur le coup joué\n");
+            return -4;
+
+            default:
+            printf("joueur> code erreur inconnu reçu\n");
+            return -5;
+        }
+    }
+
+    return 0;
+}
+
+int recvIntFromJava (int sock, int *data)
 {
     int err = 0;
 
@@ -263,18 +299,12 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
             }
 
             //Réception de la validation du coup.
-            err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+            err = verifCodeRep(sockServeur);
+            if (err == 0) err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup");
                 return -2;
-            }
-
-            //Arrêt en cas d'erreur sur le coup joué.
-            if (repCoup.err != ERR_OK)
-            {
-                printf("joueur> erreur sur le coup joué\n");
-                return -3;//TODO: improve
             }
 
             afficherValidationCoup(repCoup, joueur);
@@ -294,7 +324,9 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
         else
         {
             //Réception de la validation du coup adverse.
-            err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+            err = verifCodeRep(sockServeur);
+            if (err == 0) err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+            else printf("joueur> erreur sur une requête de l'adversaire\n");
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup adverse");
@@ -404,7 +436,8 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                 if (FD_ISSET(sockServeur, &readSet) != 0)
                 {
                     //Gestion de la réception du TIMEOUT du serveur.
-                    err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+                    err = verifCodeRep(sockServeur);
+                    if (err == 0) err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
                     if (err <= 0)
                     {
                         perror("joueur> erreur recv : timeout");
@@ -442,7 +475,8 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                     return -11;
                 }
                  //Réception de la validation du coup.
-                err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+                err = verifCodeRep(sockServeur);
+                if (err == 0) err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
                 if (err <= 0)
                 {
                     perror("joueur> erreur recv rep coup");
@@ -474,7 +508,8 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
         else
         {
             //Réception de la validation du coup adverse.
-            err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
+            err = verifCodeRep(sockServeur);
+            if (err == 0) err = recv(sockServeur, &repCoup, sizeof(TCoupRep), 0);
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup adverse");
@@ -558,7 +593,7 @@ int main (int argc, char **argv)
     else 
     {
         printf("joueur> usage : %s <nomMachineDest> <portDest> <nomJoueur> <couleurPion> [<portIA>]\n", argv[0]);
-        printf("joueur> couleur incorrecte : B (blanc) ou N (noir)\n");
+        printf("joueur> couleurPion est B (blanc) ou N (noir)\n");
         return -2;
     }
     nomMachineDest = argv[1];
@@ -584,7 +619,8 @@ int main (int argc, char **argv)
     }
 
     //Réception de la réponse du serveur.
-    err = recv(sock, &repPartie, sizeof(TPartieRep), 0);
+    err = verifCodeRep(sock);
+    if (err == 0) err = recv(sock, &repPartie, sizeof(TPartieRep), 0);
     if (err <= 0) 
     {
         perror("joueur> erreur recv partie");
@@ -592,29 +628,6 @@ int main (int argc, char **argv)
         return -5;
     }
     printf("joueur> %s VS %s fd=%d\n", reqPartie.nomJoueur, repPartie.nomAdvers, sock);
-
-    //Vérification de la réponse.
-    switch(repPartie.err)
-    {
-        case ERR_TYP :
-        printf("joueur> erreur type de requête\n");
-        shutdownClose(sock);
-        return -6;
-
-        case ERR_PARTIE : 
-        printf("joueur> erreur création partie, réessayer\n");
-        shutdownClose(sock);
-        return -7;
-
-        case ERR_OK : 
-        break;
-
-        default:
-        printf("joueur> autre erreur reçue\n");
-        shutdownClose(sock);
-        return -8;
-        }
-    
 
     //Changement de couleur si nécessaire.
     if (repPartie.validCoulPion == KO)
