@@ -213,6 +213,56 @@ placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd
     placer(Grille, NvGrille, NumJ, IndCible, [_, Forme]),
     select(IndCible, ListeInd, NvListeInd),
     bloqueOuPasPreFinal(NvGrille, NvListeInd, NumJ).
+
+choisirIndBloquantPlacable(Grille, ListeInd, J, Ind, Forme, IndCible):-
+    choisirIndBloquant(ListeInd, Ind, IndCible),
+    jouerCoup(Grille, ListeInd, J, IndCible, Forme, _, _, _).
+
+casesBloquantes([], _, _, _, LListeIndFormeBloquant, LListeIndFormeBloquant).
+casesBloquantes([[Ind, Forme]|ListeIndForme], Grille, ListeInd, J, LListeIndFormeBloquant, RLListeIndFormeBloquant):-
+    setof([Ind, FormeAutre], jouerCoup(Grille, ListeInd, J, Ind, FormeAutre, _, _, _), ListeIndFormeBloquant1),
+    setof([IndBloquant, Forme], choisirIndBloquantPlacable(Grille, ListeInd, J, Ind, Forme, IndBloquant), ListeIndFormeBloquant2),
+    append(ListeIndFormeBloquant1, ListeIndFormeBloquant2, ListeIndFormeBloquant),
+    casesBloquantes(ListeIndForme, Grille, ListeInd, J, [ListeIndFormeBloquant|LListeIndFormeBloquant], RLListeIndFormeBloquant).
+casesBloquantes([[Ind, Forme]|ListeIndForme], Grille, ListeInd, J, LListeIndFormeBloquant, RLListeIndFormeBloquant):-
+    setof([IndBloquant, Forme], choisirIndBloquantPlacable(Grille, ListeInd, J, Ind, Forme, IndBloquant), ListeIndFormeBloquant),
+    casesBloquantes(ListeIndForme, Grille, ListeInd, J, [ListeIndFormeBloquant|LListeIndFormeBloquant], RLListeIndFormeBloquant).
+casesBloquantes([_|ListeIndForme], Grille, ListeInd, J, LListeIndFormeBloquant, RLListeIndFormeBloquant):-
+    casesBloquantes(ListeIndForme, Grille, ListeInd, J, LListeIndFormeBloquant, RLListeIndFormeBloquant).
+
+compterOccurencesIndForme(_, [], 0).
+compterOccurencesIndForme(IndForme, [ListeIndForme|LListeIndFormeBloquant], RNbRep):-
+    member(IndForme, ListeIndForme),
+    RNbRep is NbRep + 1,
+    compterOccurencesIndForme(IndForme, LListeIndFormeBloquant, NbRep).
+compterOccurencesIndForme(IndForme, [_|LListeIndFormeBloquant], NbRep):-
+    compterOccurencesIndForme(IndForme, LListeIndFormeBloquant, NbRep).
+
+indFormeBloquantLePlus([], _, AccIndForme, AccIndForme, IndForme, IndForme, NbRep, NbRep).
+indFormeBloquantLePlus([HeadIndForme|_], [], AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep):-
+    (NbRep < 1, indFormeBloquantLePlus([], [], AccIndForme, RAccIndForme, HeadIndForme, RIndForme, 1, RNbRep) ; indFormeBloquantLePlus([], [], AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep)).
+indFormeBloquantLePlus([HeadIndForme|ListeIndForme], LListeIndFormeBloquant, AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep):-
+    \+member(HeadIndForme, AccIndForme),
+    compterOccurencesIndForme(HeadIndForme, LListeIndFormeBloquant, NvNbRep),
+    NvAccIndForme = [HeadIndForme|AccIndForme],
+    (NvNbRep > NbRep, indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, NvAccIndForme, RAccIndForme, HeadIndForme, RIndForme, NvNbRep, RNbRep) ; indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, NvAccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep)).
+indFormeBloquantLePlus([_|ListeIndForme], LListeIndFormeBloquant, AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep):-
+    indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep).
+
+choisirIndFormeBloquantLePlus([], _, IndForme, _, IndForme).
+choisirIndFormeBloquantLePlus([ListeIndForme|LListeIndFormeBloquant], AccIndForme, IndForme, NbRep, RIndForme):-
+    indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, AccIndForme, NvAccIndForme, IndForme, NvIndForme, NbRep, NvNbRep),
+    choisirIndFormeBloquantLePlus(LListeIndFormeBloquant, NvAccIndForme, NvIndForme, NvNbRep, RIndForme).
+
+%joue un coup gagnant si possible, sinon bloque la possibilité pour l'adversaire
+jouerCoupGagnantBloquant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-  
+    etatPreFinal(Grille, ListeInd, Ind, Forme),
+    jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ).
+jouerCoupGagnantBloquant(Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
+    setof([Ind, Forme], etatPreFinal(Grille, ListeInd, Ind, Forme), ListeIndForme),
+    casesBloquantes(ListeIndForme, Grille, ListeInd, J, [], LListeIndFormeBloquant),
+    choisirIndFormeBloquantLePlus(LListeIndFormeBloquant, [], _, 0, [IndFinal, FormeFinale]),
+    jouerCoup(Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ).
 % -----------------
 
 %compter les cases blocables avec un placement et retourner la meilleure
@@ -334,14 +384,6 @@ jouerCoupMiroir(Grille, ListeInd, [NumJ, ListePion], Ind, Forme, NvGrille, NvLis
     associationMiroir(Ind, IndCible),
     jouerCoup(Grille, ListeInd, [NumJ, ListePion], IndCible, Forme, NvGrille, NvListeInd, NvJ),
     bloqueOuPasPreFinal(NvGrille, NvListeInd, NumJ).
-% -----------------
-
-% -----------------
-%joue un coup gagnant si possible, sinon bloque la possibilité pour l'adversaire
-jouerCoupGagnantBloquant(Grille, ListeInd, J, IndFinal, Forme, NvGrille, NvListeInd, NvJ):-
-    etatPreFinal(Grille, ListeInd, Ind, Forme),
-    choisirPion(J, NumJ, [_, Forme], NvJ),
-    placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndFinal).
 % -----------------
 
 %calculer le nombre de victoires et défaites en largeur limite de 2
@@ -729,7 +771,7 @@ jeuProfondeurGagnant(HistInd, RNumJ):-
 % TODO : regarder le temps d'exec pour chaque tour
 statistics2():-
     statistics(walltime,[Start|_]),
-    coupSuivantHeuristique([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ,16], [1, [[2, 1], [2, 2], [2, 3], [2, 4]]], [2, [[2, 1], [2, 2], [2, 3], [2, 4]]], I, F, NvG, NvLi, NvJ),
+    coupSuivantHeuristique([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ,16], [1, [[2, 1], [2, 2], [2, 3], [2, 4]]], [2, [[2, 1], [2, 2], [2, 3], [2, 4]]], _, _, _, _, _),
     statistics(walltime,[Stop|_]),
     Runtime is Stop - Start,
     write('Execution took '), write(Runtime), write(' ms.').
