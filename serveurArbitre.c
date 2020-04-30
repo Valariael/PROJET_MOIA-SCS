@@ -71,6 +71,7 @@ void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie)
 {
 	int tailleAdr, err;
 	struct sockaddr_in adrJoueur;
+	TPartieRep partieRep;
 
 	//Tant que la connexion d'un joueur n'a pas réussi on réessaie.
 	while (*sockJoueur <= 0)
@@ -85,11 +86,25 @@ void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie)
 		}
 		printf("arbitre> joueur connecté fd=%d\n", *sockJoueur);
 
-		err = verifIdRequete(sockJoueur, PARTIE);//TODO : ERR_PARTIE check pseudo length etc
+		err = verifIdRequete(sockJoueur, PARTIE);
 		if (err == 0) err = recv(*sockJoueur, reqPartie, sizeof(TPartieReq), 0);
 		if (err <= 0)
 		{
 			perror("arbitre> erreur recv partie");
+			shutdownClose(*sockJoueur);
+			*sockJoueur = 0;
+			continue;
+		}
+
+		if (reqPartie->coulPion != BLANC && reqPartie->coulPion != NOIR)//TODO : more error handling ?
+		{
+			partieRep.err = ERR_PARTIE;
+			err = send(*sockJoueur, &partieRep, sizeof(TPartieRep), 0);
+			if (err <= 0)
+			{
+				perror("arbitre> erreur send ERR_PARTIE");
+			}
+			printf("arbitre> erreur coulPion req partie\n");
 			shutdownClose(*sockJoueur);
 			*sockJoueur = 0;
 			continue;
@@ -222,7 +237,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 		//Réception du coup joué.
 		printf("arbitre> recv req coup fd=%d\n", sockJoueur);
 		err = verifIdRequete(&sockJoueur, COUP);
-		if (err == 0) err = recv(sockJoueur, &reqCoup, sizeof(TCoupReq), 0);
+		if (err == 0) err = recv(sockJoueur, &reqCoup, sizeof(TCoupReq), 0);//TODO verif intervalle valeurs > ERR_COUP
 		if (err <= 0)
 		{
 			perror("arbitre> erreur recv coup 1");
