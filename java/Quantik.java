@@ -195,7 +195,47 @@ public class Quantik implements Callable<Coup>
 
         return coup;
     }
-         
+    
+    public Coup coupHeuristiqueAdapte(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
+    {
+        peutJouer = true;
+        Coup coup = coupHeuristique(Ind,Forme,NvGrille,NvListeInd,NvJ);
+        if (peutJouer)
+        {
+            return coup;
+        }
+
+        coup = jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
+
+        return coup;
+    }
+    public Coup jouerCoupRatioAdapte(Variable Ind,Variable Forme,Variable NvGrille,Variable NvListeInd,Variable NvJ)
+    {
+        peutJouer = true;
+        Coup coup = jouerCoupMeilleurRatio(Ind,Forme,NvGrille,NvListeInd,NvJ);
+        if (peutJouer)
+        {
+            return coup;
+        }
+
+        coup = jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
+
+        return coup;
+    }
+
+    public Coup jouerCoupMiroirAdapte(Variable Ind,Variable Forme,Variable NvGrille,Variable NvListeInd,Variable NvJ,Variable IndCible)
+    {
+        peutJouer = true;
+        Coup coup = jouerCoupMiroirOuMeilleurRatio(Ind,Forme,NvGrille,NvListeInd,NvJ,IndCible);
+        if (peutJouer)
+        {
+            return coup;
+        }
+
+        coup = jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
+
+        return coup;
+    }     
     public Coup call() throws Exception//TODO remove when finished
     {
         Coup coup;
@@ -227,6 +267,7 @@ public class Quantik implements Callable<Coup>
 
         return jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
     }
+
 
     /**
      * Permet de jouer et récupérer le coup avec le meilleur ratio de victoire/défaite ou le plus de cases bloquées

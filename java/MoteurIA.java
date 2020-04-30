@@ -116,11 +116,11 @@ public class MoteurIA {
                                 break;
 
                             case 2 :
-                                envoyerCoup(dos, jeu.jouerCoupMiroirOuMeilleurRatio(Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible));
+                                envoyerCoup(dos, jeu.jouerCoupMiroirAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible));
                                 break;
 
                             case 3 :
-                                envoyerCoup(dos, jeu.jouerCoupMeilleurRatio(Ind, Forme, NvGrille, NvListeInd, NvJ));
+                                envoyerCoup(dos, jeu.jouerCoupRatioAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
 
                             case 4 :
@@ -128,7 +128,7 @@ public class MoteurIA {
                                 break;
 
                             case 5 :
-                                envoyerCoup(dos, jeu.coupHeuristique(Ind, Forme, NvGrille, NvListeInd, NvJ));
+                                envoyerCoup(dos, jeu.coupHeuristiqueAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
                         }
                         break;
