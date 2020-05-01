@@ -643,20 +643,20 @@ bloqueOuPasPreFinal(Grille, ListeInd, NumJ):-
 %associationLargeurProfondeur(TailleListeIndices,LargeurMax).
 associationLargeurProfondeur(16,3).
 associationLargeurProfondeur(15,3).
-associationLargeurProfondeur(14,3).
-associationLargeurProfondeur(13,3).
-associationLargeurProfondeur(12,3).
-associationLargeurProfondeur(11,3).
-associationLargeurProfondeur(10,3).
-associationLargeurProfondeur(9,3).
-associationLargeurProfondeur(8,3).
-associationLargeurProfondeur(7,3).
-associationLargeurProfondeur(6,3).
-associationLargeurProfondeur(5,3).
-associationLargeurProfondeur(4,3).
-associationLargeurProfondeur(3,3).
-associationLargeurProfondeur(2,3).
-associationLargeurProfondeur(1,3).
+associationLargeurProfondeur(14,4).
+associationLargeurProfondeur(13,5).
+associationLargeurProfondeur(12,10).
+associationLargeurProfondeur(11,50).
+associationLargeurProfondeur(10,100).
+associationLargeurProfondeur(9,300).
+associationLargeurProfondeur(8,1000).
+associationLargeurProfondeur(7,2000).
+associationLargeurProfondeur(6,3000).
+associationLargeurProfondeur(5,5000).
+associationLargeurProfondeur(4,10000).
+associationLargeurProfondeur(3,15000).
+associationLargeurProfondeur(2,20000).
+associationLargeurProfondeur(1,30000).
 %initialise le choix du meilleur coup possible suivant l'heuristique
 meilleurCoupCout([], _, _, _, _, _, _, _, _):-
     !,
