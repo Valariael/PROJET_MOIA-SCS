@@ -203,7 +203,7 @@ indPasBloque(Grille, Ind, Forme, NumJ):-
     \+member([NumJ, Forme], ListeCoInd),
     \+member([NumJ, Forme], ListeCaInd).
 
-%tente de jouer le coup gagnant, sinon recherche une option de blocage
+%tente de jouer le coup gagnant, sinon recherche une option de blocage TODO : remove ?
 placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, Ind):-
     choisirInd(ListeInd, Ind, NvListeInd),
     placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
@@ -281,7 +281,6 @@ appendIndVides([_|ListeInd], [_|ListeCases], AccIndBloques, RAccIndBloques):-
 %               nombre de cases bloquées résultat; nombre de cases bloquées courant; liste des indices bloqués courant;
 %               liste des indices bloqués résultat.
 
-%tests !
 compterCasesBloquees([], [], _, _, _, NbBloque, NbBloque, AccIndBloques, AccIndBloques).
 compterCasesBloquees([Ind|ListeInd], [[0, 0]|ListeCases], Forme, NumJ, AccNb, RNbBloque, NbBloque, AccIndBloques, RAccIndBloques):-
     \+member(Ind, AccIndBloques),
@@ -524,6 +523,7 @@ insere([Parcours|LP], Liste, Result, LC):-
     insere(LP, Partiel, Result, LC).
 
 %récupère seulement les X premiers membres de la liste
+choisirXmeilleures([], _, []).
 choisirXmeilleures(_, 0, []).
 choisirXmeilleures([L|Q], X, S):-
     X2 is X - 1,
@@ -569,9 +569,9 @@ parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
     ListeEtatCoutN \= [],
     miseAJourCoupCout(ListeEtatCoutN, LC, NvLC),
     insere(ListeEtatCoutN, ListeEtatCout, NvListeEtatCout, LC),
-    choisirXmeilleures(NvListeEtatCout, LargeurMax, ListeEtatCoutX),%max 4/thread / max 15 pour insere sur WL sans timeout / maxmax 41 stack size default
-    parcoursH(ListeEtatCoutX, [NvLC, NumJ], RListeCoupCout,LargeurMax).
-parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
+    choisirXmeilleures(NvListeEtatCout, LargeurMax, ListeEtatCoutX),
+    parcoursH(ListeEtatCoutX, [NvLC, NumJ], RListeCoupCout, LargeurMax).
+parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout, LargeurMax):-
     %cas où findall renvoie une liste vide car il n'y a aucune possibilité
     parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ), 
     ListeEtatCoutN = [],
@@ -581,13 +581,13 @@ parcoursH([[_, _, _, [NumJ, _], _, _, IndCible, FormeCible]|ListeEtatCout], [LC,
     select([NbBloque, Victoire, Defaite, IndCible, FormeCible], LC, SubLC),
     NvVictoire is Victoire + 1,
     NvLC = [[NbBloque, NvVictoire, Defaite, IndCible, FormeCible]|SubLC],
-    parcoursH(ListeEtatCout, [NvLC, NumJ], RListeCoupCout,LargeurMax).
-parcoursH([[_, _, [NumJ, _], _, _, _, IndCible, FormeCible]|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
+    parcoursH(ListeEtatCout, [NvLC, NumJ], RListeCoupCout, LargeurMax).
+parcoursH([[_, _, [NumJ, _], _, _, _, IndCible, FormeCible]|ListeEtatCout], [LC, NumJ], RListeCoupCout, LargeurMax):-
     %cas où parcoursSuivant est false car c'est un état final perdant
     select([NbBloque, Victoire, Defaite, IndCible, FormeCible], LC, SubLC),
     NvDefaite is Defaite + 1,
     NvLC = [[NbBloque, Victoire, NvDefaite, IndCible, FormeCible]|SubLC],
-    parcoursH(ListeEtatCout, [NvLC, NumJ], RListeCoupCout,LargeurMax).
+    parcoursH(ListeEtatCout, [NvLC, NumJ], RListeCoupCout, LargeurMax).
 
 %identique à deplaceH mais retourne la forme en plus
 deplaceHInit(Grille, ListeInd, J, J2, Ind, Forme, NvGrille, NvListeInd, [NumJ, LP], NbBloque):-
@@ -667,19 +667,21 @@ meilleurCoupCout([[NbBloque, Victoire, Defaite, IndFinal, FormeFinale]|_], Grill
 meilleurCoupCout([_|ListeCoupCout], Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
     meilleurCoupCout(ListeCoupCout, Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ).
 
-threadParcoursH(ListeEtatCout, LCoupCout,LargeurMax):-
-    parcoursH(ListeEtatCout, LCoupCout, [[RCoupCout|_], _],LargeurMax),
+threadParcoursH(ListeEtatCout, LCoupCout, LargeurMax):-
+    parcoursH(ListeEtatCout, LCoupCout, [[RCoupCout|_], _], LargeurMax),
     thread_exit(RCoupCout).
 
-allThreadsCaseH(ListeEtatCout, [ListeCoupCout, NumJ], NvCoupCout,LargeurMax):-
+allThreadsCaseH(ListeEtatCout, [ListeCoupCout, NumJ], NvCoupCout, LargeurMax):-
     select([Grille, ListeInd, J1, J2, Ind, NbBloque, IndCible, FormeCible], ListeEtatCout, _),
     select([NbBloque, Victoire, Defaite, IndCible, FormeCible], ListeCoupCout, _),
-    thread_create(threadParcoursH([[Grille, ListeInd, J1, J2, Ind, NbBloque, IndCible, FormeCible]], [[[NbBloque, Victoire, Defaite, IndCible, FormeCible]], NumJ],LargeurMax), ThreadH, []),
+    thread_create(threadParcoursH([[Grille, ListeInd, J1, J2, Ind, NbBloque, IndCible, FormeCible]], [[[NbBloque, Victoire, Defaite, IndCible, FormeCible]], NumJ], LargeurMax), ThreadH, []),
     thread_join(ThreadH, exited(NvCoupCout)).
 
 %calcule et joue le meilleur coup disponible en faisant un parcours heuristique
 %si un coup gagnant ou empêchant l'adversaire de gagner est possible, le joue en priorité
 coupSuivantHeuristique(Grille, ListeInd, J, _, Ind, Forme, NvGrille, NvListeInd, NvJ):-
+    length(ListeInd,Tliste),
+    Tliste < 14,
     jouerCoupGagnantBloquant(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ).
 %initialise d'abord :
 %   -une liste contenant tous les prochains états de jeu possibles avec le score heuristique associé dans ListeEtatCout

@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.lang.Integer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.*;
 import java.util.concurrent.*;
 import org.jpl7.*;
+
 public class MoteurIA {
     public static final int CODE_NV_PARTIE_BLANC = 1;
     public static final int CODE_NV_PARTIE_NOIR = 2;
     public static final int CODE_COUP_SELF = 3;
     public static final int CODE_COUP_ADV = 4;
-    public static final int CODE_OK = 0;
+    public static final int CODE_OK = 0;//TODO definir constantes pour types d'IA
 
     public static void main (String[] args)
     {
@@ -64,8 +64,7 @@ public class MoteurIA {
             e.printStackTrace();
             System.exit(-1);
         }
-        Coup coup, coupSecours;
-        int coupUtilise, numPartie;
+        Coup coup;
         try
         {
             socketServeur = new ServerSocket(port);
@@ -79,14 +78,12 @@ public class MoteurIA {
                 switch (codeReq)
                 {
                     case CODE_NV_PARTIE_BLANC:
-                        numPartie = dis.readInt();
-                        jeu.initPartie(true, numPartie);
+                        jeu.initPartie(true);
                         dos.writeInt(CODE_OK);
                         break;
 
                     case CODE_NV_PARTIE_NOIR:
-                        numPartie = dis.readInt();
-                        jeu.initPartie(false,numPartie);
+                        jeu.initPartie(false);
                         dos.writeInt(CODE_OK);
                         break;
 
@@ -105,7 +102,7 @@ public class MoteurIA {
                                 Future<Coup> future = executor.submit(jeu);
                                 try
                                 {
-                                    envoyerCoup(dos, future.get(4500, TimeUnit.MILLISECONDS));//TODO test timeout limits
+                                    envoyerCoup(dos, future.get(4850, TimeUnit.MILLISECONDS));//TODO test timeout limits
                                 }
                                 catch (Exception e)
                                 {
@@ -183,5 +180,6 @@ public class MoteurIA {
         dos.writeInt(coup.getLigne());
         dos.writeInt(coup.getColonne());
         dos.writeInt(coup.getPropriete());
+        System.out.println("coup envoye : " + coup.toString());
     }
 }

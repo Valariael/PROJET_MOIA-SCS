@@ -15,9 +15,9 @@ public class Quantik implements Callable<Coup>
     public static final String JOUEUR = "Joueur";
 
     private Term joueurSelf, joueurAdv, grille, indices;
-    private int dernierePos, formeAdv,numPartie;
-    private boolean isBlanc,peutJouer;
-    private Coup coupCourant;
+    private int dernierePos;
+    private int formeAdv;
+    private boolean peutJouer;
 
     /**
      * Initialise le moteur Prolog en consultant le fichier d'IA.
@@ -37,10 +37,8 @@ public class Quantik implements Callable<Coup>
      * Initialise l'état du jeu dans l'objet Quantik courant à partir des prédicats d'initialisation..
      * @param isBlanc vrai si l'IA joue les pions blancs, faux autrement
      */
-    public void initPartie(boolean isBlanc, int numPartie)
+    public void initPartie(boolean isBlanc)
     {
-        this.isBlanc = isBlanc;
-        this.numPartie = numPartie;
         Map<String, Term> solution1, solution2;
         Variable X = new Variable(JOUEUR);
 
@@ -106,6 +104,7 @@ public class Quantik implements Callable<Coup>
             coup.setBloque(1);
             coup.setPropriete(3);
         }
+        System.out.println(this.toString());
         return coup;
     }
 
@@ -210,7 +209,7 @@ public class Quantik implements Callable<Coup>
         {
             peutJouer = false;
             System.out.println("...................................... BLOQUE");
-            coup.setBloque(1);
+            coup.setBloque(1);//TODO verif fin de partie serveur quand bloqué
             coup.setPropriete(3);
         }
 
@@ -293,6 +292,7 @@ public class Quantik implements Callable<Coup>
 
         if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
         {
+            System.out.println(this.toString());
             getCoupSuivant(coup, jouerMeilleurCoupRatioEtBloque);
             System.out.println("...................................... coup secours");
         }
@@ -307,7 +307,7 @@ public class Quantik implements Callable<Coup>
     {
         Map<String, Term> solution = coupSuivant.nextSolution();
 
-        this.grille = solution.get(GRILLE);
+        this.grille = solution.get(GRILLE);//TODO : synchronized!
         this.indices = solution.get(LISTE_IND);
         this.joueurSelf = solution.get(JOUEUR);
         dernierePos = solution.get(IND).intValue();

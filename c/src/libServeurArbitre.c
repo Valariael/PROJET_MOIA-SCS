@@ -11,6 +11,7 @@
 #include "libSockets.h"
 #include "protocolQuantik.h"
 #include "validation.h"
+#include "libServeurArbitre.h"
 
 int verifIdRequete (int *sockJoueur, int idAttendu)
 {
@@ -403,94 +404,6 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 				}
 			}
 		}
-	}
-
-	return 0;
-}
-
-int main (int argc, char **argv)
-{
-	int sockConnexion,
-	sockJoueur1,
-	sockJoueur2,
-	portServeur,
-	err,
-	estServeur = 1,
-	idPartie = 0;
-	pid_t pid;
-
-	//Vérification des arguments.
-	if (argc != 2)
-	{
-		printf("arbitre> usage : %s <port>\n", argv[0]);
-		return -1;
-	}
-
-	//Création du socket de connexion.
-	portServeur = atoi(argv[1]);
-	sockConnexion = socketServeur(portServeur);
-	if (sockConnexion < 0) 
-	{
-		perror("arbitre> erreur creation socket serveur");
-		return -2;
-	}
-
-	//Processus d'origine doit continuer à pouvoir lancer des nouvelles parties.
-	while (estServeur)
-	{
-		//TODO vérifier terminaison de la seconde partie 
-		//Connexion de deux joueurs pour une partie.
-		err = paireJoueurValides(&sockJoueur1, &sockJoueur2, sockConnexion);
-		if (err < 0)
-		{
-			perror("arbitre> erreur paire joueurs");
-			continue;
-		}
-		printf("arbitre> paire de joueurs connectés fd1=%d fd2=%d\n", sockJoueur1, sockJoueur2);
-
-		//La partie est exécutée dans le processus fils.
-		idPartie++;
-		pid = fork();
-		switch (pid)
-		{
-			case 0:
-			printf("arbitre> processus fils pid=%d\n", pid);
-			close(sockConnexion);
-			estServeur = 0;
-			break;
-
-			case -1:
-			perror("arbitre> erreur fork jeu");
-			close(sockConnexion);
-			shutdownCloseBoth(sockJoueur1, sockJoueur2);
-			return -3;
-
-			default:
-			printf("arbitre> processus pere pid=%d\n", pid);
-			close(sockJoueur1);
-			close(sockJoueur2);
-			break;
-		}
-	}
-
-	printf("arbitre> début jeu\n");
-
-	//Première manche
-	err = jouerPartie(sockJoueur1, sockJoueur2);
-	if (err < 0)
-	{
-		printf("arbitre> erreur 1ere partie fdB=%d fdN=%d\n", sockJoueur1, sockJoueur2);
-		shutdownCloseBoth(sockJoueur1,sockJoueur2);
-		return -3;
-	}
-
-	//Deuxième manche
-	err = jouerPartie(sockJoueur2, sockJoueur1);
-	if (err < 0)
-	{
-		printf("arbitre> erreur 2eme partie fdB=%d fdN=%d\n", sockJoueur2, sockJoueur1);
-		shutdownCloseBoth(sockJoueur1,sockJoueur2);
-		return -4;
 	}
 
 	return 0;

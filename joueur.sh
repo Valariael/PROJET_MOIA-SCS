@@ -35,13 +35,14 @@ else
 java MoteurIA $4 1 &
 echo "Moteur IA de $3 lancé."
 fi
-cd ..
+cd ../c/src
 make
 err=$?
 if [ $err -ne "0" ]; then
 	echo "Erreur à la compilation du serveur/client !"
 	exit -1
 fi
+cd ../out
 if [ "$portIA" = false ]; then
 ./clientJoueur $1 $2 $3 N 6666 &
 echo "Client blanc lancé."
