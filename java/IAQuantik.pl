@@ -563,7 +563,7 @@ miseAJourCoupCout([[_, _, _, _, _, NbBloque1, IndCible, FormeCible]|ListeEtatCou
     miseAJourCoupCout(ListeEtatCout, [[NvNbBloque, Victoire, Defaite, IndCible, FormeCible]|NvListeCoupCout], RListeCoupCout).
 
 %calcule l'étage suivant sur les meilleurs états courants en mettant à jour les données
-parcoursH([], ListeCoupCout, ListeCoupCout).
+parcoursH([], ListeCoupCout, ListeCoupCout,LargeurMax).
 parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
     parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ),
     ListeEtatCoutN \= [],
@@ -573,9 +573,9 @@ parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
     parcoursH(ListeEtatCoutX, [NvLC, NumJ], RListeCoupCout,LargeurMax).
 parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
     %cas où findall renvoie une liste vide car il n'y a aucune possibilité
-    parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ,LargeurMax), 
+    parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ), 
     ListeEtatCoutN = [],
-    parcoursH(ListeEtatCout, [LC, NumJ], RListeCoupCout).
+    parcoursH(ListeEtatCout, [LC, NumJ], RListeCoupCout,LargeurMax).
 parcoursH([[_, _, _, [NumJ, _], _, _, IndCible, FormeCible]|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
     %cas où parcoursSuivant est false car c'est un état final gagnant
     select([NbBloque, Victoire, Defaite, IndCible, FormeCible], LC, SubLC),
@@ -642,21 +642,21 @@ bloqueOuPasPreFinal(Grille, ListeInd, NumJ):-
 
 %associationLargeurProfondeur(TailleListeIndices,LargeurMax).
 associationLargeurProfondeur(16,3).
-associationLargeurProfondeur(15,4).
-associationLargeurProfondeur(14,6).
-associationLargeurProfondeur(13,9).
-associationLargeurProfondeur(12,20).
-associationLargeurProfondeur(11,50).
-associationLargeurProfondeur(10,100).
-associationLargeurProfondeur(9,200).
-associationLargeurProfondeur(8,300).
-associationLargeurProfondeur(7,500).
-associationLargeurProfondeur(6,1000).
-associationLargeurProfondeur(5,2500).
-associationLargeurProfondeur(4,5000).
-associationLargeurProfondeur(3,10000).
-associationLargeurProfondeur(2,100000).
-associationLargeurProfondeur(1,100000000).
+associationLargeurProfondeur(15,3).
+associationLargeurProfondeur(14,3).
+associationLargeurProfondeur(13,3).
+associationLargeurProfondeur(12,3).
+associationLargeurProfondeur(11,3).
+associationLargeurProfondeur(10,3).
+associationLargeurProfondeur(9,3).
+associationLargeurProfondeur(8,3).
+associationLargeurProfondeur(7,3).
+associationLargeurProfondeur(6,3).
+associationLargeurProfondeur(5,3).
+associationLargeurProfondeur(4,3).
+associationLargeurProfondeur(3,3).
+associationLargeurProfondeur(2,3).
+associationLargeurProfondeur(1,3).
 %initialise le choix du meilleur coup possible suivant l'heuristique
 meilleurCoupCout([], _, _, _, _, _, _, _, _):-
     !,
