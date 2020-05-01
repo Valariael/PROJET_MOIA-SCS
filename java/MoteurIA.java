@@ -128,7 +128,7 @@ public class MoteurIA {
                                 break;
 
                             case 5 :
-                                envoyerCoup(dos, jeu.coupHeuristiqueAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ));
+                                envoyerCoup(dos, jeu.jouerCoupRandom(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
                         }
                         break;

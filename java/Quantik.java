@@ -172,6 +172,27 @@ public class Quantik implements Callable<Coup>
         return coup;
     }
 
+    public Coup jouerCoupRandom(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
+    {
+        Coup coup = new Coup();
+        Query jouerCoupRandom = new Query(
+                "jouerCoupRandom",
+                new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
+        );
+
+        if (jouerCoupRandom.hasMoreSolutions())
+        {
+            getCoupSuivant(coup, jouerCoupRandom);
+            System.out.println("...................................... coup au hasard");
+        }
+        else
+        {
+            System.out.println("...................................... BLOQUE");
+            coup.setBloque(1);
+            coup.setPropriete(3);
+        }
+        return coup;
+    }
     public Coup jouerCoupMeilleurRatio(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {
         Coup coup = new Coup();
@@ -238,7 +259,6 @@ public class Quantik implements Callable<Coup>
     }     
     public Coup call() throws Exception//TODO remove when finished
     {
-        Coup coup;
         peutJouer = true;
         Variable Ind = new Variable(IND);
         Variable Forme = new Variable(FORME);
@@ -247,25 +267,8 @@ public class Quantik implements Callable<Coup>
         Variable NvJ = new Variable(JOUEUR);
 
         //Si on joue en premier ou que l'on est pas en début de partie
-        if ((isBlanc && numPartie == 1) || (!isBlanc && numPartie == 2 ) || (this.indices.toTermArray().length < 12) )
-        {
-            //Calculer le prochain coup avec le parcours heuristique
-           coup = coupHeuristique(Ind, Forme, NvGrille, NvListeInd, NvJ);
-        }
-        //Sinon si on joue en deuxième et que l'on est en début de partie
-        else
-        {
-            //Jouer le même coup que l'adversaire mais en symétrie centrale
-            Variable IndCible = new Variable(IND);
-            coup = jouerCoupMiroirOuMeilleurRatio(Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible);
-        }
-
-        if (peutJouer)
-        {
-            return coup;
-        }
-
-        return jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
+        //voir si on applique de "meilleures" combinaisons
+        return coupHeuristiqueAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ);
     }
 
 

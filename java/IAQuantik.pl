@@ -385,7 +385,16 @@ jouerCoupMiroir(Grille, ListeInd, [NumJ, ListePion], Ind, Forme, NvGrille, NvLis
     jouerCoup(Grille, ListeInd, [NumJ, ListePion], IndCible, Forme, NvGrille, NvListeInd, NvJ),
     bloqueOuPasPreFinal(NvGrille, NvListeInd, NumJ).
 % -----------------
-
+jouerCoupRandom(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-length(ListeInd, Tliste),
+                                                                            Tliste>7,
+                                                                            random(1,Tliste,PosInd),
+                                                                            nth1(PosInd,ListeInd,Ind),
+                                                                            random(1,4,Forme),
+                                                                            jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ),!.
+jouerCoupRandom(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-length(ListeInd, Tliste),
+                                                                            Tliste<8,
+                                                                            jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ),!.
+jouerCoupRandom(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-jouerCoupRandom(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ).
 %calculer le nombre de victoires et défaites en largeur limite de 2
 % -----------------
 %parcours les grilles de l'étage et augmente de 1 le compteur des victoires ou défaites si un quadruplet gagnant est détecté
