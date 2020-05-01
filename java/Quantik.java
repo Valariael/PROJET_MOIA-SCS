@@ -91,7 +91,7 @@ public class Quantik implements Callable<Coup>
          Coup coup = new Coup();
          Query coupSuivantHeuristique = new Query(
                 "coupSuivantHeuristique",
-                new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
+                new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ,new org.jpl7.Integer(this.indices.toTermArray().length)}
         );
 
         if (coupSuivantHeuristique.hasMoreSolutions())
