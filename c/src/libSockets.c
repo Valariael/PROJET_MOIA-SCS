@@ -164,7 +164,7 @@ int adresseUDP(char* nomMachine, ushort nPort, struct sockaddr_in* addr) {
 }
 
 struct sockaddr_in* initAddr(char* nomMachine, ushort nPort) {
-    struct sockaddr_in* addr;
+    struct sockaddr_in* addr = malloc(sizeof(struct sockaddr_in));
 
     addr->sin_family = AF_INET;
     addr->sin_port = htons(nPort);

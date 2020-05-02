@@ -104,7 +104,6 @@ public class Quantik implements Callable<Coup>
             coup.setBloque(1);
             coup.setPropriete(3);
         }
-        System.out.println(this.toString());
         return coup;
     }
 

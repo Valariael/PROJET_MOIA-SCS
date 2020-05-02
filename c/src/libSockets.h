@@ -1,6 +1,8 @@
 #ifndef _PROTO_SOCKETS_H
 #define _PROTO_SOCKETS_H
 
+#include <netinet/in.h>
+
 typedef unsigned short int ushort;
 
 void shutdownClose (int sock);

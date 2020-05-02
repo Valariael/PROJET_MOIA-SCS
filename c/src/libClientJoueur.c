@@ -352,9 +352,8 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
 int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur, int num)
 {
     int err, joueur = commence, continuer = 1, data, nsfd;
-    TCoupReq reqCoup,reqCoupSecours;
+    TCoupReq reqCoup;
     TCoupRep repCoup;
-    struct timeval timeout;
 	fd_set readSet;
     printf("joueur> id=%d commence ? %d\n", idJoueur, commence);
 

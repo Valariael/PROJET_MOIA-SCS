@@ -180,6 +180,5 @@ public class MoteurIA {
         dos.writeInt(coup.getLigne());
         dos.writeInt(coup.getColonne());
         dos.writeInt(coup.getPropriete());
-        System.out.println("coup envoye : " + coup.toString());
     }
 }

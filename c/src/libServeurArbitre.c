@@ -142,6 +142,8 @@ int ackJoueursConnectes (int *sockJoueur, int *sockAutreJoueur, TPartieRep *repP
 
 		return -1;
 	}
+
+	return 0;
 }
 
 int paireJoueurValides (int *sockJoueur1, int *sockJoueur2, int sockConnexion)
