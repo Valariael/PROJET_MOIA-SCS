@@ -9,7 +9,7 @@
 #include "../src/libClientJoueur.h"
 #include "minunit.h"
 
-static char* test_verifCodeRep()
+MU_TEST(test_verifCodeRep)
 {
 	int sock, sockConn, sockTrans, tailleAdr, pid, err;
 	struct sockaddr_in adr;
@@ -30,7 +30,7 @@ static char* test_verifCodeRep()
 				err = send(sockTrans, coupRep, sizeof(TCoupRep), 0);
 				if (err <= 0)
 				{
-					perror("erreur send coupRep verifCodeRep");
+					mu_fail("erreur send coupRep verifCodeRep");
 				}
 			}
 
@@ -39,82 +39,67 @@ static char* test_verifCodeRep()
 			break;
 
 		case -1:
-			perror("erreur fork verifCodeRep");
+			mu_fail("erreur fork verifCodeRep");
 			break;
 
 		default:
 			sock = socketClient("127.0.0.1", 8080);
 
-			mu_assert("erreur verifCodeRep de -1 != -5", verifCodeRep(sock) == -5);
+			mu_assert(verifCodeRep(sock) == -5, "erreur verifCodeRep de -1 != -5");
 			err = recv(sock, coupRep, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
-				perror("erreur recv coupRep verifCodeRep");
+				mu_fail("erreur recv coupRep verifCodeRep -1");
 			}
 
-			mu_assert("erreur verifCodeRep de 0 != 0", verifCodeRep(sock) == 0);
+			mu_assert(verifCodeRep(sock) == 0, "erreur verifCodeRep de 0 != 0");
 			err = recv(sock, coupRep, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
-				perror("erreur recv coupRep verifCodeRep");
+				mu_fail("erreur recv coupRep verifCodeRep 0");
 			}
 
-			mu_assert("erreur verifCodeRep de 1 != -3", verifCodeRep(sock) == -3);
+			mu_assert(verifCodeRep(sock) == -3, "erreur verifCodeRep de 1 != -3");
 			err = recv(sock, coupRep, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
-				perror("erreur recv coupRep verifCodeRep");
+				mu_fail("erreur recv coupRep verifCodeRep 1");
 			}
 
-			mu_assert("erreur verifCodeRep de 2 != -4", verifCodeRep(sock) == -4);
+			mu_assert(verifCodeRep(sock) == -4, "erreur verifCodeRep de 2 != -4");
 			err = recv(sock, coupRep, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
-				perror("erreur recv coupRep verifCodeRep");
+				mu_fail("erreur recv coupRep verifCodeRep 2");
 			}
 
-			mu_assert("erreur verifCodeRep de 3 != -2", verifCodeRep(sock) == -2);
+			mu_assert(verifCodeRep(sock) == -2, "erreur verifCodeRep de 3 != -2");
 			err = recv(sock, coupRep, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
-				perror("erreur recv coupRep verifCodeRep");
+				mu_fail("erreur recv coupRep verifCodeRep 3");
 			}
 
-			mu_assert("erreur verifCodeRep de 4 != -5", verifCodeRep(sock) == -5);
+			mu_assert(verifCodeRep(sock) == -5, "erreur verifCodeRep de 4 != -5");
 			err = recv(sock, coupRep, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
-				perror("erreur recv coupRep verifCodeRep");
+				mu_fail("erreur recv coupRep verifCodeRep 4");
 			}
 
 			shutdownClose(sock);
 			kill(pid, SIGKILL);
-			mu_assert("erreur verifCodeRep peek devrait échouer", verifCodeRep(-1) == -1);
+			mu_assert(verifCodeRep(-1) == -1, "erreur verifCodeRep peek devrait échouer");
 			break;
 	}
-
-	return 0;
 }
 
-static char* all_tests() 
-{
-    mu_run_test(test_verifCodeRep);
-    return 0;
+MU_TEST_SUITE(test_libClientJoueur) {
+	MU_RUN_TEST(test_verifCodeRep);
 }
 
-int main(int argc, char **argv) 
-{
-    char *result = all_tests();
-
-    if (result != 0) 
-    {
-        printf("%s\n", result);
-    }
-    else 
-    {
-        printf("ALL TESTS PASSED\n");
-    }
-    printf("Tests run: %d\n", tests_run);
- 
-    return result != 0;
+int main(int argc, char* argv[]) {
+	MU_RUN_SUITE(test_libClientJoueur);
+	MU_REPORT();
+	return MU_EXIT_CODE;
 }
