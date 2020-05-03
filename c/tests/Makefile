@@ -5,7 +5,7 @@ EXEC=testsLibClientJoueur
 all: $(EXEC)
 
 testsLibClientJoueur: testsLibClientJoueur.o
-	$(CC) $(CFLAGS) -o ../out/$@ ../out/testsLibClientJoueur.o ../out/libClientJoueur.o ../out/libSockets.o
+	$(CC) $(CFLAGS) -pthread -o ../out/$@ ../out/testsLibClientJoueur.o ../out/libClientJoueur.o ../out/libSockets.o
 
 testsLibClientJoueur.o: testsLibClientJoueur.c
 	$(CC) $(CFLAGS) -o ../out/$@ -c testsLibClientJoueur.c

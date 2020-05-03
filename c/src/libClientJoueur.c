@@ -83,16 +83,16 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur, int num)
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
-        printf("joueur> erreur recv estBloque IA");
-        return -2;
+        printf("joueur> erreur recv estBloque IA\n");
+        return -1;
     }
     reqCoup->estBloque = data;
 
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
-        printf("joueur> erreur recv typePion IA");
-        return -4;
+        printf("joueur> erreur recv typePion IA\n");
+        return -2;
     }
     pion.typePion = data;
     pion.coulPion = couleur;
@@ -100,24 +100,24 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur, int num)
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
-        printf("joueur> erreur recv ligne IA");
-        return -5;
+        printf("joueur> erreur recv ligne IA\n");
+        return -3;
     }
     caseCible.l = data;
 
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
-        printf("joueur> erreur recv colonne IA");
-        return -6;
+        printf("joueur> erreur recv colonne IA\n");
+        return -4;
     }
     caseCible.c = data;
 
     err = recvIntFromJava(sockIA, &data);
     if (err < 0)
     {
-        printf("joueur> erreur recv prop coup IA");
-        return -7;
+        printf("joueur> erreur recv prop coup IA\n");
+        return -5;
     }
     reqCoup->propCoup = data;
     reqCoup->numPartie = num;
@@ -179,7 +179,7 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     err = send(sockIA, &data, sizeof(int), 0);
     if (err <= 0)
     {
-        perror("joueur> erreur send colonne IA");
+        perror("joueur> erreur send propCoup IA");
         return -6;
     }
 

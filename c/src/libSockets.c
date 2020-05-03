@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+#include <sys/types.h>
 
 typedef unsigned short int ushort;
 
@@ -25,7 +26,7 @@ void shutdownCloseBoth(int sock1, int sock2)
 
 int socketServeur(ushort nPort) {
     struct sockaddr_in addr;
-    int size, err, sock;
+    int size, err, sock, reuse = 1;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -44,6 +45,14 @@ int socketServeur(ushort nPort) {
     
     size = sizeof(struct sockaddr_in);
 
+    //Rendre l'adresse et le port réutilisables rapidement
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
+        perror("setsockopt(SO_REUSEADDR) failed");
+
+#ifdef SO_REUSEPORT
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, (const char*)&reuse, sizeof(reuse)) < 0) 
+        perror("setsockopt(SO_REUSEPORT) failed");
+#endif
     /* 
     * attribution de l'adresse a la socket
     */  
