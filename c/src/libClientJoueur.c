@@ -203,8 +203,8 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
         break;
 
         default:
-        printf("joueur> TValCoup inconnu : ");
-        printf("%d",repCoup.validCoup);
+        printf("joueur> TValCoup inconnu ");
+        printf("%d : ",repCoup.validCoup);
         break;
     }
 

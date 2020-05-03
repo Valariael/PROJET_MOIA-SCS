@@ -529,6 +529,153 @@ MU_TEST(test_prochainCoup6)
 	}
 }
 
+MU_TEST(test_adversaireCoup)
+{
+	int sock, sockConn, sockTrans, tailleAdr, pid, err, data, status;
+	struct sockaddr_in adr;
+	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
+	sem_t* sem = sem_open("mutex", O_CREAT|O_EXCL, 0644, 0);
+	sem_unlink("mutex");
+	printf("test> adversaireCoup\n");
+
+	coupReq->idRequest = COUP;
+	coupReq->estBloque = 1;
+	coupReq->numPartie = 1;
+	coupReq->pion.typePion = PAVE;
+	coupReq->pion.coulPion = NOIR;
+	coupReq->posPion.l = DEUX;
+	coupReq->posPion.c = B;
+	coupReq->propCoup = GAGNE;
+
+	pid = fork();
+	switch (pid)
+	{
+		case 0:
+			sockConn = socketServeur(8090);
+			sem_post(sem);
+			sockTrans = accept(sockConn,
+				(struct sockaddr *)&adr,
+				(socklen_t *)&tailleAdr);
+
+			sem_wait(sem);
+			sleep(1);
+			adversaireCoup(sockTrans, coupReq);
+
+			err = recv(sockTrans, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv CODE_COUP_ADV adversaireCoup 2");
+			}
+			err = recv(sockTrans, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv estBloque adversaireCoup 2");
+			}
+			err = recv(sockTrans, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv typePion adversaireCoup 2");
+			}
+			err = recv(sockTrans, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv ligne adversaireCoup 2");
+			}
+			err = recv(sockTrans, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv colonne adversaireCoup 2");
+			}
+			err = recv(sockTrans, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv propCoup adversaireCoup 2");
+			}
+			sem_post(sem);
+
+			shutdownCloseBoth(sockTrans, sockConn);
+			sem_close(sem);
+			exit(0);
+
+		case -1:
+			mu_fail("erreur fork prochainCoup");
+			sem_close(sem);
+			break;
+
+		default:
+			sem_wait(sem);
+			sock = socketClient("127.0.0.1", 8090);
+
+			sem_post(sem);
+			err = recv(sock, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv CODE_COUP_ADV adversaireCoup 1");
+			}
+			mu_assert(ntohl(data) == CODE_COUP_ADV, "erreur adversaireCoup data!=CODE_COUP_ADV");
+			err = recv(sock, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv estBloque adversaireCoup 1");
+			}
+			mu_assert(ntohl(data) == 1, "erreur adversaireCoup estBloque!=1");
+			err = recv(sock, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv typePion adversaireCoup 1");
+			}
+			mu_assert(ntohl(data) == PAVE, "erreur adversaireCoup typePion!=PAVE");
+			err = recv(sock, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv ligne adversaireCoup 1");
+			}
+			mu_assert(ntohl(data) == DEUX, "erreur adversaireCoup ligne!=DEUX");
+			err = recv(sock, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv colonne adversaireCoup 1");
+			}
+			mu_assert(ntohl(data) == B, "erreur adversaireCoup data!=B");
+			err = recv(sock, &data, sizeof(int), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv propCoup adversaireCoup 1");
+			}
+			mu_assert(ntohl(data) == GAGNE, "erreur adversaireCoup data!=GAGNE");
+
+			err = adversaireCoup(sock, coupReq);
+			mu_assert(err == 0, "erreur adversaireCoup return!=0");
+			sem_wait(sem);
+
+			shutdownClose(sock);
+			sem_close(sem);
+			wait(&status);
+			break;
+	}
+}
+
+MU_TEST(test_afficherValidationCoup)
+{
+	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
+	printf("test> afficherValidationCoup\n");
+
+	coupRep->validCoup = VALID;
+	coupRep->propCoup = CONT;
+	afficherValidationCoup(*coupRep, 1);
+	coupRep->validCoup = TIMEOUT;
+	coupRep->propCoup = GAGNE;
+	afficherValidationCoup(*coupRep, 1);
+	coupRep->validCoup = TRICHE;
+	coupRep->propCoup = NUL;
+	afficherValidationCoup(*coupRep, 1);
+	coupRep->propCoup = PERDU;
+	afficherValidationCoup(*coupRep, 2);
+	coupRep->validCoup = -1;
+	coupRep->propCoup = -1;
+	afficherValidationCoup(*coupRep, 2);
+}
+
 MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_verifCodeRep);
 	MU_RUN_TEST(test_recvIntFromJava);
@@ -538,6 +685,8 @@ MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_prochainCoup4);
 	MU_RUN_TEST(test_prochainCoup5);
 	MU_RUN_TEST(test_prochainCoup6);
+	MU_RUN_TEST(test_adversaireCoup);
+	MU_RUN_TEST(test_afficherValidationCoup);
 }
 
 int main(int argc, char* argv[]) {
