@@ -7,6 +7,11 @@
 !Makefile
 
 *.class
+*.o
+*.so
+*.gcda
+*.gcno
+*.gcov
 
 .idea
 *.iml

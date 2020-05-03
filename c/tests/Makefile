@@ -10,5 +10,10 @@ testsLibClientJoueur: testsLibClientJoueur.o
 testsLibClientJoueur.o: testsLibClientJoueur.c
 	$(CC) $(CFLAGS) -o ../out/$@ -c testsLibClientJoueur.c
 
+coverage:
+	$(CC) $(CFLAGS) -shared -fPIC ../src/libSockets.c -o libSockets.so
+	$(CC) $(CFLAGS) -shared -fPIC ../src/libClientJoueur.c -o libClientJoueur.so -ftest-coverage -fprofile-arcs
+	$(CC) $(CFLAGS) testsLibClientJoueur.c -pthread -L./ -lClientJoueur -lSockets  -o testsLibClientJoueur -ftest-coverage -fprofile-arcs
+
 clean:
 	rm ../out/testsLibClientJoueur

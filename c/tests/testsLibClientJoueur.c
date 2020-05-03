@@ -151,10 +151,10 @@ MU_TEST(test_recvIntFromJava)
 			mu_assert(err == 0, "erreur recvIntFromJava return!=0");
 			mu_assert(data == 10, "erreur recvIntFromJava data!=1");
 
-			err = recvIntFromJava(-1, &data);
+			shutdownClose(sock);
+			err = recvIntFromJava(sock, &data);
 			mu_assert(err == -1, "erreur recvIntFromJava return!=-1");
 
-			shutdownClose(sock);
 			sem_close(sem);
 			wait(&status);
 			break;
@@ -250,48 +250,12 @@ MU_TEST(test_prochainCoup1)
 
 MU_TEST(test_prochainCoup2)
 {
-	int sock, sockConn, sockTrans, tailleAdr, pid, err, status;
-	struct sockaddr_in adr;
+	int err;
 	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
-	sem_t* sem = sem_open("mutex", O_CREAT|O_EXCL, 0644, 0);
-	sem_unlink("mutex");
 	printf("test> prochainCoup2\n");
 
-	pid = fork();
-	switch (pid)
-	{
-		case 0:
-			sockConn = socketServeur(8083);
-			sem_post(sem);
-			sockTrans = accept(sockConn,
-				(struct sockaddr *)&adr,
-				(socklen_t *)&tailleAdr);
-
-			sem_wait(sem);
-
-			shutdownCloseBoth(sockTrans, sockConn);
-			sem_close(sem);
-			exit(0);
-
-		case -1:
-			mu_fail("erreur fork prochainCoup");
-			sem_close(sem);
-			break;
-
-		default:
-			sem_wait(sem);
-			sock = socketClient("127.0.0.1", 8083);
-
-			sem_post(sem);
-			err = prochainCoup(sock, coupReq, BLANC, 1);
-			mu_assert(err == -1, "erreur prochainCoup return!=-1");
-
-			shutdownClose(sock);
-			sem_close(sem);
-			wait(&status);
-			break;
-	}
-	usleep(10000);
+	err = prochainCoup(10, coupReq, BLANC, 1);
+	mu_assert(err == -1, "erreur prochainCoup return!=-1");
 }
 
 MU_TEST(test_prochainCoup3)
@@ -558,9 +522,9 @@ MU_TEST(test_adversaireCoup)
 				(socklen_t *)&tailleAdr);
 
 			sem_wait(sem);
-			sleep(1);
 			adversaireCoup(sockTrans, coupReq);
 
+			sem_post(sem);
 			err = recv(sockTrans, &data, sizeof(int), 0);
 			if (err <= 0)
 			{
@@ -644,6 +608,7 @@ MU_TEST(test_adversaireCoup)
 			}
 			mu_assert(ntohl(data) == GAGNE, "erreur adversaireCoup data!=GAGNE");
 
+			sem_wait(sem);
 			err = adversaireCoup(sock, coupReq);
 			mu_assert(err == 0, "erreur adversaireCoup return!=0");
 			sem_wait(sem);
@@ -680,11 +645,11 @@ MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_verifCodeRep);
 	MU_RUN_TEST(test_recvIntFromJava);
 	MU_RUN_TEST(test_prochainCoup1);
-	MU_RUN_TEST(test_prochainCoup2);
+	MU_RUN_TEST(test_prochainCoup2);/*
 	MU_RUN_TEST(test_prochainCoup3);
 	MU_RUN_TEST(test_prochainCoup4);
 	MU_RUN_TEST(test_prochainCoup5);
-	MU_RUN_TEST(test_prochainCoup6);
+	MU_RUN_TEST(test_prochainCoup6);*/
 	MU_RUN_TEST(test_adversaireCoup);
 	MU_RUN_TEST(test_afficherValidationCoup);
 }
