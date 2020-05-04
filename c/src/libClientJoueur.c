@@ -320,7 +320,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup adverse");
-                return -4;
+                return -3;
             }
 
             afficherValidationCoup(repCoup, joueur);
@@ -340,7 +340,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
                 if (err <= 0)
                 {
                     perror("joueur> erreur recv req coup adverse");
-                    return -5;
+                    return -4;
                 }
             }
         }

@@ -524,6 +524,7 @@ MU_TEST(test_adversaireCoup)
 			sem_wait(sem);
 			adversaireCoup(sockTrans, coupReq);
 
+			usleep(10000);
 			sem_post(sem);
 			err = recv(sockTrans, &data, sizeof(int), 0);
 			if (err <= 0)
@@ -555,7 +556,7 @@ MU_TEST(test_adversaireCoup)
 			{
 				mu_fail("erreur recv propCoup adversaireCoup 2");
 			}
-			sem_post(sem);
+			sem_wait(sem);
 
 			shutdownCloseBoth(sockTrans, sockConn);
 			sem_close(sem);
@@ -611,7 +612,7 @@ MU_TEST(test_adversaireCoup)
 			sem_wait(sem);
 			err = adversaireCoup(sock, coupReq);
 			mu_assert(err == 0, "erreur adversaireCoup return!=0");
-			sem_wait(sem);
+			sem_post(sem);
 
 			shutdownClose(sock);
 			sem_close(sem);
@@ -641,17 +642,127 @@ MU_TEST(test_afficherValidationCoup)
 	afficherValidationCoup(*coupRep, 2);
 }
 
+MU_TEST(test_jouerPartie1)
+{
+	int sock, sockConn, sockTrans, tailleAdr, pid, err, status;
+	FILE* file;
+	struct sockaddr_in adr;
+	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
+	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
+	sem_t* sem = sem_open("mutex", O_CREAT|O_EXCL, 0644, 0);
+	sem_unlink("mutex");
+	printf("test> jouerPartie1\n");
+
+	pid = fork();
+	switch (pid)
+	{
+		case 0:
+			sockConn = socketServeur(8094);
+			sem_post(sem);
+			sockTrans = accept(sockConn,
+				(struct sockaddr *)&adr,
+				(socklen_t *)&tailleAdr);
+
+			coupRep->err = 0;
+			coupRep->validCoup = 0;
+			coupRep->propCoup = 1;
+			sem_wait(sem);
+			file = fopen("testData_jouerPartie.txt", "r");
+		    if ( file == NULL ) {
+		        printf("Cannot open file testData_jouerPartie.txt\n");
+		        exit(0);
+		    }
+		    while (!feof(file)) {
+		        fputc(fgetc(file), stdin);
+		    }
+		    fclose(file);
+			err = recv(sockTrans, &coupReq, sizeof(TCoupReq), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv TCoupReq test_jouerPartie1");
+			}
+			err = send(sockTrans, &coupRep, sizeof(TCoupRep), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur send TCoupRep test_jouerPartie1");
+			}
+
+			sem_wait(sem);
+			sem_post(sem);
+			err = jouerPartie(sockTrans, 1, BLANC, 1, 1);
+			printf("err jouerPartie : %d \n", err);
+
+			sem_wait(sem);
+			shutdownCloseBoth(sockTrans, sockConn);
+			sem_close(sem);
+			exit(0);
+
+		case -1:
+			mu_fail("erreur fork prochainCoup");
+			sem_close(sem);
+			break;
+
+		default:
+			sem_wait(sem);
+			sock = socketClient("127.0.0.1", 8094);
+
+			sem_post(sem);
+			err = jouerPartie(sock, 1, BLANC, 1, 1);
+			mu_assert(err == 0, "erreur jouerPartie1 return!=0");
+
+			coupRep->err = 0;
+			coupRep->validCoup = 0;
+			coupRep->propCoup = 1;
+			sem_post(sem);
+			sem_wait(sem);
+			file = fopen("testData_jouerPartie.txt", "r");
+		    if ( file == NULL ) {
+		        printf("Cannot open file testData_jouerPartie.txt\n");
+		        exit(0);
+		    }
+		    while (!feof(file)) {
+		        fputc(fgetc(file), stdin);
+		    }
+		    fclose(file);
+			err = recv(sock, &coupReq, sizeof(TCoupReq), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur recv TCoupReq test_jouerPartie1");
+			}
+			err = send(sock, &coupRep, sizeof(TCoupRep), 0);
+			if (err <= 0)
+			{
+				mu_fail("erreur send TCoupRep test_jouerPartie1");
+			}
+			mu_assert(coupReq->idRequest == COUP, "erreur jouerPartie1 idRequest!=COUP");
+			mu_assert(coupReq->estBloque == 1, "erreur jouerPartie1 estBloque!=1");
+			mu_assert(coupReq->numPartie == 1, "erreur jouerPartie1 numPartie!=1");
+			mu_assert(coupReq->pion.typePion == PAVE, "erreur jouerPartie1 typePion!=PAVE");
+			mu_assert(coupReq->pion.coulPion == BLANC, "erreur jouerPartie1 coulPion!=BLANC");
+			mu_assert(coupReq->posPion.l == DEUX, "erreur jouerPartie1 ligne!=DEUX");
+			mu_assert(coupReq->posPion.c == B, "erreur jouerPartie1 colonne!=B");
+			mu_assert(coupReq->propCoup == GAGNE, "erreur jouerPartie1 propCoup!=GAGNE");
+
+			sem_post(sem);
+			shutdownClose(sock);
+			sem_close(sem);
+			wait(&status);
+			break;
+	}
+}
+
 MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_verifCodeRep);
 	MU_RUN_TEST(test_recvIntFromJava);
 	MU_RUN_TEST(test_prochainCoup1);
 	MU_RUN_TEST(test_prochainCoup2);/*
-	MU_RUN_TEST(test_prochainCoup3);
+	MU_RUN_TEST(test_prochainCoup3); 
 	MU_RUN_TEST(test_prochainCoup4);
 	MU_RUN_TEST(test_prochainCoup5);
 	MU_RUN_TEST(test_prochainCoup6);*/
 	MU_RUN_TEST(test_adversaireCoup);
 	MU_RUN_TEST(test_afficherValidationCoup);
+	MU_RUN_TEST(test_jouerPartie1);
 }
 
 int main(int argc, char* argv[]) {
