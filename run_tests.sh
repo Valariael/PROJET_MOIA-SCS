@@ -30,3 +30,9 @@ echo "Exécution tests libClientJoueur."
 ./testsLibClientJoueur < testData_jouerPartie.txt
 echo "Tests libClientJoueur terminés."
 gcov -abcfu libClientJoueur.so
+
+echo "Exécution tests libServeurArbitre."
+./../out/serveurTest &
+./testsLibServeurArbitre
+echo "Tests libServeurArbitre terminés."
+gcov -abcfu libServeurArbitre.so

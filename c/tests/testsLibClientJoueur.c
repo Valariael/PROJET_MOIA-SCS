@@ -3,11 +3,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <signal.h>
 #include <arpa/inet.h>
-#include <sys/wait.h>
-#include <semaphore.h>
-#include <fcntl.h>
 #include "../src/protocolQuantik.h"
 #include "../src/libSockets.h"
 #include "../src/libClientJoueur.h"
@@ -139,7 +135,7 @@ MU_TEST(test_prochainCoup2)
 	mu_assert(err == -1, "erreur prochainCoup return!=-1");
 }
 
-/*MU_TEST(test_prochainCoup3)
+/*MU_TEST(test_prochainCoup3) TODO: remanier les tests pour couvrir qques lignes supp
 {
 	int sock, err = 5, nsfd;
 	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
@@ -495,7 +491,6 @@ MU_TEST(test_jouerPartie3)
 	}
 
 	err = jouerPartie(sock, 0, BLANC, 1, 1);
-	printf("%d\n", err);
 	mu_assert(err == 0, "erreur jouerPartie return!=0");
 
 	shutdownClose(sock);
@@ -514,7 +509,6 @@ MU_TEST(test_jouerPartie4)
 	}
 
 	err = jouerPartie(sock, 0, BLANC, 1, 1);
-	printf("%d\n", err);
 	mu_assert(err == -9, "erreur jouerPartie return!=-9");
 
 	shutdownClose(sock);

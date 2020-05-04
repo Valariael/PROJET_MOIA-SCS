@@ -161,7 +161,7 @@ int jouerPartieTest1(int sock)
 	int err;
 	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
 	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
-	
+
 	err = recv(sock, coupReq, sizeof(TCoupReq), 0);
 	if (err <= 0)
 	{
@@ -271,7 +271,6 @@ int jouerPartieIATest2(int sock)
         perror("clientTest> erreur recv code nv partie jouerPartieIA2");
         return -1;
     }
-    printf("nv_partie %d\n", data);
     data = htonl(CODE_OK);
     err = send(sock, &data, sizeof(int), 0);
     if (err <= 0)
@@ -286,7 +285,6 @@ int jouerPartieIATest2(int sock)
         perror("clientTest> erreur recv CODE_COUP_SELF jouerPartieIA2");
         return -3;
     }
-    printf("CODE_COUP_SELF %d\n", data);
     data = htonl(CODE_OK);
     err = send(sock, &data, sizeof(int), 0);
     if (err <= 0)
@@ -369,7 +367,6 @@ int main(int argc, char const *argv[])
 			return -1;
 		}
 
-		printf("clientTest> code recu : %d\n", nTest);
 		switch (nTest)
 		{
 			case 1:
