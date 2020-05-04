@@ -161,20 +161,7 @@ int jouerPartieTest1(int sock)
 	int err;
 	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
 	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
-	FILE* file;
-
-	usleep(1000000);
-	file = fopen("testData_jouerPartie.txt", "r");
-	printf("fopend");
-    if ( file == NULL ) {
-        printf("Cannot open file testData_jouerPartie.txt\n");
-        exit(0);
-    }
-    while (!feof(file)) {
-    	printf("writing");
-        fputc(fgetc(file), stdin);
-    }
-    fclose(file);
+	
 	err = recv(sock, coupReq, sizeof(TCoupReq), 0);
 	if (err <= 0)
 	{

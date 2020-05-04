@@ -550,8 +550,6 @@ MU_TEST(test_jouerPartieIA1)
 MU_TEST(test_jouerPartieIA2)
 {
 	int sock, sockS, err = 16;
-	TCoupReq *coupReq = malloc(sizeof(TCoupReq));
-	TCoupRep *coupRep = malloc(sizeof(TCoupRep));
 	printf("test> jouerPartieIA2\n");
 
 	sock = socketClient("127.0.0.1", 8080);
@@ -598,7 +596,7 @@ MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_adversaireCoup);
 	MU_RUN_TEST(test_afficherValidationCoup);
 	//MU_RUN_TEST(test_jouerPartie1);
-	//MU_RUN_TEST(test_jouerPartie2);
+	MU_RUN_TEST(test_jouerPartie2);
 	MU_RUN_TEST(test_jouerPartie3);
 	MU_RUN_TEST(test_jouerPartie4);
 	MU_RUN_TEST(test_jouerPartie5);

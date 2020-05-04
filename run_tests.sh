@@ -27,6 +27,6 @@ if [[ $LD_LIBRARY_PATH != *"$(pwd)"* ]]; then
 fi
 echo "Exécution tests libClientJoueur."
 ./../out/clientTest &
-./testsLibClientJoueur
+./testsLibClientJoueur < testData_jouerPartie.txt
 echo "Tests libClientJoueur terminés."
 gcov -abcfu libClientJoueur.so

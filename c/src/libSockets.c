@@ -37,7 +37,7 @@ int readIntInput()
 
 int socketServeur(ushort nPort) {
     struct sockaddr_in addr;
-    int size, err, sock, reuse = 1;
+    int size, err, sock;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
