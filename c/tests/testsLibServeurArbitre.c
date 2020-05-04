@@ -99,7 +99,45 @@ MU_TEST(test_connecteJoueur)
 	mu_assert(partieReq->coulPion == BLANC, "erreur connecteJoueur coulPion!=BLANC");
 	mu_assert(strcmp(partieReq->nomJoueur, "joueur") == 0, "erreur connecteJoueur nomJoueur!='joueur'");
 
-	shutdownClose(sock);
+	shutdownCloseBoth(sockConn, sock);
+}
+
+MU_TEST(test_ackJoueursConnectes)
+{
+	int err = 6, sock, sockConn, data = -1, dummy = -1, sockTrans, tailleAdr;
+	struct sockaddr_in adr;
+	TPartieRep* partieRep1 = malloc(sizeof(TPartieRep));
+	TPartieRep* partieRep2 = malloc(sizeof(TPartieRep));
+	printf("test> ackJoueurConnectes\n");
+
+	sock = socketClient("127.0.0.1", 8080);
+	err = send(sock, &err, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur send code test ackJoueursConnectes");
+	}
+
+	sockConn = socketServeur(8081);
+	sockTrans = accept(sockConn,
+		(struct sockaddr *)&adr,
+		(socklen_t *)&tailleAdr);
+
+	err = ackJoueursConnectes(&data, &sockTrans, partieRep1, partieRep2);
+	mu_assert(err == -1, "erreur ackJoueursConnectes return!=-1");
+
+	data = -1;
+	err = ackJoueursConnectes(&data, &dummy, partieRep1, partieRep2);
+	mu_assert(err == -2, "erreur ackJoueurConnectes return!=-2");
+
+	sockTrans = accept(sockConn,
+		(struct sockaddr *)&adr,
+		(socklen_t *)&tailleAdr);
+
+	err = ackJoueursConnectes(&sockTrans, &data, partieRep1, partieRep2);
+	mu_assert(err == 0, "erreur ackJoueursConnectes return!=0");
+
+	shutdownCloseBoth(sock, sockTrans);
+	shutdownClose(sockConn);
 }
 
 MU_TEST_SUITE(test_libServeurArbitre) {
@@ -108,6 +146,7 @@ MU_TEST_SUITE(test_libServeurArbitre) {
 	MU_RUN_TEST(test_verifIdRequete3);
 	MU_RUN_TEST(test_verifIdRequete4);
 	MU_RUN_TEST(test_connecteJoueur);
+	MU_RUN_TEST(test_ackJoueursConnectes);
 }
 
 int main(int argc, char* argv[]) {

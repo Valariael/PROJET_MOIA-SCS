@@ -152,6 +152,36 @@ int connecteJoueurTest(int sock)
 	return 0;
 }
 
+int ackJoueursConnectesTest(int sock)
+{
+	int err, sockTarget;
+	TPartieReq* partieRep = malloc(sizeof(TPartieRep));
+
+	sockTarget = socketClient("127.0.0.1", 8081);
+
+	err = recv(sockTarget, partieRep, sizeof(TPartieRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TPartieRep ackJoueursConnectes");
+		return -1;
+	}
+
+	shutdownClose(sockTarget);
+
+	sockTarget = socketClient("127.0.0.1", 8081);
+
+	err = recv(sockTarget, partieRep, sizeof(TPartieRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TPartieRep ackJoueursConnectes");
+		return -2;
+	}
+
+	shutdownClose(sockTarget);
+	shutdownClose(sock);
+	return 0;
+}
+
 int main(int argc, char const *argv[])
 {
 	int testsContinue = 1, nTest, sockTrans, sockConn, tailleAdr, err;
@@ -193,6 +223,10 @@ int main(int argc, char const *argv[])
 
 			case 5:
 				connecteJoueurTest(sockTrans);
+				break;
+
+			case 6:
+				ackJoueursConnectesTest(sockTrans);
 				break;
 
 			default:
