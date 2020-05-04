@@ -26,6 +26,7 @@ if [[ $LD_LIBRARY_PATH != *"$(pwd)"* ]]; then
 	export LD_LIBRARY_PATH=$(pwd):${LD_LIBRARY_PATH}
 fi
 echo "Exécution tests libClientJoueur."
+./../out/clientTest &
 ./testsLibClientJoueur
 echo "Tests libClientJoueur terminés."
 gcov -abcfu libClientJoueur.so

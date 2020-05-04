@@ -56,14 +56,6 @@ int socketServeur(ushort nPort) {
     
     size = sizeof(struct sockaddr_in);
 
-    //Rendre l'adresse et le port réutilisables rapidement
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
-        perror("setsockopt(SO_REUSEADDR) failed");
-
-#ifdef SO_REUSEPORT
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, (const char*)&reuse, sizeof(reuse)) < 0) 
-        perror("setsockopt(SO_REUSEPORT) failed");
-#endif
     /* 
     * attribution de l'adresse a la socket
     */  

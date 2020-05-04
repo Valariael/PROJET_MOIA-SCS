@@ -204,7 +204,6 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
 
         default:
         printf("joueur> TValCoup inconnu ");
-        printf("%d : ",repCoup.validCoup);
         break;
     }
 
@@ -228,7 +227,6 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
         
         default:
         printf("TPropCoup inconnu");
-        printf("%d",repCoup.propCoup);
         break;
     }
 
@@ -262,7 +260,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
                 printf("estBloque (0|1) : ");
                 data = readIntInput();
                 if (data < 0) return -1;
-            } while (data < 0 && data > 1);
+            } while (data < 0 || data > 1);
             reqCoup.estBloque = data;
             reqCoup.numPartie = num;
             do
@@ -270,7 +268,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
                 printf("typePion (0:CYLINDRE|1:PAVE|2:SPHERE|3:TETRAEDRE) : ");
                 data = readIntInput();
                 if (data < 0) return -2;
-            } while (data < CYLINDRE && data > TETRAEDRE);
+            } while (data < CYLINDRE || data > TETRAEDRE);
             pion.typePion = data;
             pion.coulPion = couleur;
             do
@@ -278,22 +276,21 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
                 printf("ligne (0:UN|1:DEUX|2:TROIS|3:QUATRE) : ");
                 data = readIntInput();
                 if (data < 0) return -3;
-            } while (data < UN && data > QUATRE);
+            } while (data < UN|| data > QUATRE);
             caseCible.l = data;
             do
             {
                 printf("colonne (0:A|1:B|2:C|3:D) : ");
                 data = readIntInput();
                 if (data < 0) return -4;
-            } while (data < A && data > D);
+            } while (data < A || data > D);
             caseCible.c = data;
             do
             {
                 printf("propCoup (0:CONT|1:GAGNE|2:NUL|3:PERDU) : ");
                 data = readIntInput();
                 if (data < 0) return -5;
-            } while (data < CONT && data > PERDU);
-            scanf("%d", &data);
+            } while (data < CONT || data > PERDU);
             reqCoup.propCoup = data;
 
             reqCoup.idRequest = COUP;
