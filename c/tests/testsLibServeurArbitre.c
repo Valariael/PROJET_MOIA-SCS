@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <string.h>
 #include "../src/protocolQuantik.h"
 #include "../src/libSockets.h"
 #include "../src/libServeurArbitre.h"
@@ -72,11 +73,41 @@ MU_TEST(test_verifIdRequete4)
 	shutdownClose(sock);
 }
 
+MU_TEST(test_connecteJoueur)
+{
+	int err = 5, sock, sockConn, sockTarget, data;
+	TPartieReq* partieReq = malloc(sizeof(TPartieReq));
+	printf("test> connecteJoueur\n");
+
+	sock = socketClient("127.0.0.1", 8080);
+	err = send(sock, &err, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur send code test connecteJoueur");
+	}
+
+	sockConn = socketServeur(8081);
+	connecteJoueur(&sockTarget, sockConn, partieReq);
+
+	err = recv(sock, &data, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur recv target socket connecteJoueur");
+	}
+	mu_assert(sockTarget == data, "erreur connecteJoueur sock!=attendu");
+	mu_assert(partieReq->idReq == PARTIE, "erreur connecteJoueur idReq!=PARTIE");
+	mu_assert(partieReq->coulPion == BLANC, "erreur connecteJoueur coulPion!=BLANC");
+	mu_assert(strcmp(partieReq->nomJoueur, "joueur") == 0, "erreur connecteJoueur nomJoueur!='joueur'");
+
+	shutdownClose(sock);
+}
+
 MU_TEST_SUITE(test_libServeurArbitre) {
 	MU_RUN_TEST(test_verifIdRequete1);
 	MU_RUN_TEST(test_verifIdRequete2);
 	MU_RUN_TEST(test_verifIdRequete3);
 	MU_RUN_TEST(test_verifIdRequete4);
+	MU_RUN_TEST(test_connecteJoueur);
 }
 
 int main(int argc, char* argv[]) {

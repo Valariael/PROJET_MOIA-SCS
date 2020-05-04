@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <string.h>
 #include "../src/protocolQuantik.h"
 #include "../src/libSockets.h"
 #include "../src/libServeurArbitre.h"
@@ -92,6 +93,65 @@ int verifIdRequeteTest4(int sock)
 	return 0;
 }
 
+int connecteJoueurTest(int sock)
+{
+	int err, sockTarget;
+	char s[T_NOM] = "joueur";
+	TPartieReq* partieReq = malloc(sizeof(TPartieReq));
+	TPartieReq* partieRep = malloc(sizeof(TPartieRep));
+
+	partieReq->idReq = COUP;
+	strncpy(partieReq->nomJoueur, s, T_NOM);
+	sockTarget = socketClient("127.0.0.1", 8081);
+
+	err = send(sockTarget, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq connecteJoueur");
+		return -1;
+	}
+	shutdownClose(sockTarget);
+
+	partieReq->idReq = PARTIE;
+	partieReq->coulPion = -1;
+	sockTarget = socketClient("127.0.0.1", 8081);
+
+	err = send(sockTarget, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq connecteJoueur");
+		return -1;
+	}
+	err = recv(sockTarget, partieRep, sizeof(TPartieRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TPartieRep connecteJoueur");
+		return -2;
+	}
+	shutdownClose(sockTarget);
+
+	partieReq->coulPion = BLANC;
+	sockTarget = socketClient("127.0.0.1", 8081);
+
+	err = send(sockTarget, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq connecteJoueur");
+		return -1;
+	}
+
+
+	err = send(sock, &sockTarget, sizeof(int), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send target sock connecteJoueur");
+		return -1;
+	}
+	shutdownClose(sockTarget);
+	shutdownClose(sock);
+	return 0;
+}
+
 int main(int argc, char const *argv[])
 {
 	int testsContinue = 1, nTest, sockTrans, sockConn, tailleAdr, err;
@@ -129,6 +189,10 @@ int main(int argc, char const *argv[])
 
 			case 4:
 				verifIdRequeteTest4(sockTrans);
+				break;
+
+			case 5:
+				connecteJoueurTest(sockTrans);
 				break;
 
 			default:
