@@ -9,17 +9,74 @@
 #include "../src/libServeurArbitre.h"
 #include "minunit.h"
 
-
-MU_TEST(test_)
+MU_TEST(test_verifIdRequete1)
 {
-	int err;
-	printf("test> jouerPartieIA3\n");
+	int err, sock = -1;
+	printf("test> verifIdRequete1\n");
 
-	mu_assert(err == -1, "erreur jouerPartieIA return!=-1");
+	err = verifIdRequete(&sock, -1);
+	mu_assert(err == -1, "erreur verifIdRequete1 return!=-1");
+}
+
+MU_TEST(test_verifIdRequete2)
+{
+	int err = 1, sock;
+	printf("test> verifIdRequete2\n");
+
+	sock = socketClient("127.0.0.1", 8080);
+	err = send(sock, &err, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur send code test verifIdRequete2");
+	}
+
+	err = verifIdRequete(&sock, PARTIE);
+	mu_assert(err == -4, "erreur verifIdRequete2 return!=-4");
+
+	shutdownClose(sock);
+}
+
+MU_TEST(test_verifIdRequete3)
+{
+	int err = 2, sock;
+	printf("test> verifIdRequete3\n");
+
+	sock = socketClient("127.0.0.1", 8080);
+	err = send(sock, &err, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur send code test verifIdRequete3");
+	}
+
+	err = verifIdRequete(&sock, COUP);
+	mu_assert(err == -4, "erreur verifIdRequete3 return!=-4");
+
+	shutdownClose(sock);
+}
+
+MU_TEST(test_verifIdRequete4)
+{
+	int err = 4, sock;
+	printf("test> verifIdRequete5\n");
+
+	sock = socketClient("127.0.0.1", 8080);
+	err = send(sock, &err, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur send code test verifIdRequete4");
+	}
+
+	err = verifIdRequete(&sock, PARTIE);
+	mu_assert(err == 0, "erreur verifIdRequete4 return!=0");
+
+	shutdownClose(sock);
 }
 
 MU_TEST_SUITE(test_libServeurArbitre) {
-	MU_RUN_TEST(test_);
+	MU_RUN_TEST(test_verifIdRequete1);
+	MU_RUN_TEST(test_verifIdRequete2);
+	MU_RUN_TEST(test_verifIdRequete3);
+	MU_RUN_TEST(test_verifIdRequete4);
 }
 
 int main(int argc, char* argv[]) {

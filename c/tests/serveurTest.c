@@ -8,6 +8,89 @@
 #include "../src/libSockets.h"
 #include "../src/libServeurArbitre.h"
 
+int verifIdRequeteTest1(int sock)
+{
+	int err;
+	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
+	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
+
+	coupReq->idRequest = COUP;
+	err = send(sock, coupReq, sizeof(TCoupReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TCoupReq verifIdRequete1");
+		return -1;
+	}
+
+	err = recv(sock, coupRep, sizeof(TCoupRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TCoupRep verifIdRequete1");
+		return -2;
+	}
+
+	shutdownClose(sock);
+	return 0;
+}
+
+int verifIdRequeteTest2(int sock)
+{
+	int err;
+	TPartieReq* partieReq = malloc(sizeof(TPartieReq));
+	TPartieRep* partieRep = malloc(sizeof(TPartieRep));
+
+	partieReq->idReq = PARTIE;
+	err = send(sock, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq verifIdRequete2");
+		return -1;
+	}
+
+	err = recv(sock, partieRep, sizeof(TPartieRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TPartieRep verifIdRequete2");
+		return -2;
+	}
+
+	shutdownClose(sock);
+	return 0;
+}
+
+int verifIdRequeteTest3(int sock)
+{
+	int err;
+	TPartieReq* partieReq = malloc(sizeof(TPartieReq));
+
+	partieReq->idReq = PARTIE;
+	err = send(sock, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq verifIdRequete3");
+		return -1;
+	}
+
+	shutdownClose(sock);
+	return 0;
+}
+
+int verifIdRequeteTest4(int sock)
+{
+	int err;
+	TPartieReq* partieReq = malloc(sizeof(TPartieReq));
+
+	partieReq->idReq = PARTIE;
+	err = send(sock, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq verifIdRequete4");
+		return -1;
+	}
+
+	shutdownClose(sock);
+	return 0;
+}
 
 int main(int argc, char const *argv[])
 {
@@ -33,7 +116,19 @@ int main(int argc, char const *argv[])
 		switch (nTest)
 		{
 			case 1:
-				//verifCodeRepTest(sockTrans);
+				verifIdRequeteTest1(sockTrans);
+				break;
+
+			case 2:
+				verifIdRequeteTest2(sockTrans);
+				break;
+
+			case 3:
+				verifIdRequeteTest3(sockTrans);
+				break;
+
+			case 4:
+				verifIdRequeteTest4(sockTrans);
 				break;
 
 			default:
