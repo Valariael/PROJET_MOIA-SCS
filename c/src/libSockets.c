@@ -24,6 +24,17 @@ void shutdownCloseBoth(int sock1, int sock2)
     shutdownClose(sock2);
 }
 
+int readIntInput()
+{
+    char buf[1024];
+    if (!fgets(buf, 1024, stdin))
+    {
+        return -1;
+    }
+
+    return atoi(buf);
+}
+
 int socketServeur(ushort nPort) {
     struct sockaddr_in addr;
     int size, err, sock, reuse = 1;

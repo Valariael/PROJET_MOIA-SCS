@@ -524,7 +524,6 @@ MU_TEST(test_adversaireCoup)
 			sem_wait(sem);
 			adversaireCoup(sockTrans, coupReq);
 
-			usleep(10000);
 			sem_post(sem);
 			err = recv(sockTrans, &data, sizeof(int), 0);
 			if (err <= 0)
@@ -653,6 +652,15 @@ MU_TEST(test_jouerPartie1)
 	sem_unlink("mutex");
 	printf("test> jouerPartie1\n");
 
+			file = fopen("testData_jouerPartie.txt", "r");
+		    if ( file == NULL ) {
+		        printf("Cannot open file testData_jouerPartie.txt\n");
+		        exit(0);
+		    }
+		    while (!feof(file)) {
+		        fputc(fgetc(file), stdin);
+		    }
+		    fclose(file);
 	pid = fork();
 	switch (pid)
 	{
@@ -715,6 +723,7 @@ MU_TEST(test_jouerPartie1)
 			coupRep->propCoup = 1;
 			sem_post(sem);
 			sem_wait(sem);
+
 			file = fopen("testData_jouerPartie.txt", "r");
 		    if ( file == NULL ) {
 		        printf("Cannot open file testData_jouerPartie.txt\n");
@@ -751,6 +760,16 @@ MU_TEST(test_jouerPartie1)
 	}
 }
 
+MU_TEST(test_jouerPartieIA1)
+{
+	int err;
+	struct sockaddr_in adr;
+	printf("test> jouerPartieIA1\n");
+
+	err = jouerPartieIA(-1, -1, -1, BLANC, -1, -1);
+	mu_assert(err == -1, "erreur jouerPartieIA return!=-1");
+}
+
 MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_verifCodeRep);
 	MU_RUN_TEST(test_recvIntFromJava);
@@ -762,7 +781,8 @@ MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_prochainCoup6);*/
 	MU_RUN_TEST(test_adversaireCoup);
 	MU_RUN_TEST(test_afficherValidationCoup);
-	MU_RUN_TEST(test_jouerPartie1);
+	//MU_RUN_TEST(test_jouerPartie1);
+	MU_RUN_TEST(test_jouerPartieIA1);
 }
 
 int main(int argc, char* argv[]) {

@@ -7,6 +7,7 @@ typedef unsigned short int ushort;
 
 void shutdownClose (int sock);
 void shutdownCloseBoth (int sock1, int sock2);
+int readIntInput();
 int socketServeur (ushort nPort);
 int socketClient (char* nomMachine, ushort nPort);
 int socketUDP (ushort nPort);

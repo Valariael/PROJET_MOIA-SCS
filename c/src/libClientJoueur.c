@@ -257,21 +257,42 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
         if (joueur)
         {
             printf("ReqCoup :\n");
-            printf("estBloque (0|1) : ");
-            scanf("%d", &data);
+            do
+            {
+                printf("estBloque (0|1) : ");
+                data = readIntInput();
+                if (data < 0) return -1;
+            } while (data < 0 && data > 1);
             reqCoup.estBloque = data;
             reqCoup.numPartie = num;
-            printf("typePion (0:CYLINDRE|1:PAVE|2:SPHERE|3:TETRAEDRE) : ");
-            scanf("%d", &data);
+            do
+            {
+                printf("typePion (0:CYLINDRE|1:PAVE|2:SPHERE|3:TETRAEDRE) : ");
+                data = readIntInput();
+                if (data < 0) return -2;
+            } while (data < CYLINDRE && data > TETRAEDRE);
             pion.typePion = data;
             pion.coulPion = couleur;
-            printf("ligne (0:UN|1:DEUX|2:TROIS|3:QUATRE) : ");
-            scanf("%d", &data);
+            do
+            {
+                printf("ligne (0:UN|1:DEUX|2:TROIS|3:QUATRE) : ");
+                data = readIntInput();
+                if (data < 0) return -3;
+            } while (data < UN && data > QUATRE);
             caseCible.l = data;
-            printf("colonne (0:A|1:B|2:C|3:D) : ");
-            scanf("%d", &data);
+            do
+            {
+                printf("colonne (0:A|1:B|2:C|3:D) : ");
+                data = readIntInput();
+                if (data < 0) return -4;
+            } while (data < A && data > D);
             caseCible.c = data;
-            printf("propCoup (0:CONT|1:GAGNE|2:NUL|3:PERDU) : ");
+            do
+            {
+                printf("propCoup (0:CONT|1:GAGNE|2:NUL|3:PERDU) : ");
+                data = readIntInput();
+                if (data < 0) return -5;
+            } while (data < CONT && data > PERDU);
             scanf("%d", &data);
             reqCoup.propCoup = data;
 
@@ -285,7 +306,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
             {
                 perror("joueur> erreur send req coup");
 //TODO select read + write pour gérer la réception du timeout
-                return -1;
+                return -6;
             }
 
             //Réception de la validation du coup.
@@ -294,7 +315,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup");
-                return -2;
+                return -7;
             }
 
             afficherValidationCoup(repCoup, joueur);
@@ -320,7 +341,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
             if (err <= 0)
             {
                 perror("joueur> erreur recv rep coup adverse");
-                return -3;
+                return -8;
             }
 
             afficherValidationCoup(repCoup, joueur);
@@ -340,7 +361,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
                 if (err <= 0)
                 {
                     perror("joueur> erreur recv req coup adverse");
-                    return -4;
+                    return -9;
                 }
             }
         }
