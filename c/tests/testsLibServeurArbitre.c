@@ -185,8 +185,19 @@ MU_TEST(test_envoyerRepCoup)
 	shutdownClose(sock);
 }
 
+MU_TEST(test_traiterCoup1)
+{
+	printf("test> traiterCoup1\n");
+	int err = traiterCoup(-1, -1, -1, -1);
+	mu_assert(err == -1, "erreur traiterCoup1 return!=-1");
+
+	err = traiterCoup(-1, -1, 0, -1);
+	mu_assert(err == -2, "erreur traiterCoup1 return!=-2");
+}
+
 MU_TEST(test_jouerPartie1)
 {
+	printf("test> jouerPartie1\n");
 	int err = jouerPartie(-1, -1);
 	mu_assert(err == -2, "erreur jouerPartie1 return!=-2");
 }
@@ -201,6 +212,7 @@ MU_TEST_SUITE(test_libServeurArbitre)
 	MU_RUN_TEST(test_ackJoueursConnectes);
 	MU_RUN_TEST(test_paireJoueurValides);
 	MU_RUN_TEST(test_envoyerRepCoup);
+	MU_RUN_TEST(test_traiterCoup1);
 	MU_RUN_TEST(test_jouerPartie1);
 }
 
