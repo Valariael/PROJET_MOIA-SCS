@@ -13,7 +13,11 @@ testsLibClientJoueur.o: testsLibClientJoueur.c
 coverage:
 	$(CC) $(CFLAGS) -shared -fPIC ../src/libSockets.c -o libSockets.so
 	$(CC) $(CFLAGS) -shared -fPIC ../src/libClientJoueur.c -o libClientJoueur.so -ftest-coverage -fprofile-arcs
+	$(CC) $(CFLAGS) clientTest.c -o ../out/clientTest libSockets.so libClientJoueur.so
 	$(CC) $(CFLAGS) testsLibClientJoueur.c -pthread -L./ -lClientJoueur -lSockets  -o testsLibClientJoueur -ftest-coverage -fprofile-arcs
+	$(CC) $(CFLAGS) -shared -fPIC ../src/libServeurArbitre.c -o libServeurArbitre.so -ftest-coverage -fprofile-arcs
+	$(CC) $(CFLAGS) serveurTest.c -o ../out/serveurTest libSockets.so libServeurArbitre.so
+	$(CC) $(CFLAGS) testsLibServeurArbitre.c -pthread -L./ -lServeurArbitre -lSockets  -o testsLibServeurArbitre -ftest-coverage -fprofile-arcs ../src/quantik-fPIC.o
 
 clean:
 	rm ../out/testsLibClientJoueur
