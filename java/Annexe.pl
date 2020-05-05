@@ -1,3 +1,23 @@
+profondeur([Grille|ListeGrille], _, _, [NumJ, _], Ind, [Grille|ListeGrille]):-
+    Ind > 0,
+    etatFinalTest(Grille, Ind),
+    write("Gagnant : J"),
+    writeln(NumJ).
+profondeur([Grille|ListeGrille], ListeInd, J1, J2, _, Sol):-
+    choisirPion(J1, NumJ1, Duo, NvJ1),
+    choisirInd(ListeInd, Ind, NvListeInd),
+    placer(Grille, NvGrille, NumJ1, Ind, Duo),
+    profondeur([NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind, Sol).
+
+%résolution du quantik avec le parcours en profondeur
+jeuProfondeur(Sol):-
+    plateau(16, Grille),
+    listeIndice(1, ListeInd),
+    joueur1(J1),
+    joueur2(J2),
+    profondeur([Grille], ListeInd, J1, J2, -1, RSol),
+    reverse(RSol, Sol).
+
 % parcours en largeur
 % -----------------
 jouerCoupLargeur([Grille|ListeGrille], ListeInd, J, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ):-
