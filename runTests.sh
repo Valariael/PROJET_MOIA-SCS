@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#sh run_tests.sh
+#sh runTests.sh
 
 clear
 echo "Compilation serveur/client."
