@@ -411,7 +411,24 @@ calculerVictoireDefaiteLargeurLimite(ListeParcours, NumJ, RVictoire, RDefaite):-
     victoireDefaite(NvListeParcours, ListeParcoursCont, 1, 1, NumJ, Victoire, Defaite),
     calculerVictoireDefaiteLargeurLimite(ListeParcoursCont, NumJ, Victoire, Defaite, RVictoire, RDefaite).
 % -----------------
+% parcours en largeur
+% -----------------
+jouerCoupLargeur([Grille|ListeGrille], ListeInd, J, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ):-
+    jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ).
 
+parcoursSuivantLargeur([[Grille|ListeGrille], ListeInd, J1, J2, _], ListeParcours):-
+    findall([[NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind], jouerCoupLargeur([Grille|ListeGrille], ListeInd, J1, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ1), ListeParcours).
+
+deplacementSuivantLargeur([], Acc, Acc).
+deplacementSuivantLargeur([Parcours|ListeParcours], Acc, R):-
+    parcoursSuivantLargeur(Parcours, ListeParcours1),
+    append(Acc, ListeParcours1, Acc1),
+    deplacementSuivantLargeur(ListeParcours, Acc1, R).
+
+stop([[[Grille|ListeGrille], ListeInd, J1, J2, Ind]|_], [[Grille|ListeGrille], ListeInd, J1, J2, Ind]):-
+    etatFinalTest(Grille, Ind).
+stop([_|ListeParcours], R):-
+    stop(ListeParcours, R).
 %jouer le coup avec le meilleur ratio W/L proche (largeur limite 2) et sinon le coup bloquant le plus de cases
 % -----------------
 %calcule le ratio W/L sous la forme d'un quotient et d'un reste ainsi que le nombre de cases bloquées par le coup

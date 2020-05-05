@@ -18,24 +18,7 @@ jeuProfondeur(Sol):-
     profondeur([Grille], ListeInd, J1, J2, -1, RSol),
     reverse(RSol, Sol).
 
-% parcours en largeur
-% -----------------
-jouerCoupLargeur([Grille|ListeGrille], ListeInd, J, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ):-
-    jouerCoup(Grille, ListeInd, J, Ind, _, NvGrille, NvListeInd, NvJ).
 
-parcoursSuivantLargeur([[Grille|ListeGrille], ListeInd, J1, J2, _], ListeParcours):-
-    findall([[NvGrille, Grille|ListeGrille], NvListeInd, J2, NvJ1, Ind], jouerCoupLargeur([Grille|ListeGrille], ListeInd, J1, Ind, [NvGrille, Grille|ListeGrille], NvListeInd, NvJ1), ListeParcours).
-
-deplacementSuivantLargeur([], Acc, Acc).
-deplacementSuivantLargeur([Parcours|ListeParcours], Acc, R):-
-    parcoursSuivantLargeur(Parcours, ListeParcours1),
-    append(Acc, ListeParcours1, Acc1),
-    deplacementSuivantLargeur(ListeParcours, Acc1, R).
-
-stop([[[Grille|ListeGrille], ListeInd, J1, J2, Ind]|_], [[Grille|ListeGrille], ListeInd, J1, J2, Ind]):-
-    etatFinalTest(Grille, Ind).
-stop([_|ListeParcours], R):-
-    stop(ListeParcours, R).
 
 largeur([], _):-
     !,
