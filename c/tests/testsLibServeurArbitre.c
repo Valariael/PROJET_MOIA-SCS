@@ -140,16 +140,72 @@ MU_TEST(test_ackJoueursConnectes)
 	shutdownClose(sockConn);
 }
 
-MU_TEST_SUITE(test_libServeurArbitre) {
+MU_TEST(test_paireJoueurValides)
+{
+	int err = 7, sock, sock1, sock2, data, sockConn;
+	printf("test> paireJoueurValides\n");
+
+	sock = socketClient("127.0.0.1", 8080);
+	err = send(sock, &err, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur send code test paireJoueurValides");
+	}
+
+	sockConn = socketServeur(8081);
+	err = paireJoueurValides(&sock1, &sock2, sockConn);
+	mu_assert(err == 0, "erreur paireJoueurValides return!=0");
+
+	shutdownCloseBoth(sock1, sock2);
+	shutdownCloseBoth(sockConn, sock);
+}
+
+MU_TEST(test_envoyerRepCoup)
+{
+	int err = 8, sock;
+	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
+	printf("test> envoyerRepCoup\n");
+
+	sock = socketClient("127.0.0.1", 8080);
+	err = send(sock, &err, sizeof(int), 0);
+	if (err <= 0)
+	{
+		mu_fail("erreur send code test ackJoueursConnectes");
+	}
+
+	err = envoyerRepCoup(-1, -1, coupRep);
+	mu_assert(err == -1, "erreur envoyerRepCoup return!=-1");
+
+	err = envoyerRepCoup(sock, -1, coupRep);
+	mu_assert(err == -2, "erreur envoyerRepCoup return!=-2");
+
+	err = envoyerRepCoup(sock, sock, coupRep);
+	mu_assert(err == 0, "erreur envoyerRepCoup return!=0");
+
+	shutdownClose(sock);
+}
+
+MU_TEST(test_jouerPartie1)
+{
+	int err = jouerPartie(-1, -1);
+	mu_assert(err == -2, "erreur jouerPartie1 return!=-2");
+}
+
+MU_TEST_SUITE(test_libServeurArbitre) 
+{
 	MU_RUN_TEST(test_verifIdRequete1);
 	MU_RUN_TEST(test_verifIdRequete2);
 	MU_RUN_TEST(test_verifIdRequete3);
 	MU_RUN_TEST(test_verifIdRequete4);
 	MU_RUN_TEST(test_connecteJoueur);
 	MU_RUN_TEST(test_ackJoueursConnectes);
+	MU_RUN_TEST(test_paireJoueurValides);
+	MU_RUN_TEST(test_envoyerRepCoup);
+	MU_RUN_TEST(test_jouerPartie1);
 }
 
-int main(int argc, char* argv[]) {
+int main (int argc, char* argv[]) 
+{
 	int err = 0, sock;
 
 	MU_RUN_SUITE(test_libServeurArbitre);

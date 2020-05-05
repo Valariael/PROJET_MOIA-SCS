@@ -126,7 +126,7 @@ int connecteJoueurTest(int sock)
 	if (err <= 0)
 	{
 		perror("serveurTest> erreur recv TPartieRep connecteJoueur");
-		return -2;
+		return -2;//TODO : add all shutdown close + do other side of tests
 	}
 	shutdownClose(sockTarget);
 
@@ -137,6 +137,7 @@ int connecteJoueurTest(int sock)
 	if (err <= 0)
 	{
 		perror("serveurTest> erreur send TPartieReq connecteJoueur");
+		shutdownClose(sockTarget);
 		return -1;
 	}
 
@@ -145,10 +146,10 @@ int connecteJoueurTest(int sock)
 	if (err <= 0)
 	{
 		perror("serveurTest> erreur send target sock connecteJoueur");
+		shutdownClose(sock);
 		return -1;
 	}
-	shutdownClose(sockTarget);
-	shutdownClose(sock);
+	shutdownCloseBoth(sockTarget, sock);
 	return 0;
 }
 
@@ -163,6 +164,7 @@ int ackJoueursConnectesTest(int sock)
 	if (err <= 0)
 	{
 		perror("serveurTest> erreur recv TPartieRep ackJoueursConnectes");
+		shutdownCloseBoth(sockTarget, sock);
 		return -1;
 	}
 
@@ -174,10 +176,86 @@ int ackJoueursConnectesTest(int sock)
 	if (err <= 0)
 	{
 		perror("serveurTest> erreur recv TPartieRep ackJoueursConnectes");
+		shutdownCloseBoth(sockTarget, sock);
 		return -2;
 	}
 
-	shutdownClose(sockTarget);
+	shutdownCloseBoth(sockTarget, sock);
+	return 0;
+}
+
+int paireJoueurValidesTest(int sock)
+{
+	int err, sock1, sock2;
+	TPartieReq* partieReq = malloc(sizeof(TPartieReq));
+	TPartieReq* partieRep = malloc(sizeof(TPartieRep));
+
+	sock1 = socketClient("127.0.0.1", 8081);
+	partieReq->idReq = PARTIE;
+	partieReq->coulPion = NOIR;
+	err = send(sock1, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq paireJoueurValides");
+		return -1;
+	}
+
+	sock2 = socketClient("127.0.0.1", 8081);
+	err = send(sock2, partieReq, sizeof(TPartieReq), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur send TPartieReq paireJoueurValides");
+		return -2;
+	}
+
+	err = recv(sock1, partieRep, sizeof(TPartieRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TPartieRep paireJoueurValides");
+		shutdownCloseBoth(sock1, sock2);
+		return -3;
+	}
+
+	err = recv(sock2, partieRep, sizeof(TPartieRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TPartieRep paireJoueurValides");
+		shutdownCloseBoth(sock2, sock1);
+		return -4;
+	}
+
+	shutdownCloseBoth(sock2, sock1);
+	shutdownClose(sock);
+	return 0;
+}
+
+int envoyerRepCoupTest(int sock)
+{
+	int err;
+	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
+	
+	err = recv(sock, coupRep, sizeof(TCoupRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TCoupRep envoyerRepCoup");
+		shutdownClose(sock);
+		return -1;
+	}
+	err = recv(sock, coupRep, sizeof(TCoupRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TCoupRep envoyerRepCoup");
+		shutdownClose(sock);
+		return -2;
+	}
+	err = recv(sock, coupRep, sizeof(TCoupRep), 0);
+	if (err <= 0)
+	{
+		perror("serveurTest> erreur recv TCoupRep envoyerRepCoup");
+		shutdownClose(sock);
+		return -3;
+	}
+
 	shutdownClose(sock);
 	return 0;
 }
@@ -199,6 +277,7 @@ int main(int argc, char const *argv[])
 		if (err <= 0)
 		{
 			perror("serveurTest> erreur recv nTest");
+			shutdownCloseBoth(sockTrans, sockConn);
 			return -1;
 		}
 
@@ -227,6 +306,14 @@ int main(int argc, char const *argv[])
 
 			case 6:
 				ackJoueursConnectesTest(sockTrans);
+				break;
+
+			case 7:
+				paireJoueurValidesTest(sockTrans);
+				break;
+
+			case 8:
+				envoyerRepCoupTest(sockTrans);
 				break;
 
 			default:
