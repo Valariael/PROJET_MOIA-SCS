@@ -135,11 +135,10 @@ MU_TEST(test_prochainCoup2)
 	mu_assert(err == -1, "erreur prochainCoup return!=-1");
 }
 
-/*MU_TEST(test_prochainCoup3) TODO: remanier les tests pour couvrir qques lignes supp
+MU_TEST(test_prochainCoup3)
 {
-	int sock, err = 5, nsfd;
+	int sock, err = 5;
 	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
-	fd_set readSet;
 	printf("test> prochainCoup3\n");
 
 	sock = socketClient("127.0.0.1", 8080);
@@ -155,7 +154,7 @@ MU_TEST(test_prochainCoup2)
 	shutdownClose(sock);
 }
 
-MU_TEST(test_prochainCoup4)
+/*MU_TEST(test_prochainCoup4) TODO: remanier les tests pour couvrir qques lignes supp
 {
 	int sock, sockConn, sockTrans, tailleAdr, pid, err, data, status;
 	struct sockaddr_in adr;
@@ -442,7 +441,7 @@ MU_TEST(test_jouerPartie1)
 	err = jouerPartie(sock, 1, BLANC, 1, 1);
 	mu_assert(err == 0, "erreur jouerPartie return!=0");
 
-	coupRep->err = 0;
+	/*coupRep->err = 0;
 	coupRep->validCoup = 0;
 	coupRep->propCoup = 1;
 
@@ -464,7 +463,7 @@ MU_TEST(test_jouerPartie1)
 	mu_assert(coupReq->pion.coulPion == BLANC, "erreur jouerPartie1 coulPion!=BLANC");
 	mu_assert(coupReq->posPion.l == DEUX, "erreur jouerPartie1 ligne!=DEUX");
 	mu_assert(coupReq->posPion.c == B, "erreur jouerPartie1 colonne!=B");
-	mu_assert(coupReq->propCoup == GAGNE, "erreur jouerPartie1 propCoup!=GAGNE");
+	mu_assert(coupReq->propCoup == GAGNE, "erreur jouerPartie1 propCoup!=GAGNE");*/
 
 	shutdownClose(sock);
 }
@@ -583,13 +582,13 @@ MU_TEST_SUITE(test_libClientJoueur) {
 	MU_RUN_TEST(test_recvIntFromJava);
 	MU_RUN_TEST(test_prochainCoup1);
 	MU_RUN_TEST(test_prochainCoup2);
-	/*MU_RUN_TEST(test_prochainCoup3); 
-	MU_RUN_TEST(test_prochainCoup4);
+	MU_RUN_TEST(test_prochainCoup3); 
+	/*MU_RUN_TEST(test_prochainCoup4);
 	MU_RUN_TEST(test_prochainCoup5);
 	MU_RUN_TEST(test_prochainCoup6);*/
 	MU_RUN_TEST(test_adversaireCoup);
 	MU_RUN_TEST(test_afficherValidationCoup);
-	//MU_RUN_TEST(test_jouerPartie1);
+	MU_RUN_TEST(test_jouerPartie1);
 	MU_RUN_TEST(test_jouerPartie2);
 	MU_RUN_TEST(test_jouerPartie3);
 	MU_RUN_TEST(test_jouerPartie4);

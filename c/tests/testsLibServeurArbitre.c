@@ -142,7 +142,7 @@ MU_TEST(test_ackJoueursConnectes)
 
 MU_TEST(test_paireJoueurValides)
 {
-	int err = 7, sock, sock1, sock2, data, sockConn;
+	int err = 7, sock, sock1, sock2, sockConn;
 	printf("test> paireJoueurValides\n");
 
 	sock = socketClient("127.0.0.1", 8080);

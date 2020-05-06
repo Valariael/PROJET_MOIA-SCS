@@ -168,18 +168,17 @@ int jouerPartieTest1(int sock)
 		perror("clientTest> erreur recv TCoupReq jouerPartieTest1");
 		return -1;
 	}
+	coupRep->err = 0;
+	coupRep->validCoup = 0;
+	coupRep->propCoup = 1;
 	err = send(sock, coupRep, sizeof(TCoupRep), 0);
 	if (err <= 0)
 	{
 		perror("clientTest> erreur send TCoupRep jouerPartieTest1");
 		return -2;
 	}
-
-	coupRep->err = 0;
-	coupRep->validCoup = 0;
-	coupRep->propCoup = 1;
-
-	err = jouerPartie(sock, 1, BLANC, 1, 1);
+/*
+	err = jouerPartie(sock, 1, BLANC, 1, 1);*/
 
 	shutdownClose(sock);
 	return 0;

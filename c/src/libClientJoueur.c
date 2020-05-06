@@ -56,7 +56,7 @@ int recvIntFromJava (int sock, int *data)
     while(err < 4) 
     {
         err = recv(sock, data, sizeof(int), MSG_PEEK);
-        if (err < 0)
+        if (err <= 0)
         {
             perror("joueur> erreur recv Java MSG_PEEK");
             return -1;
