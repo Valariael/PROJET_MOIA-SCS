@@ -1,9 +1,6 @@
 package tests;
 
-import org.jpl7.Compound;
-import org.jpl7.Term;
-import org.jpl7.Util;
-import org.jpl7.Variable;
+import org.jpl7.*;
 import org.junit.Assert;
 import org.junit.Test;
 import src.Coup;
@@ -213,9 +210,33 @@ public class TestQuantik
                 "[[1,1],[1,2],[1,3],[1,4]," +
                 "[0,0],[0,0],[0,0],[0,0]," +
                 "[0,0],[0,0],[0,0],[0,0]," +
-                "[0,0],[0,0],[0,0],[0,0]]")
-        );
+                "[0,0],[0,0],[0,0],[0,0]]"
+                ));
 
         Assert.assertEquals(2, quantik.computePropriete(15));
+    }
+
+    @Test
+    public void testPutAdvCoup() throws Exception
+    {
+        Quantik quantik = new Quantik();
+        quantik.initPartie(false);
+        Coup coup = new Coup(0,1,1,1,0);
+        quantik.putAdvCoup(coup);
+
+        Assert.assertEquals(Util.textToTerm(
+                "[[0,0],[0,0],[0,0],[0,0]," +
+                    "[0,0],[1,2],[0,0],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]]"
+        ), quantik.getGrille());
+        Assert.assertEquals(Util.textToTerm(
+                "[1,2,3,4,5,7,8,9,10,11,12,13,14,15,16]"
+        ), quantik.getIndices());
+        Assert.assertEquals(Util.textToTerm(
+                "[1,[[1,2],[2,1],[2,3],[2,4]]]"
+        ), quantik.getJoueurAdv());
+        Assert.assertEquals(2, quantik.getFormeAdv());
+        Assert.assertEquals(6, quantik.getDernierePos());
     }
 }
