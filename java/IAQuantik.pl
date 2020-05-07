@@ -212,27 +212,29 @@ casesBloquantes([[Ind, Forme]|ListeIndForme], Grille, ListeInd, J, LListeIndForm
 casesBloquantes([_|ListeIndForme], Grille, ListeInd, J, LListeIndFormeBloquant, RLListeIndFormeBloquant):-
     casesBloquantes(ListeIndForme, Grille, ListeInd, J, LListeIndFormeBloquant, RLListeIndFormeBloquant).
 
-compterOccurencesIndForme(_, [], 0).
-compterOccurencesIndForme(IndForme, [ListeIndForme|LListeIndFormeBloquant], RNbRep):-
+compterOccurencesIndForme(_, [], NbRep, NbRep):-
+    !.
+compterOccurencesIndForme(IndForme, [ListeIndForme|LListeIndFormeBloquant], NbRep, RNbRep):-
     member(IndForme, ListeIndForme),
     RNbRep is NbRep + 1,
-    compterOccurencesIndForme(IndForme, LListeIndFormeBloquant, NbRep).
-compterOccurencesIndForme(IndForme, [_|LListeIndFormeBloquant], NbRep):-
-    compterOccurencesIndForme(IndForme, LListeIndFormeBloquant, NbRep).
+    compterOccurencesIndForme(IndForme, LListeIndFormeBloquant, NbRep, RNbRep).
+compterOccurencesIndForme(IndForme, [_|LListeIndFormeBloquant], NbRep, RNbRep):-
+    compterOccurencesIndForme(IndForme, LListeIndFormeBloquant, NbRep, RNbRep).
 
-
-indFormeBloquantLePlus([], _, AccIndForme, AccIndForme, IndForme, IndForme, NbRep, NbRep).
+indFormeBloquantLePlus([], _, AccIndForme, AccIndForme, IndForme, IndForme, NbRep, NbRep):-
+    !.
 indFormeBloquantLePlus([HeadIndForme|_], [], AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep):-
     (NbRep < 1, indFormeBloquantLePlus([], [], AccIndForme, RAccIndForme, HeadIndForme, RIndForme, 1, RNbRep) ; indFormeBloquantLePlus([], [], AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep)).
 indFormeBloquantLePlus([HeadIndForme|ListeIndForme], LListeIndFormeBloquant, AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep):-
     \+member(HeadIndForme, AccIndForme),
-    compterOccurencesIndForme(HeadIndForme, LListeIndFormeBloquant, NvNbRep),
+    compterOccurencesIndForme(HeadIndForme, LListeIndFormeBloquant, 0, NvNbRep),
     NvAccIndForme = [HeadIndForme|AccIndForme],
     (NvNbRep > NbRep, indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, NvAccIndForme, RAccIndForme, HeadIndForme, RIndForme, NvNbRep, RNbRep) ; indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, NvAccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep)).
 indFormeBloquantLePlus([_|ListeIndForme], LListeIndFormeBloquant, AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep):-
     indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, AccIndForme, RAccIndForme, IndForme, RIndForme, NbRep, RNbRep).
 
-choisirIndFormeBloquantLePlus([], _, IndForme, _, IndForme).
+choisirIndFormeBloquantLePlus([], _, IndForme, _, IndForme):-
+    !.
 choisirIndFormeBloquantLePlus([ListeIndForme|LListeIndFormeBloquant], AccIndForme, IndForme, NbRep, RIndForme):-
     indFormeBloquantLePlus(ListeIndForme, LListeIndFormeBloquant, AccIndForme, NvAccIndForme, IndForme, NvIndForme, NbRep, NvNbRep),
     choisirIndFormeBloquantLePlus(LListeIndFormeBloquant, NvAccIndForme, NvIndForme, NvNbRep, RIndForme).

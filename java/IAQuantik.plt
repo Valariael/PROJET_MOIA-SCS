@@ -474,27 +474,23 @@ test("casesBloquantesT4",true(Y=[[[6, 2], [2, 2], [5, 2], [7, 2], [8, 2], [10, 2
 test("casesBloquantesT5",true(Y=[])):-casesBloquantes([[1,3],[6,2],[11,1]],[[1, 1],[0, 0],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,5,6,7,8,9,10,11,12,13,14,15,16],[2,[[0,1],[1,2],[1,3],[1,4]]],Y,[[[6, 2], [2, 2], [5, 2], [7, 2], [8, 2], [10, 2], [14, 2]], [[2, 3], [5, 3], [6, 3], [9, 3], [13, 3]]]).
 :-end_tests(test_casesBloquantes).
 
-%pb test compterOccurencesIndFormeT3: received error: is/2: Arguments are not sufficiently instantiated
 :-begin_tests(test_compterOccurencesIndForme).
-test("compterOccurencesIndFormeT1",[true]):-compterOccurencesIndForme([3,2],[],0).
-test("compterOccurencesIndFormeT2",[fail]):-compterOccurencesIndForme([3,2],[],2).
-%test("compterOccurencesIndFormeT3",[fail]):-compterOccurencesIndForme([3,2],[[[1,3],[3,2],[8,4]],[[5,1],[6,2],[10,4]],[[1,1],[3,2],[11,1]]],2).
-%test("compterOccurencesIndFormeT4",true(X=[3,2])):-compterOccurencesIndForme(X,[[[1,3],[3,2],[8,4]],[[5,1],[6,2],[10,4]],[[1,1],[3,2],[11,1]]],2).
-%test("compterOccurencesIndFormeT5",true(X=2)):-compterOccurencesIndForme([3,2],[[[1,3],[3,2],[8,4]],[[5,1],[6,2],[10,4]],[[1,1],[3,2],[11,1]]],X).
+test("compterOccurencesIndFormeT1",[true]):-compterOccurencesIndForme([3,2],[],0,0).
+test("compterOccurencesIndFormeT2",[fail]):-compterOccurencesIndForme([3,2],[],0,2).
 :-end_tests(test_compterOccurencesIndForme).
 
-%meme soucis ...
-%:-begin_tests(test_indFormeBloquantLePlus).
-%test("indFormeBloquantLePlusT1",[true]):-indFormeBloquantLePlus([[1,3],[6,2],[11,1]],[[[1,3],[3,2],[8,4]],[[5,1],[6,2],[11,1]],[[1,1],[3,2],[11,1]]],[[1,3],[4,2],[11,1]],[[1,3],[6,2],[11,1]],[11,1],[11,1],2,2).
+:-begin_tests(test_indFormeBloquantLePlus).
+test("indFormeBloquantLePlusT1",[nondet]):-indFormeBloquantLePlus([[1,3],[6,2],[11,1]],[[[1,3],[3,2],[8,4]],[[5,1],[6,2],[11,1]],[[1,1],[3,2],[11,1]]],[[1,3],[4,2],[11,1]],[[6, 2], [1, 3], [4, 2], [11, 1]],[11,1],[11,1],2,2).
 %test("indFormeBloquantLePlusT2",[fail]):-indFormeBloquantLePlus([[1,3],[6,2],[11,1]],[[1, 1],[0, 0],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,5,6,7,8,9,10,11,12,15,16],[2,[[0,1],[1,2],[1,3],[1,4]]],[],[[[6, 2], [2, 2], [5, 2], [7, 2], [8, 2], [10, 2], [14, 2]], [[2, 3], [5, 3], [6, 3], [9, 3], [13, 3]]]).
 %test("indFormeBloquantLePlusT3",[fail]):-indFormeBloquantLePlus([[1,3],[6,2],[11,1]],[[1, 1],[0, 0],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,5,6,7,8,9,10,11,12,13,14,15,16],[2,[[0,1],[0,2],[1,3],[1,4]]],[],[[[6, 2], [2, 2], [5, 2], [7, 2], [8, 2], [10, 2], [14, 2]], [[2, 3], [5, 3], [6, 3], [9, 3], [13, 3]]]).
 %test("indFormeBloquantLePlusT4",true(Y=[[[6, 2], [2, 2], [5, 2], [7, 2], [8, 2], [10, 2], [14, 2]], [[2, 3], [5, 3], [6, 3], [9, 3], [13, 3]]])):-indFormeBloquantLePlus([[1,3],[6,2],[11,1]],[[1, 1],[0, 0],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,5,6,7,8,9,10,11,12,13,14,15,16],[2,[[0,1],[1,2],[1,3],[1,4]]],[],Y).
 %test("indFormeBloquantLePlusT5",true(Y=[])):-indFormeBloquantLePlus([[1,3],[6,2],[11,1]],[[1, 1],[0, 0],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,5,6,7,8,9,10,11,12,13,14,15,16],[2,[[0,1],[1,2],[1,3],[1,4]]],Y,[[[6, 2], [2, 2], [5, 2], [7, 2], [8, 2], [10, 2], [14, 2]], [[2, 3], [5, 3], [6, 3], [9, 3], [13, 3]]]).
-%:-end_tests(test_indFormeBloquantLePlus).
+:-end_tests(test_indFormeBloquantLePlus).
 
-%:-begin_tests(test_choisirIndFormeBloquantLePlus).
-%test("choisirIndFormeBloquantLePlusT1",[true]):-choisirIndFormeBloquantLePlus([[[1,3],[3,2],[8,4]],[[5,1],[6,2],[10,4]],[[1,1],[3,2],[11,1]]],[[[5,1],[6,2],[10,4]],[[1,1],[3,2],[11,1]]],[3,2],2,[3,2]).
-%:-end_tests(test_choisirIndFormeBloquantLePlus).
+:-begin_tests(test_choisirIndFormeBloquantLePlus).
+test("choisirIndFormeBloquantLePlusT1",[nondet]):-choisirIndFormeBloquantLePlus([[[1,3],[3,2],[8,4]],[[5,1],[6,2],[10,4]],[[1,1],[3,2],[11,1]]],[[[5,1],[6,2],[10,4]],[[1,1],[3,2],[11,1]]],[3,2],2,[3,2]).
+:-end_tests(test_choisirIndFormeBloquantLePlus).
+
 :-begin_tests(test_casesBloqueesParCoup).
 test("casesBloqueesParCoupT1",[true]):-casesBloqueesParCoup([[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4]],[1,4,5,8,10,11,14,15],[1,[[1,1],[1,2],[1,3],[1,4]]],1,2,2).
 test("casesBloqueesParCoupT2",[fail]):-casesBloqueesParCoup([[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4]],[1,4,5,8,10,11,14,15],[1,[[1,1],[1,2],[1,3],[1,4]]],1,2,4).
