@@ -298,4 +298,52 @@ public class TestQuantik
         ), quantik.getJoueurSelf());
         Assert.assertEquals(11, quantik.getDernierePos());
     }
+
+    @Test
+    public void testJouerCoupMeilleurRatio() throws Exception
+    {
+        Quantik quantik = new Quantik();
+        quantik.initPartie(true);
+        quantik.jouerCoupMeilleurRatio(
+                new Variable(Quantik.IND),
+                new Variable(Quantik.FORME),
+                new Variable(Quantik.GRILLE),
+                new Variable(Quantik.LISTE_IND),
+                new Variable(Quantik.JOUEUR)
+        );
+
+        Assert.assertEquals(Util.textToTerm(
+                "[[1,4],[0,0],[0,0],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]]"
+        ), quantik.getGrille());
+        Assert.assertEquals(Util.textToTerm(
+                "[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"
+        ), quantik.getIndices());
+        Assert.assertEquals(Util.textToTerm(
+                "[1,[[1,4],[2,1],[2,2],[2,3]]]"
+        ), quantik.getJoueurSelf());
+        Assert.assertEquals(1, quantik.getDernierePos());
+    }
+
+    @Test
+    public void testGetCoupSecours() throws Exception
+    {
+        Quantik quantik = new Quantik();
+        quantik.initPartie(true);
+        quantik.setGrille(Util.textToTerm(
+                "[[2,2],[2,2],[2,2],[2,2]," +
+                    "[2,2],[2,2],[2,2],[2,2]," +
+                    "[2,2],[2,2],[2,2],[2,2]," +
+                    "[2,2],[2,2],[2,2],[2,2]]"
+        ));
+        quantik.setIndices(Util.textToTerm(
+                "[]"
+        ));
+        Coup coup = quantik.getCoupSecours();
+
+        Assert.assertEquals(1, coup.getBloque());
+        Assert.assertEquals(3, coup.getPropriete());
+    }
 }
