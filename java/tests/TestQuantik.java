@@ -1,6 +1,8 @@
 package tests;
 
+import org.jpl7.Compound;
 import org.jpl7.Term;
+import org.jpl7.Util;
 import org.jpl7.Variable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -188,5 +190,32 @@ public class TestQuantik
         }
     }
 
+    @Test
+    public void testComputePropriete() throws Exception
+    {
+        Quantik quantik = new Quantik();
+        quantik.initPartie(true);
+        quantik.jouerCoup(
+                new Variable(Quantik.IND),
+                new Variable(Quantik.FORME),
+                new Variable(Quantik.GRILLE),
+                new Variable(Quantik.LISTE_IND),
+                new Variable(Quantik.JOUEUR)
+        );
 
+        Assert.assertEquals(0, quantik.computePropriete(1));
+
+        quantik.setIndices(Util.textToTerm("[]"));
+
+        Assert.assertEquals(2, quantik.computePropriete(15));
+
+        quantik.setGrille(Util.textToTerm(
+                "[[1,1],[1,2],[1,3],[1,4]," +
+                "[0,0],[0,0],[0,0],[0,0]," +
+                "[0,0],[0,0],[0,0],[0,0]," +
+                "[0,0],[0,0],[0,0],[0,0]]")
+        );
+
+        Assert.assertEquals(2, quantik.computePropriete(15));
+    }
 }

@@ -469,7 +469,7 @@ public class Quantik implements Callable<Coup>
      * conduisant ainsi au choix du meilleur mouvement possible.
      * Cette idée était perdue d'avance dû au nombre de solutions possible, néanmoins ce fût intéressant. :)
      */
-    @Deprecated
+    /*@Deprecated
     public static void computeSolutions()
     {
         try
@@ -551,5 +551,5 @@ public class Quantik implements Callable<Coup>
             e.printStackTrace();
         }
         return 0;
-    }
+    }*/
 }
