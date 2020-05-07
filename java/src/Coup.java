@@ -1,3 +1,5 @@
+package src;
+
 /**
  * Une instance de Coup représente un mouvement du jeu Quantik avec ses différentes caractéristiques.
  */
@@ -7,6 +9,15 @@ public class Coup
     private int bloque, pion, ligne, colonne, propriete;
 
     public Coup(){}
+
+    public Coup(int bloque, int pion, int ligne, int colonne, int propriete)
+    {
+        this.bloque = bloque;
+        this.pion = pion;
+        this.ligne = ligne;
+        this.colonne = colonne;
+        this.propriete = propriete;
+    }
 
     public boolean isBloque()
     {

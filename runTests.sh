@@ -36,3 +36,25 @@ echo "Exécution tests libServeurArbitre."
 ./testsLibServeurArbitre
 echo "Tests libServeurArbitre terminés."
 gcov -abcfu libServeurArbitre.so
+
+echo "Compilation MoteurIA."
+cd ../../java/src
+if [[ $LD_PRELOAD != *"libswipl.so"* ]]; then
+	export LD_PRELOAD=libswipl.so:${LD_PRELOAD}
+fi
+if [[ $LD_LIBRARY_PATH != *"/usr/lib/swi-prolog/lib/amd64/"* ]]; then
+	export LD_LIBRARY_PATH=/usr/lib/swi-prolog/lib/amd64/:${LD_LIBRARY_PATH}
+fi
+if [[ $CLASSPATH != *"/usr/lib/swi-prolog/lib/jpl.jar"* ]]; then
+	export CLASSPATH=/usr/lib/swi-prolog/lib/jpl.jar:${CLASSPATH}
+fi
+make
+err=$?
+if [ $err -ne "0" ]; then
+	echo "Erreur à la compilation du moteur IA !"
+	exit -3
+fi
+
+echo "Compilation des tests MoteurIA pour coverage."
+cd ../tests
+make

@@ -17,7 +17,7 @@ fi
 
 clear
 echo "Compilation moteur IA."
-cd java
+cd java/src
 if [[ $LD_PRELOAD != *"libswipl.so"* ]]; then
 	export LD_PRELOAD=libswipl.so:${LD_PRELOAD}
 fi
@@ -33,13 +33,14 @@ if [ $err -ne "0" ]; then
 	echo "Erreur à la compilation du moteur IA !"
 	exit -1
 fi
+cd ../out
 java MoteurIA $2 $4 &
 echo "Moteur IA joueur 1 lancé."
 java MoteurIA $3 $5 &
 echo "Moteur IA joueur 2 lancé."
 
 echo "Compilation serveur/client."
-cd ../c/src
+cd ../../c/src
 make
 err=$?
 if [ $err -ne "0" ]; then

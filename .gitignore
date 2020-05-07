@@ -17,3 +17,5 @@
 *.iml
 java/out
 c/out
+java/tests/coverageReport
+java/tests/jacoco.exec

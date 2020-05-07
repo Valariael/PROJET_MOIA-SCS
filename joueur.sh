@@ -12,7 +12,7 @@ if [ $# -ne 3 ]; then
 else portIA=false
 fi
 clear
-cd java
+cd java/src
 if [[ $LD_PRELOAD != *"libswipl.so"* ]]; then
 	export LD_PRELOAD=libswipl.so:${LD_PRELOAD}
 fi
@@ -28,6 +28,7 @@ if [ $err -ne "0" ]; then
 	echo "Erreur à la compilation du moteur IA !"
 	exit -1
 fi
+cd ../out
 if [ "$portIA" = false ]; then
 java MoteurIA 6666 1 &
 echo "Moteur IA de $3 lancé."
@@ -35,7 +36,7 @@ else
 java MoteurIA $4 1 &
 echo "Moteur IA de $3 lancé."
 fi
-cd ../c/src
+cd ../../c/src
 make
 err=$?
 if [ $err -ne "0" ]; then

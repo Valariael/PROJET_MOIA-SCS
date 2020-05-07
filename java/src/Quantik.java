@@ -1,7 +1,16 @@
-import org.jpl7.*;
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
+package src;
+
+import org.jpl7.Atom;
+import org.jpl7.Query;
+import org.jpl7.Term;
+import org.jpl7.Variable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 /**
  * Une instance de Quantik conserve l'état du jeu et intéragit avec le moteur Prolog
  * pour réaliser les actions de jeu ainsi que détecter les fin de partie.
@@ -27,7 +36,7 @@ public class Quantik implements Callable<Coup>
     {
         Query consult = new Query(
                 "consult",
-                new Term[] {new Atom("IAQuantik.pl")}
+                new Term[] {new Atom("../IAQuantik.pl")}
         );
         if (!consult.hasSolution()) throw new Exception("Echec consult");
         consult.close();
@@ -381,6 +390,76 @@ public class Quantik implements Callable<Coup>
                 "Indices : " +
                 indices +
                 "\n";
+    }
+
+    public Term getJoueurSelf()
+    {
+        return joueurSelf;
+    }
+
+    public Term getJoueurAdv()
+    {
+        return joueurAdv;
+    }
+
+    public Term getGrille()
+    {
+        return grille;
+    }
+
+    public Term getIndices()
+    {
+        return indices;
+    }
+
+    public int getDernierePos()
+    {
+        return dernierePos;
+    }
+
+    public int getFormeAdv()
+    {
+        return formeAdv;
+    }
+
+    public boolean isPeutJouer()
+    {
+        return peutJouer;
+    }
+
+    public void setJoueurSelf(Term joueurSelf)
+    {
+        this.joueurSelf = joueurSelf;
+    }
+
+    public void setJoueurAdv(Term joueurAdv)
+    {
+        this.joueurAdv = joueurAdv;
+    }
+
+    public void setGrille(Term grille)
+    {
+        this.grille = grille;
+    }
+
+    public void setIndices(Term indices)
+    {
+        this.indices = indices;
+    }
+
+    public void setDernierePos(int dernierePos)
+    {
+        this.dernierePos = dernierePos;
+    }
+
+    public void setFormeAdv(int formeAdv)
+    {
+        this.formeAdv = formeAdv;
+    }
+
+    public void setPeutJouer(boolean peutJouer)
+    {
+        this.peutJouer = peutJouer;
     }
 
     /**

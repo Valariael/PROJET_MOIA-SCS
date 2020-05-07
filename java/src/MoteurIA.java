@@ -1,11 +1,15 @@
+package src;
+
+import org.jpl7.Variable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.Integer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.*;
-import org.jpl7.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class MoteurIA {
     public static final int CODE_NV_PARTIE_BLANC = 1;

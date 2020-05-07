@@ -426,9 +426,9 @@ MU_TEST(test_afficherValidationCoup)
 
 MU_TEST(test_jouerPartie1)
 {
-	int sock, err = 10;
+	int sock, err = 10;/*
 	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
-	TCoupRep* coupRep = malloc(sizeof(TCoupRep));
+	TCoupRep* coupRep = malloc(sizeof(TCoupRep));*/
 	printf("test> jouerPartie1\n");
 
 	sock = socketClient("127.0.0.1", 8080);
