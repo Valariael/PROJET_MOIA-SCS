@@ -239,4 +239,63 @@ public class TestQuantik
         Assert.assertEquals(2, quantik.getFormeAdv());
         Assert.assertEquals(6, quantik.getDernierePos());
     }
+
+    @Test
+    public void testJouerCoupRandom() throws Exception
+    {
+        Quantik quantik = new Quantik();
+        quantik.initPartie(false);
+        int oldIndicesL = quantik.getIndices().toTermArray().length;
+        int oldDernierePos = quantik.getDernierePos();
+        quantik.jouerCoupRandom(
+                new Variable(Quantik.IND),
+                new Variable(Quantik.FORME),
+                new Variable(Quantik.GRILLE),
+                new Variable(Quantik.LISTE_IND),
+                new Variable(Quantik.JOUEUR)
+        );
+
+        Assert.assertEquals(oldIndicesL-1, quantik.getIndices().toTermArray().length);
+        Assert.assertNotEquals(oldDernierePos, quantik.getDernierePos());
+    }
+
+    @Test
+    public void testJouerCoupMiroirOuMeilleurRatio() throws Exception
+    {
+        Quantik quantik = new Quantik();
+        quantik.initPartie(false);
+        quantik.setGrille(Util.textToTerm(
+                "[[0,0],[0,0],[0,0],[0,0]," +
+                    "[0,0],[1,2],[0,0],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]]"
+        ));
+        quantik.setIndices(Util.textToTerm(
+                "[1,2,3,4,5,7,8,9,10,11,12,13,14,15,16]"
+        ));
+        quantik.setDernierePos(6);
+        quantik.setFormeAdv(2);
+        quantik.jouerCoupMiroirOuMeilleurRatio(
+                new Variable(Quantik.IND),
+                new Variable(Quantik.FORME),
+                new Variable(Quantik.GRILLE),
+                new Variable(Quantik.LISTE_IND),
+                new Variable(Quantik.JOUEUR),
+                new Variable(Quantik.IND)//TODO check why 2 * IND
+        );
+
+        Assert.assertEquals(Util.textToTerm(
+                "[[0,0],[0,0],[0,0],[0,0]," +
+                    "[0,0],[1,2],[0,0],[0,0]," +
+                    "[0,0],[0,0],[2,2],[0,0]," +
+                    "[0,0],[0,0],[0,0],[0,0]]"
+        ), quantik.getGrille());
+        Assert.assertEquals(Util.textToTerm(
+                "[1,2,3,4,5,7,8,9,10,12,13,14,15,16]"
+        ), quantik.getIndices());
+        Assert.assertEquals(Util.textToTerm(
+                "[2,[[1,2],[2,1],[2,3],[2,4]]]"
+        ), quantik.getJoueurSelf());
+        Assert.assertEquals(11, quantik.getDernierePos());
+    }
 }
