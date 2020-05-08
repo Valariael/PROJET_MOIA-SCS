@@ -170,7 +170,7 @@ public class Quantik implements Callable<Coup>
         }
         else
         {
-            coup = jouerCoupMeilleurRatio(Ind, Forme, NvGrille, NvListeInd, NvJ);
+            coup = jouerCoupRandom(Ind, Forme, NvGrille, NvListeInd, NvJ);
         }
         return coup;
     }
@@ -199,22 +199,28 @@ public class Quantik implements Callable<Coup>
     public Coup jouerCoupMeilleurRatio(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {
         Coup coup = new Coup();
-        Query jouerMeilleurCoupRatioEtBloque = new Query(
-                "jouerMeilleurCoupRatioEtBloque",
-                new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
-        );
-
-        if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
+        if(this.indices.toTermArray().length < 16)
         {
-            getCoupSuivant(coup, jouerMeilleurCoupRatioEtBloque);
-            System.out.println("...................................... coup ratio bloque");
+            Query jouerMeilleurCoupRatioEtBloque = new Query(
+                    "jouerMeilleurCoupRatioEtBloque",
+                    new Term[]{this.grille, this.indices, this.joueurSelf, this.joueurAdv, Ind, Forme, NvGrille, NvListeInd, NvJ}
+            );
+
+            if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
+            {
+                getCoupSuivant(coup, jouerMeilleurCoupRatioEtBloque);
+                System.out.println("...................................... coup ratio bloque");
+            } else
+            {
+                peutJouer = false;
+                System.out.println("...................................... BLOQUE");
+                coup.setBloque(1);//TODO verif fin de partie serveur quand bloqué
+                coup.setPropriete(3);
+            }
         }
         else
         {
-            peutJouer = false;
-            System.out.println("...................................... BLOQUE");
-            coup.setBloque(1);//TODO verif fin de partie serveur quand bloqué
-            coup.setPropriete(3);
+            coup = jouerCoupRandom(Ind, Forme, NvGrille, NvListeInd, NvJ);
         }
 
         return coup;
@@ -260,7 +266,7 @@ public class Quantik implements Callable<Coup>
 
         return coup;
     }     
-    public Coup call() throws Exception//TODO remove when finished
+    public Coup call()
     {
         peutJouer = true;
         Variable Ind = new Variable(IND);
