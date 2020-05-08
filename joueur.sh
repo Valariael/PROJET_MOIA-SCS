@@ -30,10 +30,10 @@ if [ $err -ne "0" ]; then
 fi
 cd ../out
 if [ "$portIA" = false ]; then
-java MoteurIA 6666 1 &
+java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA 6666 1 &
 echo "Moteur IA de $3 lancé."
 else
-java MoteurIA $4 1 &
+java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA $4 1 &
 echo "Moteur IA de $3 lancé."
 fi
 cd ../../c/src

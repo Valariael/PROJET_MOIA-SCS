@@ -34,9 +34,9 @@ if [ $err -ne "0" ]; then
 	exit -1
 fi
 cd ../out
-java MoteurIA $2 $4 &
+java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA $2 $4 &
 echo "Moteur IA joueur 1 lancé."
-java MoteurIA $3 $5 &
+java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA $3 $5 &
 echo "Moteur IA joueur 2 lancé."
 
 echo "Compilation serveur/client."
