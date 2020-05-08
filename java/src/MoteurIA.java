@@ -82,16 +82,19 @@ public class MoteurIA {
                 switch (codeReq)
                 {
                     case CODE_NV_PARTIE_BLANC:
+                        System.out.println("moteurIA> init. nouvelle partie blanc");
                         jeu.initPartie(true);
                         dos.writeInt(CODE_OK);
                         break;
 
                     case CODE_NV_PARTIE_NOIR:
+                        System.out.println("moteurIA> init. nouvelle partie noir");
                         jeu.initPartie(false);
                         dos.writeInt(CODE_OK);
                         break;
 
                     case CODE_COUP_SELF:
+                        System.out.println("moteurIA> calcul du coup : type " + typeCoup);
                         Variable Ind = new Variable(Quantik.IND);
                         Variable Forme = new Variable(Quantik.FORME);
                         Variable NvGrille = new Variable(Quantik.GRILLE);
@@ -135,6 +138,7 @@ public class MoteurIA {
                         break;
 
                     case CODE_COUP_ADV:
+                        System.out.println("moteurIA> réception coup adverse");
                         coup = new Coup();
                         coup.setBloque(dis.readInt());
                         coup.setPion(dis.readInt());
@@ -145,6 +149,7 @@ public class MoteurIA {
                         break;
 
                     default:
+                        System.out.println("moteurIA> arrêt");
                         pasFini = false;
                         break;
                 }

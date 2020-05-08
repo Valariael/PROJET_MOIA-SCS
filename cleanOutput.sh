@@ -10,7 +10,7 @@ rm -v c/tests/*.gcno
 rm -v c/tests/*.so
 rm -v c/out/*
 cd c/tests
-rm -v testsLibServeurArbitre testsLibClientJoueur clientTest serveurTest
+rm -v testsLibServeurArbitre testsLibClientJoueur
 cd ../..
 rm -vr java/out/*
 rm -v java/tests/*.exec
