@@ -438,23 +438,23 @@ test("associationLargeurProfondeurT5",[true]):-associationLargeurProfondeur(12,1
 test("associationLargeurProfondeurT6",[true]):-associationLargeurProfondeur(11,50).
 test("associationLargeurProfondeurT7",[true]):-associationLargeurProfondeur(10,100).
 test("associationLargeurProfondeurT8",[true]):-associationLargeurProfondeur(9,300).
-%test("associationLargeurProfondeurT9",[true]):-associationLargeurProfondeur(8,30).
-%test("associationLargeurProfondeurT10",[true]):-associationLargeurProfondeur(7, 50).
-%test("associationLargeurProfondeurT11",[true]):-associationLargeurProfondeur(6, 100).
-%test("associationLargeurProfondeurT12",[true]):-associationLargeurProfondeur(5, 250).
-%test("associationLargeurProfondeurT13",[true]):-associationLargeurProfondeur(4, 500).
-%test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(3, 1000).
-%test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(2, 10000).
-%test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(1, 10000000).
-%test("associationLargeurProfondeurT15",true(X=20)):-associationLargeurProfondeur(16,X).
-%test("associationLargeurProfondeurT16",true(X=10000000)):-associationLargeurProfondeur(1,X).
-%test("associationLargeurProfondeurT17",true(X=250)):-associationLargeurProfondeur(5, X).
-%test("associationLargeurProfondeurT18",true(X=20)):-associationLargeurProfondeur(X, 15).
-%test("associationLargeurProfondeurT19",true(X=14)):-associationLargeurProfondeur(X, X).
-%test("associationLargeurProfondeurT20",true(X=2)):-associationLargeurProfondeur(X,10000).
-%test("associationLargeurProfondeurT22",[fail]):-associationLargeurProfondeur(0, 1000).
-%test("associationLargeurProfondeurT23",[fail]):-associationLargeurProfondeur(16,10000).
-%test("associationLargeurProfondeurT24",[fail]):-associationLargeurProfondeur(11,21).
+test("associationLargeurProfondeurT9",[true]):-associationLargeurProfondeur(8,1000).
+test("associationLargeurProfondeurT10",[true]):-associationLargeurProfondeur(7, 2000).
+test("associationLargeurProfondeurT11",[true]):-associationLargeurProfondeur(6, 3000).
+test("associationLargeurProfondeurT12",[true]):-associationLargeurProfondeur(5, 5000).
+test("associationLargeurProfondeurT13",[true]):-associationLargeurProfondeur(4, 10000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(3, 15000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(2, 20000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(1, 30000).
+test("associationLargeurProfondeurT15",true(X=3)):-associationLargeurProfondeur(16,X).
+test("associationLargeurProfondeurT16",true(X=30000)):-associationLargeurProfondeur(1,X).
+test("associationLargeurProfondeurT17",true(X=5000)):-associationLargeurProfondeur(5, X).
+test("associationLargeurProfondeurT18",true(X=13)):-associationLargeurProfondeur(X, 5).
+test("associationLargeurProfondeurT19",true(X=14)):-associationLargeurProfondeur(X, 4).
+test("associationLargeurProfondeurT20",true(X=4)):-associationLargeurProfondeur(X,10000).
+test("associationLargeurProfondeurT22",[fail]):-associationLargeurProfondeur(0, 1000).
+test("associationLargeurProfondeurT23",[fail]):-associationLargeurProfondeur(16,10000).
+test("associationLargeurProfondeurT24",[fail]):-associationLargeurProfondeur(11,21).
 :-end_tests(test_associationLargeurProfondeur).
 
 :-begin_tests(test_choisirIndBloquantPlacable).
@@ -536,3 +536,8 @@ test("stopT1",[fail]):-
 test("stopT2",[true(X=[[[[2,1],[1,2],[2,3],[1,4],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]]], [5,6,7,8,9,10,11,12,13,14,15,16], [1, [[2, 1], [1, 2], [2, 3], [1, 4]]], [2, [[1, 1], [2, 2], [1, 3], [2, 4]]], 4])]):-
 	stop([[[[[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1],[1,1]]], [], [1, [[0, 1], [0, 2], [0, 3], [0, 4]]], [2, [[0, 1], [0, 2], [0, 3], [0, 4]]], 1],[[[[2,1],[1,2],[2,3],[1,4],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]]], [5,6,7,8,9,10,11,12,13,14,15,16], [1, [[2, 1], [1, 2], [2, 3], [1, 4]]], [2, [[1, 1], [2, 2], [1, 3], [2, 4]]], 4]], X).
 :-end_tests(test_stop).
+
+:-begin_tests(test_coupSuivantHeuristique).
+%test("coupSuivantHeuristiqueT1",true([A,B,C,D,E]=[2,1,[[1, 1], [1, 1], [1, 4], [2, 3], [0, 0], [2, 2], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],[5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],[1, [[0, 1], [2, 2], [2, 3], [1, 4]]]])):-coupSuivantHeuristique([[1, 1],[0, 0],[1, 4],[2, 3],[0, 0],[2, 2],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,5,7,8,9,10,11,12,13,14,15,16],[1,[[1,1],[2,2],[2,3],[1,4]]],[2,[[2,1],[1,2],[1,3],[2,4]]],A,B,C,D,E).
+%test("coupSuivantHeuristiqueT1",true(A=2)):-coupSuivantHeuristique([[1, 1],[0, 0],[1, 4],[2, 3],[0, 0],[2, 2],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],[2,5,7,8,9,10,11,12,13,14,15,16],[1,[[1,1],[2,2],[2,3],[1,4]]],[2,[[2,1],[1,2],[1,3],[2,4]]],A,,1,[[1, 1], [1, 1], [1, 4], [2, 3], [0, 0], [2, 2], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],[5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],[1, [[0, 1], [2, 2], [2, 3], [1, 4]]]).
+:-end_tests(test_coupSuivantHeuristique).
