@@ -403,7 +403,7 @@ test("calculerVictoireDefaiteLargeurLimite/4T1", [true([V,D]=[1,1])]):-
 	calculerVictoireDefaiteLargeurLimite([[[[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]], [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], [1, [[2, 1], [2, 2], [2, 3], [2, 4]]], [2, [[2, 1], [2, 2], [2, 3], [2, 4]]], _]], 1, V, D).
 test("calculerVictoireDefaiteLargeurLimite/4T2", [fail]):-
 	calculerVictoireDefaiteLargeurLimite([[[[[1, 1],[1, 1],[1, 4],[2, 3],[1, 1],[1, 1],[1, 1],[1, 1],[1, 1],[2, 2],[1, 1],[1, 1],[1, 1],[1, 1],[1, 1],[1, 1]]], [], [1, [[2, 1], [2, 2], [2, 3], [2, 4]]], [2, [[2, 1], [2, 2], [2, 3], [2, 4]]], _]], 1, _, _).
-test("calculerVictoireDefaiteLargeurLimite/4T2", [true]):-%TODO : fix ? V et D tjrs = 1
+test("calculerVictoireDefaiteLargeurLimite/4T2", [true]):-
 	calculerVictoireDefaiteLargeurLimite([[[[[1, 1], [2, 2], [1, 3], [0, 0], [2, 2], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]], [4,6,7,8,9,10,11,12,13,14,15,16], [1, [[1, 1], [2, 2], [1, 3], [2, 4]]], [2, [[2, 1], [0, 2], [2, 3], [2, 4]]], _]], 1, V, D).
 :-end_tests(test_calculerVictoireDefaiteLargeurLimite).
 

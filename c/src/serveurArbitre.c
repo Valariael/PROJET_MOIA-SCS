@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <sys/signal.h>
 #include <string.h>
 #include "libSockets.h"
 #include "protocolQuantik.h"
@@ -22,6 +23,7 @@ int main (int argc, char **argv)
 	estServeur = 1,
 	idPartie = 0;
 	pid_t pid;
+	struct sigaction sa;
 
 	//Vérification des arguments.
 	if (argc != 2)
@@ -39,10 +41,14 @@ int main (int argc, char **argv)
 		return -2;
 	}
 
+	//Pour traiter le signal SIGCHLD et éviter les zombies.
+	sa.sa_handler = sigchildHandler; 
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGCHLD, &sa, NULL);
 	//Processus d'origine doit continuer à pouvoir lancer des nouvelles parties.
 	while (estServeur)
 	{
-		//TODO vérifier terminaison de la seconde partie 
 		//Connexion de deux joueurs pour une partie.
 		err = paireJoueurValides(&sockJoueur1, &sockJoueur2, sockConnexion);
 		if (err < 0)
@@ -96,6 +102,4 @@ int main (int argc, char **argv)
 		shutdownCloseBoth(sockJoueur1,sockJoueur2);
 		return -4;
 	}
-
-	return 0;
 }

@@ -7,11 +7,17 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <string.h>
 #include "libSockets.h"
 #include "protocolQuantik.h"
 #include "validation.h"
 #include "libServeurArbitre.h"
+
+void sigchildHandler (int signum)
+{
+	wait(NULL);
+}
 
 int verifIdRequete (int *sockJoueur, int idAttendu)
 {

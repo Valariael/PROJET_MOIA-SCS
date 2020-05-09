@@ -3,6 +3,7 @@
 
 #include "protocolQuantik.h"
 
+void sigchildHandler(int signum);
 int verifIdRequete (int *sockJoueur, int idAttendu);
 void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie);
 int ackJoueursConnectes (int *sockJoueur, int *sockAutreJoueur, TPartieRep *repPartie, TPartieRep *repPartieAutre);
