@@ -42,7 +42,7 @@ public class MoteurIA {
             typeCoup = Integer.parseInt(args[1]);
             if (typeCoup < 1 || typeCoup > 5)
             {
-                throw new Exception("le type d'IA doit être compris entre 1 et 5 inclus");
+                throw new Exception("le type d'IA doit être compris entre 1 et 6 inclus");
             }
         }
         catch (Exception e)
@@ -134,9 +134,6 @@ public class MoteurIA {
                             case 5 :
                                 envoyerCoup(dos, jeu.jouerCoupRandom(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
-                            case 6 :
-                            envoyerCoup(dos, jeu.test(Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible));
-                            break;
                         }
                         break;
 
