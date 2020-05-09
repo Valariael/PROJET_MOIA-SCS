@@ -22,7 +22,7 @@ public class Quantik implements Callable<Coup>
     private Term joueurSelf, joueurAdv, grille, indices;
     private int dernierePos;
     private int formeAdv;
-    private boolean peutJouer;
+    private boolean peutJouer,coupBloquant = false;
 
     /**
      * Initialise le moteur Prolog en consultant le fichier d'IA.
@@ -111,6 +111,72 @@ public class Quantik implements Callable<Coup>
         }
         return coup;
     }
+    public Coup test(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ, Variable IndCible)
+    {
+        Coup coup = new Coup();
+        peutJouer = true;
+            Query jouerCoupGagnant = new Query(
+                    "jouerCoupGagnantBloquant",
+                    new Term[]{this.grille, this.indices, this.joueurSelf, Ind, Forme, NvGrille, NvListeInd, NvJ}
+            );
+
+            if (jouerCoupGagnant.hasMoreSolutions())
+            {
+                Map<String, Term> solution = jouerCoupGagnant.nextSolution();
+
+                this.grille = solution.get(GRILLE);
+                this.indices = solution.get(LISTE_IND);
+                this.joueurSelf = solution.get(JOUEUR);
+                dernierePos = solution.get(IND).intValue();
+
+                coup.setLigneColonnePl(solution.get(IND).intValue());
+                coup.setPionPl(formeAdv);
+                coup.setBloque(0);
+                coup.setPropriete(computePropriete(this.dernierePos));
+
+                jouerCoupGagnant.close();
+                System.out.println("...................................... coup gagnantBloquant");
+            }
+            else
+            {
+            if(this.indices.toTermArray().length < 16 && coupBloquant == false)
+            {
+                Query jouerCoupMiroir = new Query(
+                        "jouerCoupMiroir",
+                        new Term[]{this.grille, this.indices, this.joueurSelf, new org.jpl7.Integer(dernierePos), new org.jpl7.Integer(formeAdv), NvGrille, NvListeInd, NvJ,IndCible}
+                );
+
+                if (jouerCoupMiroir.hasMoreSolutions())
+                {
+                    Map<String, Term> solution = jouerCoupMiroir.nextSolution();
+
+                    this.grille = solution.get(GRILLE);
+                    this.indices = solution.get(LISTE_IND);
+                    this.joueurSelf = solution.get(JOUEUR);
+                    dernierePos = solution.get(IND).intValue();
+
+                    coup.setLigneColonnePl(solution.get(IND).intValue());
+                    coup.setPionPl(formeAdv);
+                    coup.setBloque(0);
+                    coup.setPropriete(computePropriete(this.dernierePos));
+
+                    jouerCoupMiroir.close();
+                    System.out.println("...................................... coup miroir");
+                }
+                else
+                {
+                    coup = coupHeuristiqueAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ);
+                    //Si c'est impossible de jouer en miroir sans donner une victoire à l'adversaire au prochain coup
+                    //Récupérer le coup ayant le meilleur ratio de victoires proches ou le plus de mouvements adverses bloqués
+                }
+            }
+            else{
+                coup = coupHeuristiqueAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ);
+            }
+        }
+        return coup;
+    }   
+    
 
     public Coup jouerCoup(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {

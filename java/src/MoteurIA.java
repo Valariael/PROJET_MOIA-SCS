@@ -134,6 +134,9 @@ public class MoteurIA {
                             case 5 :
                                 envoyerCoup(dos, jeu.jouerCoupRandom(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
+                            case 6 :
+                            envoyerCoup(dos, jeu.test(Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible));
+                            break;
                         }
                         break;
 

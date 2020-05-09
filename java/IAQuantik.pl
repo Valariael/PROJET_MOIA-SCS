@@ -187,6 +187,7 @@ indPasBloque(Grille, Ind, Forme, NumJ):-
 
 %tente de jouer le coup gagnant, sinon recherche une option de blocage TODO : remove ?
 placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, Ind):-
+    %etatPreFinal(Grille,ListeInd,Ind,Forme),
     choisirInd(ListeInd, Ind, NvListeInd),
     placer(Grille, NvGrille, NumJ, Ind, [_, Forme]).
 placerGagnantOuBloquant(Grille, ListeInd, NumJ, Ind, Forme, NvGrille, NvListeInd, IndCible):-
