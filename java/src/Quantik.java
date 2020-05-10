@@ -212,7 +212,8 @@ public class Quantik implements Callable<Coup>
             {
                 getCoupSuivant(coup, jouerMeilleurCoupRatioEtBloque);
                 System.out.println("...................................... coup ratio bloque");
-            } else
+            }
+            else
             {
                 peutJouer = false;
                 System.out.println("...................................... BLOQUE");
@@ -382,17 +383,19 @@ public class Quantik implements Callable<Coup>
 
     public String toString()
     {
-        return "Premier joueur : " +
-                joueurSelf +
+        return "Quantik :" +
+                "\n" +
+                "Premier joueur : " +
+                joueurSelf.toString() +
                 "\n" +
                 "Deuxieme joueur : " +
-                joueurAdv +
+                joueurAdv.toString() +
                 "\n" +
                 "Grille : " +
-                grille +
+                grille.toString() +
                 "\n" +
                 "Indices : " +
-                indices +
+                indices.toString() +
                 "\n";
     }
 

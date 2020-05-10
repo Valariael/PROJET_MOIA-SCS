@@ -19,11 +19,6 @@ public class Coup
         this.propriete = propriete;
     }
 
-    public boolean isBloque()
-    {
-        return bloque == 0;
-    }
-
     /**
      * Getter pour récupérer l'indice à destination de Prolog à partir de la ligne et de la colonne.
      * @return un entier représentant l'indice du coup
@@ -114,12 +109,11 @@ public class Coup
     @Override
     public String toString()
     {
-        return "Coup{" +
-                "\nbloque=" + bloque +
-                ", \npion=" + pion +
-                ", \nligne=" + ligne +
-                ", \ncolonne=" + colonne +
-                ", \npropriete=" + propriete +
-                '}';
+        return "Coup :" +
+                "\nBloqué : " + bloque +
+                "\nPion : " + pion +
+                "\nLigne : " + ligne +
+                "\nColonne : " + colonne +
+                "\nPropriété : " + propriete;
     }
 }

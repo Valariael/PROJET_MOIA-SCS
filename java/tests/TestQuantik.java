@@ -40,10 +40,10 @@ public class TestQuantik
             Term[] arrNPSTerm = arrPionSTerm[i].toTermArray();
             Term[] arrNPATerm = arrPionATerm[i].toTermArray();
 
-            Assert.assertEquals(arrPion[2*i], arrNPSTerm[0].intValue());
-            Assert.assertEquals(arrPion[2*i+1], arrNPSTerm[1].intValue());
-            Assert.assertEquals(arrPion[2*i], arrNPATerm[0].intValue());
-            Assert.assertEquals(arrPion[2*i+1], arrNPATerm[1].intValue());
+            Assert.assertEquals(arrPion[2 * i], arrNPSTerm[0].intValue());
+            Assert.assertEquals(arrPion[2 * i + 1], arrNPSTerm[1].intValue());
+            Assert.assertEquals(arrPion[2 * i], arrNPATerm[0].intValue());
+            Assert.assertEquals(arrPion[2 * i + 1], arrNPATerm[1].intValue());
         }
 
         Term[] arrGrilleTerm = quantik.getGrille().toTermArray();
@@ -58,7 +58,7 @@ public class TestQuantik
             Assert.assertEquals(2, arrCaseTerm.length);
             Assert.assertEquals(0, arrCaseTerm[0].intValue());
             Assert.assertEquals(0, arrCaseTerm[1].intValue());
-            Assert.assertEquals(i+1, arrIndicesTerm[i].intValue());
+            Assert.assertEquals(i + 1, arrIndicesTerm[i].intValue());
         }
     }
 
@@ -94,8 +94,8 @@ public class TestQuantik
         {
             Term[] arrNPSTerm = arrPionSTerm[i].toTermArray();
 
-            Assert.assertEquals(arrPion[2*i], arrNPSTerm[0].intValue());
-            Assert.assertEquals(arrPion[2*i+1], arrNPSTerm[1].intValue());
+            Assert.assertEquals(arrPion[2 * i], arrNPSTerm[0].intValue());
+            Assert.assertEquals(arrPion[2 * i + 1], arrNPSTerm[1].intValue());
         }
 
         Term[] arrGrilleTerm = quantik.getGrille().toTermArray();
@@ -112,8 +112,7 @@ public class TestQuantik
             {
                 Assert.assertEquals(1, arrCaseTerm[0].intValue());
                 Assert.assertEquals(1, arrCaseTerm[1].intValue());
-            }
-            else
+            } else
             {
                 Assert.assertEquals(0, arrCaseTerm[0].intValue());
                 Assert.assertEquals(0, arrCaseTerm[1].intValue());
@@ -121,11 +120,11 @@ public class TestQuantik
         }
         for (int i = 0; i < 10; i++)
         {
-            Assert.assertEquals(i+1, arrIndicesTerm[i].intValue());
+            Assert.assertEquals(i + 1, arrIndicesTerm[i].intValue());
         }
         for (int i = 10; i < arrIndicesTerm.length; i++)
         {
-            Assert.assertEquals(i+2, arrIndicesTerm[i].intValue());
+            Assert.assertEquals(i + 2, arrIndicesTerm[i].intValue());
         }
     }
 
@@ -161,8 +160,8 @@ public class TestQuantik
         {
             Term[] arrNPSTerm = arrPionSTerm[i].toTermArray();
 
-            Assert.assertEquals(arrPion[2*i], arrNPSTerm[0].intValue());
-            Assert.assertEquals(arrPion[2*i+1], arrNPSTerm[1].intValue());
+            Assert.assertEquals(arrPion[2 * i], arrNPSTerm[0].intValue());
+            Assert.assertEquals(arrPion[2 * i + 1], arrNPSTerm[1].intValue());
         }
 
         Term[] arrGrilleTerm = quantik.getGrille().toTermArray();
@@ -183,7 +182,7 @@ public class TestQuantik
         }
         for (int i = 0; i < arrIndicesTerm.length; i++)
         {
-            Assert.assertEquals(i+2, arrIndicesTerm[i].intValue());
+            Assert.assertEquals(i + 2, arrIndicesTerm[i].intValue());
         }
     }
 
@@ -208,10 +207,10 @@ public class TestQuantik
 
         quantik.setGrille(Util.textToTerm(
                 "[[1,1],[1,2],[1,3],[1,4]," +
-                "[0,0],[0,0],[0,0],[0,0]," +
-                "[0,0],[0,0],[0,0],[0,0]," +
-                "[0,0],[0,0],[0,0],[0,0]]"
-                ));
+                        "[0,0],[0,0],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]]"
+        ));
 
         Assert.assertEquals(2, quantik.computePropriete(15));
     }
@@ -221,14 +220,14 @@ public class TestQuantik
     {
         Quantik quantik = new Quantik();
         quantik.initPartie(false);
-        Coup coup = new Coup(0,1,1,1,0);
+        Coup coup = new Coup(0, 1, 1, 1, 0);
         quantik.putAdvCoup(coup);
 
         Assert.assertEquals(Util.textToTerm(
                 "[[0,0],[0,0],[0,0],[0,0]," +
-                    "[0,0],[1,2],[0,0],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]]"
+                        "[0,0],[1,2],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]]"
         ), quantik.getGrille());
         Assert.assertEquals(Util.textToTerm(
                 "[1,2,3,4,5,7,8,9,10,11,12,13,14,15,16]"
@@ -255,7 +254,7 @@ public class TestQuantik
                 new Variable(Quantik.JOUEUR)
         );
 
-        Assert.assertEquals(oldIndicesL-1, quantik.getIndices().toTermArray().length);
+        Assert.assertEquals(oldIndicesL - 1, quantik.getIndices().toTermArray().length);
         Assert.assertNotEquals(oldDernierePos, quantik.getDernierePos());
     }
 
@@ -266,9 +265,9 @@ public class TestQuantik
         quantik.initPartie(false);
         quantik.setGrille(Util.textToTerm(
                 "[[0,0],[0,0],[0,0],[0,0]," +
-                    "[0,0],[1,2],[0,0],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]]"
+                        "[0,0],[1,2],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]]"
         ));
         quantik.setIndices(Util.textToTerm(
                 "[1,2,3,4,5,7,8,9,10,11,12,13,14,15,16]"
@@ -286,9 +285,9 @@ public class TestQuantik
 
         Assert.assertEquals(Util.textToTerm(
                 "[[0,0],[0,0],[0,0],[0,0]," +
-                    "[0,0],[1,2],[0,0],[0,0]," +
-                    "[0,0],[0,0],[2,2],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]]"
+                        "[0,0],[1,2],[0,0],[0,0]," +
+                        "[0,0],[0,0],[2,2],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]]"
         ), quantik.getGrille());
         Assert.assertEquals(Util.textToTerm(
                 "[1,2,3,4,5,7,8,9,10,12,13,14,15,16]"
@@ -304,6 +303,7 @@ public class TestQuantik
     {
         Quantik quantik = new Quantik();
         quantik.initPartie(true);
+        int pos = quantik.getDernierePos();
         quantik.jouerCoupMeilleurRatio(
                 new Variable(Quantik.IND),
                 new Variable(Quantik.FORME),
@@ -312,19 +312,28 @@ public class TestQuantik
                 new Variable(Quantik.JOUEUR)
         );
 
-        Assert.assertEquals(Util.textToTerm(
-                "[[1,4],[0,0],[0,0],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]," +
-                    "[0,0],[0,0],[0,0],[0,0]]"
-        ), quantik.getGrille());
-        Assert.assertEquals(Util.textToTerm(
-                "[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"
-        ), quantik.getIndices());
-        Assert.assertEquals(Util.textToTerm(
-                "[1,[[1,4],[2,1],[2,2],[2,3]]]"
-        ), quantik.getJoueurSelf());
-        Assert.assertEquals(1, quantik.getDernierePos());
+        Assert.assertEquals(15, quantik.getIndices().toTermArray().length);
+        Assert.assertNotEquals(pos, quantik.getDernierePos());
+
+        quantik.setGrille(Util.textToTerm(
+                "[[2,2],[2,2],[2,2],[2,2]," +
+                        "[2,2],[2,2],[2,2],[2,2]," +
+                        "[2,2],[2,2],[2,2],[2,2]," +
+                        "[2,2],[2,2],[2,2],[2,2]]"
+        ));
+        quantik.setIndices(Util.textToTerm(
+                "[]"
+        ));
+        Coup coup = quantik.jouerCoupMeilleurRatio(
+                new Variable(Quantik.IND),
+                new Variable(Quantik.FORME),
+                new Variable(Quantik.GRILLE),
+                new Variable(Quantik.LISTE_IND),
+                new Variable(Quantik.JOUEUR)
+        );
+
+        Assert.assertEquals(1, coup.getBloque());
+        Assert.assertEquals(3, coup.getPropriete());
     }
 
     @Test
@@ -334,9 +343,9 @@ public class TestQuantik
         quantik.initPartie(true);
         quantik.setGrille(Util.textToTerm(
                 "[[2,2],[2,2],[2,2],[2,2]," +
-                    "[2,2],[2,2],[2,2],[2,2]," +
-                    "[2,2],[2,2],[2,2],[2,2]," +
-                    "[2,2],[2,2],[2,2],[2,2]]"
+                        "[2,2],[2,2],[2,2],[2,2]," +
+                        "[2,2],[2,2],[2,2],[2,2]," +
+                        "[2,2],[2,2],[2,2],[2,2]]"
         ));
         quantik.setIndices(Util.textToTerm(
                 "[]"
@@ -345,5 +354,45 @@ public class TestQuantik
 
         Assert.assertEquals(1, coup.getBloque());
         Assert.assertEquals(3, coup.getPropriete());
+    }
+
+    @Test
+    public void testToStringCoup()
+    {
+        Coup coup = new Coup(1, 1, 1, 1, 1);
+
+        Assert.assertEquals("Coup :\nBloqué : 1\nPion : 1\nLigne : 1\nColonne : 1\nPropriété : 1", coup.toString());
+    }
+
+    @Test
+    public void testToStringQuantik() throws Exception
+    {
+        Quantik quantik = new Quantik();
+        quantik.initPartie(true);
+        Term grille = Util.textToTerm(
+                "[[0,0],[0,0],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]," +
+                        "[0,0],[0,0],[0,0],[0,0]]"
+        );
+        Term indices = Util.textToTerm(
+                "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"
+        );
+        Term j1 = Util.textToTerm(
+                "[1,[[2,1],[2,2],[2,3],[2,4]]]"
+        );
+        Term j2 = Util.textToTerm(
+                "[2,[[2,1],[2,2],[2,3],[2,4]]]"
+        );
+
+        Assert.assertEquals("Quantik :\nPremier joueur : " +
+                j1.toString() +
+                "\nDeuxieme joueur : " +
+                j2.toString() +
+                "\nGrille : " +
+                grille.toString() +
+                "\nIndices : " +
+                indices.toString() +
+                "\n", quantik.toString());
     }
 }
