@@ -444,24 +444,24 @@ test("associationLargeurProfondeurT1",[true]):-associationLargeurProfondeur(16,3
 test("associationLargeurProfondeurT2",[true]):-associationLargeurProfondeur(15,3).
 test("associationLargeurProfondeurT3",[true]):-associationLargeurProfondeur(14,4).
 test("associationLargeurProfondeurT4",[true]):-associationLargeurProfondeur(13,5).
-test("associationLargeurProfondeurT5",[true]):-associationLargeurProfondeur(12,10).
-test("associationLargeurProfondeurT6",[true]):-associationLargeurProfondeur(11,50).
-test("associationLargeurProfondeurT7",[true]):-associationLargeurProfondeur(10,100).
-test("associationLargeurProfondeurT8",[true]):-associationLargeurProfondeur(9,300).
-test("associationLargeurProfondeurT9",[true]):-associationLargeurProfondeur(8,1000).
-test("associationLargeurProfondeurT10",[true]):-associationLargeurProfondeur(7, 2000).
-test("associationLargeurProfondeurT11",[true]):-associationLargeurProfondeur(6, 3000).
-test("associationLargeurProfondeurT12",[true]):-associationLargeurProfondeur(5, 5000).
-test("associationLargeurProfondeurT13",[true]):-associationLargeurProfondeur(4, 10000).
-test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(3, 15000).
-test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(2, 20000).
-test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(1, 30000).
+test("associationLargeurProfondeurT5",[true]):-associationLargeurProfondeur(12,6).
+test("associationLargeurProfondeurT6",[true]):-associationLargeurProfondeur(11,12).
+test("associationLargeurProfondeurT7",[true]):-associationLargeurProfondeur(10,22).
+test("associationLargeurProfondeurT8",[true]):-associationLargeurProfondeur(9,34).
+test("associationLargeurProfondeurT9",[true]):-associationLargeurProfondeur(8,50).
+test("associationLargeurProfondeurT10",[true]):-associationLargeurProfondeur(7, 120).
+test("associationLargeurProfondeurT11",[true]):-associationLargeurProfondeur(6, 800).
+test("associationLargeurProfondeurT12",[true]):-associationLargeurProfondeur(5, 10000).
+test("associationLargeurProfondeurT13",[true]):-associationLargeurProfondeur(4, 20000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(3, 100000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(2, 100000).
+test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(1, 100000).
 test("associationLargeurProfondeurT15",true(X=3)):-associationLargeurProfondeur(16,X).
-test("associationLargeurProfondeurT16",true(X=30000)):-associationLargeurProfondeur(1,X).
-test("associationLargeurProfondeurT17",true(X=5000)):-associationLargeurProfondeur(5, X).
+test("associationLargeurProfondeurT16",true(X=100000)):-associationLargeurProfondeur(1,X).
+test("associationLargeurProfondeurT17",true(X=10000)):-associationLargeurProfondeur(5, X).
 test("associationLargeurProfondeurT18",true(X=13)):-associationLargeurProfondeur(X, 5).
 test("associationLargeurProfondeurT19",true(X=14)):-associationLargeurProfondeur(X, 4).
-test("associationLargeurProfondeurT20",true(X=4)):-associationLargeurProfondeur(X,10000).
+test("associationLargeurProfondeurT20",true(X=4)):-associationLargeurProfondeur(X,20000).
 test("associationLargeurProfondeurT22",[fail]):-associationLargeurProfondeur(0, 1000).
 test("associationLargeurProfondeurT23",[fail]):-associationLargeurProfondeur(16,10000).
 test("associationLargeurProfondeurT24",[fail]):-associationLargeurProfondeur(11,21).
