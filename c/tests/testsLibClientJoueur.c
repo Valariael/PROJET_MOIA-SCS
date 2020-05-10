@@ -438,7 +438,7 @@ MU_TEST(test_jouerPartie1)
 		mu_fail("erreur send code test jouerPartie");
 	}
 
-	err = jouerPartie(sock, 1, BLANC, 1, 1);
+	err = jouerPartie(sock, 1, BLANC, 1);
 	mu_assert(err == 0, "erreur jouerPartie return!=0");
 
 	/*coupRep->err = 0;
@@ -473,7 +473,7 @@ MU_TEST(test_jouerPartie2)
 	int err;
 	printf("test> jouerPartie2\n");
 
-	err = jouerPartie(-1, 1, NOIR, -1, -1);
+	err = jouerPartie(-1, 1, NOIR, -1);
 	mu_assert(err == -6, "erreur jouerPartie return!=-6");
 }
 
@@ -489,7 +489,7 @@ MU_TEST(test_jouerPartie3)
 		mu_fail("erreur send code test jouerPartie");
 	}
 
-	err = jouerPartie(sock, 0, BLANC, 1, 1);
+	err = jouerPartie(sock, 0, BLANC, 1);
 	mu_assert(err == 0, "erreur jouerPartie return!=0");
 
 	shutdownClose(sock);
@@ -507,7 +507,7 @@ MU_TEST(test_jouerPartie4)
 		mu_fail("erreur send code test jouerPartie");
 	}
 
-	err = jouerPartie(sock, 0, BLANC, 1, 1);
+	err = jouerPartie(sock, 0, BLANC, 1);
 	mu_assert(err == -9, "erreur jouerPartie return!=-9");
 
 	shutdownClose(sock);
@@ -518,7 +518,7 @@ MU_TEST(test_jouerPartie5)
 	int err;
 	printf("test> jouerPartie5\n");
 
-	err = jouerPartie(-1, 0, BLANC, 1, 1);
+	err = jouerPartie(-1, 0, BLANC, 1);
 	mu_assert(err == -8, "erreur jouerPartie return!=-8");
 }
 
@@ -534,7 +534,7 @@ MU_TEST(test_jouerPartieIA1)
 		mu_fail("erreur send code test jouerPartieIA1");
 	}
 
-	err = jouerPartieIA(-1, sock, 1, BLANC, 1, 1);
+	err = jouerPartieIA(-1, sock, 1, BLANC, 1);
 	mu_assert(err == -3, "erreur jouerPartieIA return!=-3");
 
 	shutdownClose(sock);
@@ -562,7 +562,7 @@ MU_TEST(test_jouerPartieIA2)
 		mu_fail("erreur sock S jouerPartieIA2");
 	}
 
-	err = jouerPartieIA(sockS, sock, 1, BLANC, 1, 1);
+	err = jouerPartieIA(sockS, sock, 1, BLANC, 1);
 	mu_assert(err == 0, "erreur jouerPartieIA return!=0");
 
 	shutdownCloseBoth(sock, sockS);
@@ -573,7 +573,7 @@ MU_TEST(test_jouerPartieIA3)
 	int err;
 	printf("test> jouerPartieIA3\n");
 
-	err = jouerPartieIA(-1, -1, -1, BLANC, -1, -1);
+	err = jouerPartieIA(-1, -1, -1, BLANC, -1);
 	mu_assert(err == -1, "erreur jouerPartieIA return!=-1");
 }
 
@@ -612,6 +612,8 @@ int main(int argc, char* argv[]) {
 	{
 		perror("*** échec envoi signal fin des tests");
 	}
+	shutdownClose(sock);
+	usleep(100000);
 
 	return MU_EXIT_CODE;
 }

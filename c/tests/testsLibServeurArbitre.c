@@ -231,6 +231,8 @@ int main (int argc, char* argv[])
 	{
 		perror("*** échec envoi signal fin des tests");
 	}
+	shutdownClose(sock);
+	usleep(100000);
 
 	return MU_EXIT_CODE;
 }
