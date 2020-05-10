@@ -18,11 +18,11 @@ Pour lancer une partie de manière automatique entre deux IAs :
 sh soloPlay.sh portServeur portIAJoueur1 portIAJoueur2 typeIAJ1 typeIAJ2 `[*]`
 ```
 Les types d'IA sont les suivants : 
-1 : parcours heuristique amélioré
-2 : en miroir de l'adversaire ou meilleur ratio V/D et cases bloquées
-3 : meilleur ratio V/D et cases bloquées
-4 : coup par défaut
-5 : aléatoire
+ - 1 : parcours heuristique amélioré
+ - 2 : en miroir de l'adversaire ou meilleur ratio V/D et cases bloquées
+ - 3 : meilleur ratio V/D et cases bloquées
+ - 4 : coup par défaut
+ - 5 : aléatoire
 
 Pour supprimer tous les fichiers supplémentaires créés :
 ```bash

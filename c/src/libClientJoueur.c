@@ -13,6 +13,7 @@
 #include "validation.h"
 #include "libClientJoueur.h"
 
+//Vérifie que le code d'erreur soit ERR_OK lors de la réception d'une réponse
 int verifCodeRep (int sock)
 {
     int err, codeRep;
@@ -49,6 +50,7 @@ int verifCodeRep (int sock)
     return 0;
 }
 
+//Rcéeptionne correctement un entier envoyé par un programme Java
 int recvIntFromJava (int sock, int *data)
 {
     int err = 0;
@@ -73,6 +75,7 @@ int recvIntFromJava (int sock, int *data)
     return 0;
 }
 
+//Rcéeptionne le prochain coup à jouer envoyé par le moteur d'IA
 int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur, int num)
 {
     int err, data;
@@ -128,6 +131,7 @@ int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur, int num)
     return 0;
 }
 
+//Envoie le coup de l'adversaire au moteur d'IA
 int adversaireCoup(int sockIA, TCoupReq *reqCoup)
 {
     int err, data;
@@ -186,6 +190,7 @@ int adversaireCoup(int sockIA, TCoupReq *reqCoup)
     return 0;
 }
 
+//Affiche la propriété du coup et son impact sur la partie en cours
 void afficherValidationCoup (TCoupRep repCoup, int joueur)
 {
     switch (repCoup.validCoup)
@@ -240,6 +245,7 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
     }
 }
 
+//Permet de jouer une partie de Quantik en mode manuel, par entrée clavier de l'utilisateur
 int jouerPartie (int sockServeur, int commence, TCoul couleur, int num)
 {
     int err, joueur = commence, continuer = 1, data;
@@ -365,6 +371,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int num)
     return 0;
 }
 
+//Joue une partie avec le moteur d'IA
 int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int num)
 {
     int err, joueur = commence, continuer = 1, data, nsfd;
