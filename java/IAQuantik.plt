@@ -439,16 +439,16 @@ test("compterCasesBloqueesT10",true(X=4)):-compterCasesBloquees([1,2,3,4,5,6,7,8
 
 :-begin_tests(test_associationLargeurProfondeur).
 test("associationLargeurProfondeurT1",[true]):-associationLargeurProfondeur(16,3).
-test("associationLargeurProfondeurT2",[true]):-associationLargeurProfondeur(15,3).
-test("associationLargeurProfondeurT3",[true]):-associationLargeurProfondeur(14,4).
-test("associationLargeurProfondeurT4",[true]):-associationLargeurProfondeur(13,5).
-test("associationLargeurProfondeurT5",[true]):-associationLargeurProfondeur(12,6).
-test("associationLargeurProfondeurT6",[true]):-associationLargeurProfondeur(11,12).
-test("associationLargeurProfondeurT7",[true]):-associationLargeurProfondeur(10,22).
-test("associationLargeurProfondeurT8",[true]):-associationLargeurProfondeur(9,34).
-test("associationLargeurProfondeurT9",[true]):-associationLargeurProfondeur(8,50).
-test("associationLargeurProfondeurT10",[true]):-associationLargeurProfondeur(7, 120).
-test("associationLargeurProfondeurT11",[true]):-associationLargeurProfondeur(6, 800).
+test("associationLargeurProfondeurT2",[true]):-associationLargeurProfondeur(15,4).
+test("associationLargeurProfondeurT3",[true]):-associationLargeurProfondeur(14,5).
+test("associationLargeurProfondeurT4",[true]):-associationLargeurProfondeur(13,6).
+test("associationLargeurProfondeurT5",[true]):-associationLargeurProfondeur(12,7).
+test("associationLargeurProfondeurT6",[true]):-associationLargeurProfondeur(11,13).
+test("associationLargeurProfondeurT7",[true]):-associationLargeurProfondeur(10,21).
+test("associationLargeurProfondeurT8",[true]):-associationLargeurProfondeur(9,33).
+test("associationLargeurProfondeurT9",[true]):-associationLargeurProfondeur(8,54).
+test("associationLargeurProfondeurT10",[true]):-associationLargeurProfondeur(7, 110).
+test("associationLargeurProfondeurT11",[true]):-associationLargeurProfondeur(6, 850).
 test("associationLargeurProfondeurT12",[true]):-associationLargeurProfondeur(5, 10000).
 test("associationLargeurProfondeurT13",[true]):-associationLargeurProfondeur(4, 20000).
 test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(3, 100000).
@@ -457,8 +457,8 @@ test("associationLargeurProfondeurT14",[true]):-associationLargeurProfondeur(1, 
 test("associationLargeurProfondeurT15",true(X=3)):-associationLargeurProfondeur(16,X).
 test("associationLargeurProfondeurT16",true(X=100000)):-associationLargeurProfondeur(1,X).
 test("associationLargeurProfondeurT17",true(X=10000)):-associationLargeurProfondeur(5, X).
-test("associationLargeurProfondeurT18",true(X=13)):-associationLargeurProfondeur(X, 5).
-test("associationLargeurProfondeurT19",true(X=14)):-associationLargeurProfondeur(X, 4).
+test("associationLargeurProfondeurT18",true(X=14)):-associationLargeurProfondeur(X, 5).
+test("associationLargeurProfondeurT19",true(X=15)):-associationLargeurProfondeur(X, 4).
 test("associationLargeurProfondeurT20",true(X=4)):-associationLargeurProfondeur(X,20000).
 test("associationLargeurProfondeurT22",[fail]):-associationLargeurProfondeur(0, 1000).
 test("associationLargeurProfondeurT23",[fail]):-associationLargeurProfondeur(16,10000).
@@ -562,3 +562,7 @@ test("insereCT1",[true]):-insereC([],[[[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0]
 test("insereCT2",[fail]):-insereC([],[[[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4],[0,0]],[1,4,7,9,10,13,14],[1,[[1,1],[1,2],[1,3],[1,4]]],[2,[[1,1],[1,2],[1,3],[1,4]]],1,2,4,1],[[[[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4],[0,0]],[1,4,7,9,10,13,14],[1,[[1,1],[1,2],[1,3],[1,4]]],[2,[[1,1],[1,2],[1,3],[1,4]]],1,3,4,1]],[]).
 test("insereCT3",true(A=[[[[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4],[0,0]],[1,4,7,9,10,13,14],[1,[[1,1],[1,2],[1,3],[1,4]]],[2,[[1,1],[1,2],[1,3],[1,4]]],1,2,4,1]])):-insereC([],[[[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4],[0,0]],[1,4,7,9,10,13,14],[1,[[1,1],[1,2],[1,3],[1,4]]],[2,[[1,1],[1,2],[1,3],[1,4]]],1,2,4,1],A,[]).
 :-end_tests(test_insereC).
+
+:-begin_tests(test_jeuProfondeurGagnant).
+test("jeuProfondeurGagnantT1",[HistInd,RNumJ]=[[1, 7, 2, 8, 3, 5, 4, 6, 9, 15, 10, 16, 11],1]):-jeuProfondeurGagnant(HistInd,RNumJ).
+:-end_tests(test_jeuProfondeurGagnant).
