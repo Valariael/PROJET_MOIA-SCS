@@ -102,11 +102,22 @@ choisirPion([NumJ, ListePions], NumJ, [Nombre, Forme], [NumJ, [[NvNombre, Forme]
     Nombre > 0,
     NvNombre is Nombre - 1.
 
+%choisis en priorité un pion qui n'a pas déjà été placé
+choisirPionPasJoue([NumJ, ListePions], NumJ, [2, Forme], [NumJ, [[1, Forme]|NvListePions]]):-
+    select([2, Forme], ListePions, NvListePions),
+    !.
+choisirPionPasJoue(J, NumJ, Duo, NvJ):-
+    choisirPion(J, NumJ, Duo, NvJ).
+
 %choisis une position où placer le pion
 choisirInd(ListeInd, Ind, NvListeInd):-
     select(Ind, ListeInd, NvListeInd).
 
-%parcours en profondeur en alternant d'un joueur à l'autre, affiche le gagnant
+%joue un coup en priorisant les pions qui n'ont pas été joués
+jouerCoupPionPasJoue(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
+    choisirPionPasJoue(J, NumJ, [Nombre, Forme], NvJ),
+    choisirInd(ListeInd, Ind, NvListeInd),
+    placer(Grille, NvGrille, NumJ, Ind, [Nombre, Forme]).
 
 %joue un coup donné et renvoie le nouvel état
 jouerCoup(Grille, ListeInd, J, Ind, Forme, NvGrille, NvListeInd, NvJ):-
@@ -553,7 +564,7 @@ heuristique(Grille, _, [NumJ2, _], [NumJ, _], NumJ, Ind, Forme, NbBloque):-
 
 %joue un coup et calcule les données de l'heuristique
 deplaceH(Grille, ListeInd, J1, J2, Ind, NumJ, NvGrille, NvListeInd, NvJ1, NbBloque):-
-    jouerCoup(Grille, ListeInd, J1, Ind, Forme, NvGrille, NvListeInd, NvJ1),
+    jouerCoupPionPasJoue(Grille, ListeInd, J1, Ind, Forme, NvGrille, NvListeInd, NvJ1),
     heuristique(NvGrille, NvListeInd, NvJ1, J2, NumJ, Ind, Forme, NbBloque).
 
 %si l'état n'est pas gagnant, on récupère les prochaines possibilités
@@ -651,18 +662,18 @@ associationLargeurProfondeur(16,3).
 associationLargeurProfondeur(15,3).
 associationLargeurProfondeur(14,4).
 associationLargeurProfondeur(13,5).
-associationLargeurProfondeur(12,10).
-associationLargeurProfondeur(11,50).
-associationLargeurProfondeur(10,100).
-associationLargeurProfondeur(9,300).
-associationLargeurProfondeur(8,1000).
-associationLargeurProfondeur(7,2000).
-associationLargeurProfondeur(6,3000).
-associationLargeurProfondeur(5,5000).
-associationLargeurProfondeur(4,10000).
-associationLargeurProfondeur(3,15000).
-associationLargeurProfondeur(2,20000).
-associationLargeurProfondeur(1,30000).
+associationLargeurProfondeur(12,6).
+associationLargeurProfondeur(11,12).
+associationLargeurProfondeur(10,22).
+associationLargeurProfondeur(9,34).
+associationLargeurProfondeur(8,50).
+associationLargeurProfondeur(7,120).
+associationLargeurProfondeur(6,800).
+associationLargeurProfondeur(5,10000).
+associationLargeurProfondeur(4,20000).
+associationLargeurProfondeur(3,100000).
+associationLargeurProfondeur(2,100000).
+associationLargeurProfondeur(1,100000).
 %initialise le choix du meilleur coup possible suivant l'heuristique
 meilleurCoupCout([], _, _, _, _, _, _, _, _):-
     !,
