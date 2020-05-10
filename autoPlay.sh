@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#sh soloPlay.sh portServeur portIAJoueur1 portIAJoueur2 [*]
+#sh autoPlay.sh portServeur portIAJoueur1 portIAJoueur2 [*]
 #n'importe quoi en 4ème paramètre pour exécuter avec le binaire de serveur fourni
 
 if [ $# -ne 5 ]; then
 	if [ $# -ne 6 ]; then
-		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> [*]"
+		echo "Usage : ./autoPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> [*]"
 		echo "Types d'IA : 1 = call heuristique, 2 = miroir, 3 = meilleur ratio V/D et cases bloquées, 4 = coup par défaut, 5 = aléatoire"
 		exit -1
 	else
