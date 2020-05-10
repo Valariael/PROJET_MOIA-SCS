@@ -18,7 +18,7 @@ void miseAJourCompteurs(int* victoires, int* defaites, int* nuls, int proprieteC
 {
     if (proprieteCoup == NUL)
     {
-        *nuls++;
+        *nuls = *nuls + 1;
     }
     else
     {
@@ -26,22 +26,22 @@ void miseAJourCompteurs(int* victoires, int* defaites, int* nuls, int proprieteC
         {
             if (proprieteCoup == PERDU)
             {
-                *defaites++;
+                *defaites = *defaites + 1;
             }
             else if (proprieteCoup == GAGNE)
             {
-                *victoires++;
+                *victoires = *victoires + 1;
             }
         }
         else
         {
             if (proprieteCoup == PERDU)
             {
-                *victoires++;
+                *victoires = *victoires + 1;
             }
             else if (proprieteCoup == GAGNE)
             {
-                *defaites++;
+                *defaites = *defaites + 1;
             }
         }
     }
