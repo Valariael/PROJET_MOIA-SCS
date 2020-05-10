@@ -14,11 +14,13 @@
 #include "validation.h"
 #include "libServeurArbitre.h"
 
+//Fonction utilisée par le gestionnaire de signal pour éviter les "zombies"
 void sigchildHandler (int signum)
 {
 	wait(NULL);
 }
 
+//Vérifie que le type de requête reçue soit bien celui attendu, envoie une réponse ERR_TYP dans le cas contraire
 int verifIdRequete (int *sockJoueur, int idAttendu)
 {
 	int err, dataId;
@@ -74,6 +76,7 @@ int verifIdRequete (int *sockJoueur, int idAttendu)
 	return 0;
 }
 
+//Accepte une demande de partie de la part d'un joueur
 void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie)
 {
 	int tailleAdr, err;
@@ -120,6 +123,7 @@ void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie)
 	}
 }
 
+//Envoie la réponse à la demande de partie
 int ackJoueursConnectes (int *sockJoueur, int *sockAutreJoueur, TPartieRep *repPartie, TPartieRep *repPartieAutre)
 {
 	int err;
@@ -152,6 +156,7 @@ int ackJoueursConnectes (int *sockJoueur, int *sockAutreJoueur, TPartieRep *repP
 	return 0;
 }
 
+//Accepte une paire de joueurs valides avant le lancement d'une partie
 int paireJoueurValides (int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 {
 	int err, tmp;
@@ -209,6 +214,7 @@ int paireJoueurValides (int *sockJoueur1, int *sockJoueur2, int sockConnexion)
 	return 0;
 }
 
+//Envoie la réponse à un coup aux deux joueurs
 int envoyerRepCoup (int sockJoueur, int sockAutreJoueur, TCoupRep *repCoup)
 {
 	int err;
@@ -232,6 +238,7 @@ int envoyerRepCoup (int sockJoueur, int sockAutreJoueur, TCoupRep *repCoup)
 	return 0;
 }
 
+//Effectue tous les traitements pour un coup reçu
 int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int numJoueur)
 {
 	int err;
@@ -331,6 +338,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 	return 0;
 }
 
+//Joue une partie complète avec la paire de joueurs
 int jouerPartie (int sockJoueur1, int sockJoueur2)
 {
 	int err, nsfd, sockJoueurCourant = sockJoueur1, continuerPartie = 1;
