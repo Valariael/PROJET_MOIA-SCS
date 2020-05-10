@@ -23,3 +23,20 @@ Les types d'IA sont les suivants :
 3 : meilleur ratio V/D et cases bloquées
 4 : coup par défaut
 5 : aléatoire
+
+Pour supprimer tous les fichiers supplémentaires créés :
+```bash
+sh cleanOutput.sh
+```
+
+Ce projet utilise plusieurs bibliothèques externes :
+ - [jacoco],
+ - [junit] et sa dépendance hamcrest,
+ - [minunit].
+
+Dépôt github : 
+https://github.com/Valariael/PROJET_MOIA-SCS.git
+
+[jacoco]: https://www.jacoco.org/jacoco
+[junit]: https://junit.org/junit5/
+[minunit]: https://github.com/siu/minunit
