@@ -426,7 +426,7 @@ MU_TEST(test_afficherValidationCoup)
 
 MU_TEST(test_jouerPartie1)
 {
-	int sock, err = 10;/*
+	int sock, err = 10, v = 0, d = 0, n = 0;/*
 	TCoupReq* coupReq = malloc(sizeof(TCoupReq));
 	TCoupRep* coupRep = malloc(sizeof(TCoupRep));*/
 	printf("test> jouerPartie1\n");
@@ -438,7 +438,7 @@ MU_TEST(test_jouerPartie1)
 		mu_fail("erreur send code test jouerPartie");
 	}
 
-	err = jouerPartie(sock, 1, BLANC, 1);
+	err = jouerPartie(sock, 1, BLANC, 1, &v, &d, &n);
 	mu_assert(err == 0, "erreur jouerPartie return!=0");
 
 	/*coupRep->err = 0;
@@ -470,16 +470,16 @@ MU_TEST(test_jouerPartie1)
 
 MU_TEST(test_jouerPartie2)
 {
-	int err;
+	int err, v = 0, d = 0, n = 0;
 	printf("test> jouerPartie2\n");
 
-	err = jouerPartie(-1, 1, NOIR, -1);
+	err = jouerPartie(-1, 1, NOIR, -1, &v, &d, &n);
 	mu_assert(err == -6, "erreur jouerPartie return!=-6");
 }
 
 MU_TEST(test_jouerPartie3)
 {
-	int sock, err = 12;
+	int sock, err = 12, v = 0, d = 0, n = 0;
 	printf("test> jouerPartie3\n");
 
 	sock = socketClient("127.0.0.1", 8080);
@@ -489,7 +489,7 @@ MU_TEST(test_jouerPartie3)
 		mu_fail("erreur send code test jouerPartie");
 	}
 
-	err = jouerPartie(sock, 0, BLANC, 1);
+	err = jouerPartie(sock, 0, BLANC, 1, &v, &d, &n);
 	mu_assert(err == 0, "erreur jouerPartie return!=0");
 
 	shutdownClose(sock);
@@ -497,7 +497,7 @@ MU_TEST(test_jouerPartie3)
 
 MU_TEST(test_jouerPartie4)
 {
-	int sock, err = 13;
+	int sock, err = 13, v = 0, d = 0, n = 0;
 	printf("test> jouerPartie4\n");
 
 	sock = socketClient("127.0.0.1", 8080);
@@ -507,7 +507,7 @@ MU_TEST(test_jouerPartie4)
 		mu_fail("erreur send code test jouerPartie");
 	}
 
-	err = jouerPartie(sock, 0, BLANC, 1);
+	err = jouerPartie(sock, 0, BLANC, 1, &v, &d, &n);
 	mu_assert(err == -9, "erreur jouerPartie return!=-9");
 
 	shutdownClose(sock);
@@ -515,16 +515,16 @@ MU_TEST(test_jouerPartie4)
 
 MU_TEST(test_jouerPartie5)
 {
-	int err;
+	int err, v = 0, d = 0, n = 0;
 	printf("test> jouerPartie5\n");
 
-	err = jouerPartie(-1, 0, BLANC, 1);
+	err = jouerPartie(-1, 0, BLANC, 1, &v, &d, &n);
 	mu_assert(err == -8, "erreur jouerPartie return!=-8");
 }
 
 MU_TEST(test_jouerPartieIA1)
 {
-	int sock, err = 15;
+	int sock, err = 15, v = 0, d = 0, n = 0;
 	printf("test> jouerPartieIA1\n");
 
 	sock = socketClient("127.0.0.1", 8080);
@@ -534,7 +534,7 @@ MU_TEST(test_jouerPartieIA1)
 		mu_fail("erreur send code test jouerPartieIA1");
 	}
 
-	err = jouerPartieIA(-1, sock, 1, BLANC, 1);
+	err = jouerPartieIA(-1, sock, 1, BLANC, 1, &v, &d, &n);
 	mu_assert(err == -3, "erreur jouerPartieIA return!=-3");
 
 	shutdownClose(sock);
@@ -542,7 +542,7 @@ MU_TEST(test_jouerPartieIA1)
 
 MU_TEST(test_jouerPartieIA2)
 {
-	int sock, sockS, err = 16;
+	int sock, sockS, err = 16, v = 0, d = 0, n = 0;
 	printf("test> jouerPartieIA2\n");
 
 	sock = socketClient("127.0.0.1", 8080);
@@ -562,7 +562,7 @@ MU_TEST(test_jouerPartieIA2)
 		mu_fail("erreur sock S jouerPartieIA2");
 	}
 
-	err = jouerPartieIA(sockS, sock, 1, BLANC, 1);
+	err = jouerPartieIA(sockS, sock, 1, BLANC, 1, &v, &d, &n);
 	mu_assert(err == 0, "erreur jouerPartieIA return!=0");
 
 	shutdownCloseBoth(sock, sockS);
@@ -570,10 +570,10 @@ MU_TEST(test_jouerPartieIA2)
 
 MU_TEST(test_jouerPartieIA3)
 {
-	int err;
+	int err, v = 0, d = 0, n = 0;
 	printf("test> jouerPartieIA3\n");
 
-	err = jouerPartieIA(-1, -1, -1, BLANC, -1);
+	err = jouerPartieIA(-1, -1, -1, BLANC, -1, &v, &d, &n);
 	mu_assert(err == -1, "erreur jouerPartieIA return!=-1");
 }
 

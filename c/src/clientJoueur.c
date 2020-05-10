@@ -20,7 +20,10 @@ int main (int argc, char **argv)
         portIA,
         err,
         termine = 6,
-        num = 1;
+        num = 1,
+        victoires = 0,
+        defaites = 0,
+        nuls = 0;
     char* nomMachineDest;
     TPartieReq reqPartie;
     TPartieRep repPartie;
@@ -119,7 +122,7 @@ int main (int argc, char **argv)
         printf("joueur> debut jeu IA\n");
 
         //Première manche.
-        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, num);
+        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, num, &victoires, &defaites, &nuls);
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie IA\n");
@@ -128,7 +131,7 @@ int main (int argc, char **argv)
         }
         num++;
         //Deuxième manche.
-        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, num);
+        err = jouerPartieIA(sock, sockIA, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, num, &victoires, &defaites, &nuls);
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie IA\n");
@@ -150,7 +153,7 @@ int main (int argc, char **argv)
         printf("joueur> debut jeu manuel\n");
 
         //Première manche.
-        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, num);
+        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 1 : 0), reqPartie.coulPion, num, &victoires, &defaites, &nuls);
         if (err < 0)
         {
             printf("joueur> erreur 1ere partie\n");
@@ -159,7 +162,7 @@ int main (int argc, char **argv)
         }
         num++;
         //Deuxième manche.
-        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, num);
+        err = jouerPartie(sock, (reqPartie.coulPion == BLANC ? 0 : 1), reqPartie.coulPion, num, &victoires, &defaites, &nuls);
         if (err < 0)
         {
             printf("joueur> erreur 2eme partie\n");
@@ -169,6 +172,11 @@ int main (int argc, char **argv)
 
         shutdownClose(sock);
     }
+
+    printf("----- Résultat final -----\n");
+    printf("Victoires : %d\n", victoires);
+    printf("Défaites : %d\n", defaites);
+    printf("Matchs nuls : %d\n", nuls);
 
     return 0;
 }

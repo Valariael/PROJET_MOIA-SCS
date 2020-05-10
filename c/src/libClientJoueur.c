@@ -13,6 +13,40 @@
 #include "validation.h"
 #include "libClientJoueur.h"
 
+//Met à jour les compteurs de victoire, défaite et match nul suivant la propriété du coup et le joueur courant
+void miseAJourCompteurs(int* victoires, int* defaites, int* nuls, int proprieteCoup, int isJoueur)
+{
+    if (proprieteCoup == NUL)
+    {
+        *nuls++;
+    }
+    else
+    {
+        if (isJoueur)
+        {
+            if (proprieteCoup == PERDU)
+            {
+                *defaites++;
+            }
+            else if (proprieteCoup == GAGNE)
+            {
+                *victoires++;
+            }
+        }
+        else
+        {
+            if (proprieteCoup == PERDU)
+            {
+                *victoires++;
+            }
+            else if (proprieteCoup == GAGNE)
+            {
+                *defaites++;
+            }
+        }
+    }
+}
+
 //Vérifie que le code d'erreur soit ERR_OK lors de la réception d'une réponse
 int verifCodeRep (int sock)
 {
@@ -246,7 +280,7 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
 }
 
 //Permet de jouer une partie de Quantik en mode manuel, par entrée clavier de l'utilisateur
-int jouerPartie (int sockServeur, int commence, TCoul couleur, int num)
+int jouerPartie (int sockServeur, int commence, TCoul couleur, int num, int* victoires, int* defaites, int* nuls)
 {
     int err, joueur = commence, continuer = 1, data;
     TCoupReq reqCoup;
@@ -324,6 +358,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int num)
             //Fin de partie le cas échéant.
             if (repCoup.propCoup != CONT)
             {
+                miseAJourCompteurs(victoires, defaites, nuls, repCoup.propCoup, 1);
                 continuer = 0;
             }
             //Sinon c'est à l'adversaire de jouer.
@@ -350,6 +385,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int num)
             //Fin de partie le cas échéant.
             if (repCoup.propCoup != CONT)
             {
+                miseAJourCompteurs(victoires, defaites, nuls, repCoup.propCoup, 0);
                 continuer = 0;
             }
             //Sinon c'est à nous de jouer au prochain coup.
@@ -372,7 +408,7 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int num)
 }
 
 //Joue une partie avec le moteur d'IA
-int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int num)
+int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int num, int* victoires, int* defaites, int* nuls)
 {
     int err, joueur = commence, continuer = 1, data, nsfd;
     TCoupReq reqCoup;
@@ -475,7 +511,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                 err = send(sockServeur, &reqCoup, sizeof(TCoupReq), 0); 
                 if (err <= 0)
                 {
-                    perror("joueur> erreur send ");
+                    perror("joueur> erreur send coup");
                     return -11;
                 }
                  //Réception de la validation du coup.
@@ -500,6 +536,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             //Fin de partie le cas échéant.
             if (repCoup.propCoup != CONT)
             {
+                miseAJourCompteurs(victoires, defaites, nuls, repCoup.propCoup, 1);
                 continuer = 0;
             }
             //Sinon c'est à l'adversaire de jouer.
@@ -525,6 +562,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
             //Fin de partie le cas échéant.
             if (repCoup.propCoup != CONT)
             {
+                miseAJourCompteurs(victoires, defaites, nuls, repCoup.propCoup, 0);
                 continuer = 0;
             }
             //Sinon c'est à nous de jouer au prochain coup.
