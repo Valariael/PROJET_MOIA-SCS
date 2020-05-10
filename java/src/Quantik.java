@@ -113,7 +113,11 @@ public class Quantik implements Callable<Coup>
     }
     
     
-
+    /**
+     * Joue le premier coup disponible
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup jouerCoup(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {
         Coup coup = new Coup();
@@ -135,7 +139,11 @@ public class Quantik implements Callable<Coup>
         }
         return coup;
     }
-
+    /**
+     * Joue le coup miroir du dernier coup adverse
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup jouerCoupMiroirOuMeilleurRatio(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ, Variable IndCible)
     {
         Coup coup = new Coup();
@@ -176,7 +184,11 @@ public class Quantik implements Callable<Coup>
         }
         return coup;
     }
-
+    /**
+     * Joue un coup aléatoire
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup jouerCoupRandom(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {
         Coup coup = new Coup();
@@ -198,7 +210,11 @@ public class Quantik implements Callable<Coup>
         }
         return coup;
     }
-
+    /**
+     * Joue le coup possédant le meilleur ratio de victoire
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup jouerCoupMeilleurRatio(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {
         Coup coup = new Coup();
@@ -229,7 +245,11 @@ public class Quantik implements Callable<Coup>
 
         return coup;
     }
-    
+    /**
+     * Joue un coup heuristique ou le premier coup disponible si l'heuristique ne trouve pas de solution
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup coupHeuristiqueAdapte(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {
         peutJouer = true;
@@ -243,7 +263,11 @@ public class Quantik implements Callable<Coup>
 
         return coup;
     }
-
+    /**
+     * Joue le coup avec le meilleure ratio de victoire ou le premier coup disponible si on ne trouve pas de coup avec le meilleur ratio de victoire
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup jouerCoupRatioAdapte(Variable Ind,Variable Forme,Variable NvGrille,Variable NvListeInd,Variable NvJ)
     {
         peutJouer = true;
@@ -257,7 +281,11 @@ public class Quantik implements Callable<Coup>
 
         return coup;
     }
-
+    /**
+     * Joue le coup miroir du dernier coup adverse ou le premier coup disponible si le coup miroir n'est pas disponible
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup jouerCoupMiroirAdapte(Variable Ind,Variable Forme,Variable NvGrille,Variable NvListeInd,Variable NvJ,Variable IndCible)
     {
         peutJouer = true;
@@ -271,7 +299,12 @@ public class Quantik implements Callable<Coup>
 
         return coup;
     }
-
+    /**
+     * Joue le heuristique ou le premier coup disponible si l'heuristique ne trouve pas de solution
+     * l'utilisation de l'interface Callable nous permet d'implémenter la méthode call dont nous nous servons pour ne jamais dépasser le timeout de 5 secondes.
+     * Met également à jour l'état du jeu.
+     * @return une instance Coup représentant le coup joué
+     */
     public Coup call()
     {
         peutJouer = true;
@@ -318,6 +351,11 @@ public class Quantik implements Callable<Coup>
         return coup;
     }
 
+    /**
+     * Remplie le Coup coup avec le premier coup calculé dans la requête coupSuivant
+     * @param coup le Coup à envoyer au client par la suite
+     * @param coupSuivant la requête contenant le coup à récupérer et à jouer
+     */
     private synchronized void getCoupSuivant(Coup coup, Query coupSuivant)
     {
         Map<String, Term> solution = coupSuivant.nextSolution();

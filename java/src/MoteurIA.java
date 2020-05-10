@@ -193,6 +193,11 @@ public class MoteurIA {
         }
     }
 
+    /**
+    * Fonction envoyant le Coup coup à l'aide du DataOutputStream dos vers le client
+    *@param dos DataOutputStream vers le client
+    *@param coup Coup que l'on veut envoyer au client
+    */
     private static void envoyerCoup(DataOutputStream dos, Coup coup) throws IOException
     {
         dos.writeInt(CODE_OK);
