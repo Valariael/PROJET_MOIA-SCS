@@ -1,18 +1,20 @@
 #!/bin/bash
 
-#sh joeur.sh hostServeur portServeur nomJoueur [*]
+#sh joueur.sh hostServeur portServeur nomJoueur [<portIA>]
 
 if [ $# -ne 3 ]; then
     if [ $# -ne 4 ]; then
-    echo "Usage : ./soloPlay.sh <hostServeur> <portServeur> <nomJoueur>[<portIA>]"
-    exit -1
+	    echo "Usage : ./joueur.sh <hostServeur> <portServeur> <nomJoueur> [<portIA>]"
+	    exit -1
     else 
         portIA=true
     fi
-else portIA=false
+else 
+	portIA=false
 fi
 clear
 cd java/src
+mdir ../out
 if [[ $LD_PRELOAD != *"libswipl.so"* ]]; then
 	export LD_PRELOAD=libswipl.so:${LD_PRELOAD}
 fi
@@ -30,13 +32,14 @@ if [ $err -ne "0" ]; then
 fi
 cd ../out
 if [ "$portIA" = false ]; then
-java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA 6666 1 &
-echo "Moteur IA de $3 lancé."
+	java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA 9000 1 &
+	echo "Moteur IA de $3 lancé."
 else
-java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA $4 1 &
-echo "Moteur IA de $3 lancé."
+	java -cp ".:/usr/lib/swi-prolog/lib/jpl.jar" src.MoteurIA $4 1 &
+	echo "Moteur IA de $3 lancé."
 fi
 cd ../../c/src
+mkdir ../out
 make
 err=$?
 if [ $err -ne "0" ]; then
@@ -45,9 +48,9 @@ if [ $err -ne "0" ]; then
 fi
 cd ../out
 if [ "$portIA" = false ]; then
-./clientJoueur $1 $2 $3 N 6666 &
-echo "Client blanc lancé."
+	./clientJoueur $1 $2 $3 N 9000 &
+	echo "Client blanc lancé."
 else 
-./clientJoueur $1 $2 $3 N $4 &
-echo "Client blanc lancé."
+	./clientJoueur $1 $2 $3 N $4 &
+	echo "Client blanc lancé."
 fi

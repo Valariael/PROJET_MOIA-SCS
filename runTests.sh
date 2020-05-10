@@ -5,6 +5,7 @@
 clear
 echo "Compilation serveur/client."
 cd c/src
+mkdir ../out
 make
 err=$?
 if [ $err -ne "0" ]; then
@@ -39,6 +40,7 @@ gcov -abcfu libServeurArbitre.so
 
 echo "Compilation MoteurIA."
 cd ../../java/src
+mkdir ../out
 if [[ $LD_PRELOAD != *"libswipl.so"* ]]; then
 	export LD_PRELOAD=libswipl.so:${LD_PRELOAD}
 fi

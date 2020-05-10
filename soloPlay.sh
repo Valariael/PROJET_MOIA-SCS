@@ -6,7 +6,7 @@
 if [ $# -ne 5 ]; then
 	if [ $# -ne 6 ]; then
 		echo "Usage : ./soloPlay.sh <portServeur> <portIAJoueur1> <portIAJoueur2> <IA J1> <IA J2> [*]"
-		echo "Types d'IA : 1 = call heuristique, 2= miroir, 3 = meilleur ratio, 4 = coup normal, 5 heuristique 'seulement'"
+		echo "Types d'IA : 1 = call heuristique, 2 = miroir, 3 = meilleur ratio V/D et cases bloquées, 4 = coup par défaut, 5 = aléatoire"
 		exit -1
 	else
 		binaireFourni=true
@@ -18,6 +18,7 @@ fi
 clear
 echo "Compilation moteur IA."
 cd java/src
+mkdir ../out
 if [[ $LD_PRELOAD != *"libswipl.so"* ]]; then
 	export LD_PRELOAD=libswipl.so:${LD_PRELOAD}
 fi
@@ -41,6 +42,7 @@ echo "Moteur IA joueur 2 lancé."
 
 echo "Compilation serveur/client."
 cd ../../c/src
+mkdir ../out
 make
 err=$?
 if [ $err -ne "0" ]; then

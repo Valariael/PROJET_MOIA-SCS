@@ -21,7 +21,7 @@ public class MoteurIA {
     public static final int CODE_IA_MIROIR = 2;
     public static final int CODE_IA_RATIO_VD_BLOQUE = 3;
     public static final int CODE_IA_DEFAUT = 4;
-    public static final int CODE_IA_ALEATORIE = 5;
+    public static final int CODE_IA_ALEATOIRE = 5;
 
     public static void main (String[] args)
     {
@@ -136,7 +136,7 @@ public class MoteurIA {
                                 envoyerCoup(dos, jeu.jouerCoup(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
 
-                            case CODE_IA_ALEATORIE :
+                            case CODE_IA_ALEATOIRE :
                                 envoyerCoup(dos, jeu.jouerCoupRandom(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
 
