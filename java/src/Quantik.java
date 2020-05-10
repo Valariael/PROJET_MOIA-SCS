@@ -34,7 +34,7 @@ public class Quantik implements Callable<Coup>
                 "consult",
                 new Term[] {new Atom("../IAQuantik.pl")}
         );
-        if (!consult.hasSolution()) throw new Exception("Echec consult");
+        if (!consult.hasSolution()) throw new Exception("echec consult");
         consult.close();
     }
 
@@ -100,12 +100,12 @@ public class Quantik implements Callable<Coup>
         if (coupSuivantHeuristique.hasMoreSolutions())
         {
             getCoupSuivant(coup, coupSuivantHeuristique);
-            System.out.println("...................................... coup heuristique");
+            System.out.println("moteurIA> coup avec parcours heuristique");
         }
         else
         {
             peutJouer = false;
-            System.out.println("...................................... Pas de solution heuristique");
+            System.out.println("moteurIA> pas de solution au parcours heuristique");
             coup.setBloque(1);
             coup.setPropriete(3);
         }
@@ -125,11 +125,11 @@ public class Quantik implements Callable<Coup>
         if (jouerCoup.hasMoreSolutions())
         {
             getCoupSuivant(coup, jouerCoup);
-            System.out.println("...................................... coup defaut");
+            System.out.println("moteurIA> coup par défaut");
         }
         else
         {
-            System.out.println("...................................... BLOQUE");
+            System.out.println("moteurIA> bloqué");
             coup.setBloque(1);
             coup.setPropriete(3);
         }
@@ -161,7 +161,7 @@ public class Quantik implements Callable<Coup>
                 coup.setPropriete(computePropriete(this.dernierePos));
 
                 jouerCoupMiroir.close();
-                System.out.println("...................................... coup miroir");
+                System.out.println("moteurIA> coup en miroir/symétrie centrale");
             }
             else
             {
@@ -188,16 +188,17 @@ public class Quantik implements Callable<Coup>
         if (jouerCoupRandom.hasMoreSolutions())
         {
             getCoupSuivant(coup, jouerCoupRandom);
-            System.out.println("...................................... coup au hasard");
+            System.out.println("moteurIA> coup aléatoire");
         }
         else
         {
-            System.out.println("...................................... BLOQUE");
+            System.out.println("moteurIA> bloqué");
             coup.setBloque(1);
             coup.setPropriete(3);
         }
         return coup;
     }
+
     public Coup jouerCoupMeilleurRatio(Variable Ind, Variable Forme, Variable NvGrille, Variable NvListeInd, Variable NvJ)
     {
         Coup coup = new Coup();
@@ -211,13 +212,13 @@ public class Quantik implements Callable<Coup>
             if (jouerMeilleurCoupRatioEtBloque.hasMoreSolutions())
             {
                 getCoupSuivant(coup, jouerMeilleurCoupRatioEtBloque);
-                System.out.println("...................................... coup ratio bloque");
+                System.out.println("moteurIA> coup ratio V/D et cases bloquées");
             }
             else
             {
                 peutJouer = false;
-                System.out.println("...................................... BLOQUE");
-                coup.setBloque(1);//TODO verif fin de partie serveur quand bloqué
+                System.out.println("moteurIA> bloqué");
+                coup.setBloque(1);
                 coup.setPropriete(3);
             }
         }
@@ -242,6 +243,7 @@ public class Quantik implements Callable<Coup>
 
         return coup;
     }
+
     public Coup jouerCoupRatioAdapte(Variable Ind,Variable Forme,Variable NvGrille,Variable NvListeInd,Variable NvJ)
     {
         peutJouer = true;
@@ -268,7 +270,8 @@ public class Quantik implements Callable<Coup>
         coup = jouerCoup(Ind,Forme,NvGrille,NvListeInd,NvJ);
 
         return coup;
-    }     
+    }
+
     public Coup call()
     {
         peutJouer = true;
@@ -282,7 +285,6 @@ public class Quantik implements Callable<Coup>
         //voir si on applique de "meilleures" combinaisons
         return coupHeuristiqueAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ);
     }
-
 
     /**
      * Permet de jouer et récupérer le coup avec le meilleur ratio de victoire/défaite ou le plus de cases bloquées
@@ -307,7 +309,7 @@ public class Quantik implements Callable<Coup>
         {
             System.out.println(this.toString());
             getCoupSuivant(coup, jouerMeilleurCoupRatioEtBloque);
-            System.out.println("...................................... coup secours");
+            System.out.println("moteurIA> coup de secours");
         }
         else
         {
@@ -316,11 +318,11 @@ public class Quantik implements Callable<Coup>
         return coup;
     }
 
-    private void getCoupSuivant(Coup coup, Query coupSuivant)
+    private synchronized void getCoupSuivant(Coup coup, Query coupSuivant)
     {
         Map<String, Term> solution = coupSuivant.nextSolution();
 
-        this.grille = solution.get(GRILLE);//TODO : synchronized!
+        this.grille = solution.get(GRILLE);
         this.indices = solution.get(LISTE_IND);
         this.joueurSelf = solution.get(JOUEUR);
         dernierePos = solution.get(IND).intValue();

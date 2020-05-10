@@ -16,7 +16,7 @@ int recvIntFromJava (int sock, int *data);
 int prochainCoup (int sockIA, TCoupReq *reqCoup, TCoul couleur, int num);
 int adversaireCoup(int sockIA, TCoupReq *reqCoup);
 void afficherValidationCoup (TCoupRep repCoup, int joueur);
-int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int num);
-int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur, int num);
+int jouerPartie (int sockServeur, int commence, TCoul couleur, int num);
+int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int num);
 
 #endif

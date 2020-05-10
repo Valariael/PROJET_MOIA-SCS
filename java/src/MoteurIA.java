@@ -16,13 +16,18 @@ public class MoteurIA {
     public static final int CODE_NV_PARTIE_NOIR = 2;
     public static final int CODE_COUP_SELF = 3;
     public static final int CODE_COUP_ADV = 4;
-    public static final int CODE_OK = 0;//TODO definir constantes pour types d'IA
+    public static final int CODE_OK = 0;
+    public static final int CODE_IA_HEURISTIQUE = 1;
+    public static final int CODE_IA_MIROIR = 2;
+    public static final int CODE_IA_RATIO_VD_BLOQUE = 3;
+    public static final int CODE_IA_DEFAUT = 4;
+    public static final int CODE_IA_ALEATORIE = 5;
 
     public static void main (String[] args)
     {
         if (args.length != 2)
         {
-            System.out.println("usage : java -cp \".:/usr/lib/swi-prolog/lib/jpl.jar\" MoteurIA <port> <type IA>");
+            System.out.println("moteurIA> usage : java -cp \".:/usr/lib/swi-prolog/lib/jpl.jar\" MoteurIA <port> <type IA>");
             return;
         }
 
@@ -34,7 +39,7 @@ public class MoteurIA {
         catch (NumberFormatException e)
         {
             e.printStackTrace();
-            System.out.println("port incorrect : " + args[0]);
+            System.out.println("moteurIA> port incorrect : " + args[0]);
             return;
         }
         try
@@ -48,7 +53,7 @@ public class MoteurIA {
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("type IA incorrect : " + args[1]);
+            System.out.println("moteurIA> type IA incorrect : " + args[1]);
             return;
         }
 
@@ -61,7 +66,7 @@ public class MoteurIA {
         try
         {
             jeu = new Quantik();
-            System.out.println("liaison Quantik OK");
+            System.out.println("moteurIA> liaison Quantik OK");
         }
         catch (Exception e)
         {
@@ -104,12 +109,12 @@ public class MoteurIA {
                         
                         switch(typeCoup)
                         {
-                            case 1 :
+                            case CODE_IA_HEURISTIQUE :
                                 ExecutorService executor = Executors.newSingleThreadExecutor();
                                 Future<Coup> future = executor.submit(jeu);
                                 try
                                 {
-                                    envoyerCoup(dos, future.get(4850, TimeUnit.MILLISECONDS));//TODO test timeout limits
+                                    envoyerCoup(dos, future.get(4900, TimeUnit.MILLISECONDS));
                                 }
                                 catch (Exception e)
                                 {
@@ -119,21 +124,24 @@ public class MoteurIA {
                                 executor.shutdownNow();
                                 break;
 
-                            case 2 :
+                            case CODE_IA_MIROIR :
                                 envoyerCoup(dos, jeu.jouerCoupMiroirAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ, IndCible));
                                 break;
 
-                            case 3 :
+                            case CODE_IA_RATIO_VD_BLOQUE :
                                 envoyerCoup(dos, jeu.jouerCoupRatioAdapte(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
 
-                            case 4 :
+                            case CODE_IA_DEFAUT :
                                 envoyerCoup(dos, jeu.jouerCoup(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
 
-                            case 5 :
+                            case CODE_IA_ALEATORIE :
                                 envoyerCoup(dos, jeu.jouerCoupRandom(Ind, Forme, NvGrille, NvListeInd, NvJ));
                                 break;
+
+                            default :
+                                throw new Exception("type d'IA inconnu");
                         }
                         break;
 
@@ -158,7 +166,11 @@ public class MoteurIA {
         catch (IOException e)
         {
             e.printStackTrace();
-            System.out.println("erreur communication");
+            System.out.println("moteurIA> erreur communication");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
         finally
         {
@@ -176,7 +188,7 @@ public class MoteurIA {
             catch(IOException e)
             {
                 e.printStackTrace();
-                System.out.println("erreur close");
+                System.out.println("moteurIA> erreur close");
             }
         }
     }

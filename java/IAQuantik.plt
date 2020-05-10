@@ -437,8 +437,6 @@ test("compterCasesBloqueesT9",true(X=4)):-compterCasesBloquees([1,2,3,4,5,6,7,8,
 test("compterCasesBloqueesT10",true(X=4)):-compterCasesBloquees([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],[[1, 1],[2, 1],[1, 4],[2, 3],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],3,1,3,3,3,4,X).
 :-end_tests(test_compterCasesBloquees).
 
-%calculer ratio et bloqué?
-%TODO mettre les bonnes valeurs quand on aura le VPN
 :-begin_tests(test_associationLargeurProfondeur).
 test("associationLargeurProfondeurT1",[true]):-associationLargeurProfondeur(16,3).
 test("associationLargeurProfondeurT2",[true]):-associationLargeurProfondeur(15,3).
@@ -530,8 +528,6 @@ test("jouerCoupLargeurT5",true(X=[[[1, 1], [1, 2], [2, 3], [0, 0], [1, 1], [2, 3
 test("jouerCoupLargeurT5",true(X=[4, 5, 8, 10, 11, 14, 15])):-jouerCoupLargeur([[[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4]]],[1,4,5,8,10,11,14,15],[1,[[1,1],[1,2],[1,3],[1,4]]] , 1, [[[1, 1], [1, 2], [2, 3], [0, 0], [1, 1], [2, 3], [0, 0], [2, 4], [0, 0], [0, 0], [1, 3], [2, 1], [0, 0], [0, 0], [1, 4]], [[0, 0], [1, 2], [2, 3], [0, 0], [1, 1], [2, 3], [0, 0], [2, 4], [0, 0], [0, 0], [1, 3], [2, 1], [0, 0], [0, 0], [1, 4]]], X, [1, [[0, 1], [1, 2], [1, 3], [1, 4]]]).
 test("jouerCoupLargeurT5",true(X=[1, [[0, 1], [1, 2], [1, 3], [1, 4]]])):-jouerCoupLargeur([[[0,0],[1,2],[2,3],[0,0],[1,1],[2,3],[0,0],[2,4],[0,0],[0,0],[1,3],[2,1],[0,0],[0,0],[1,4]]],[1,4,5,8,10,11,14,15],[1,[[1,1],[1,2],[1,3],[1,4]]] , 1, [[[1, 1], [1, 2], [2, 3], [0, 0], [1, 1], [2, 3], [0, 0], [2, 4], [0, 0], [0, 0], [1, 3], [2, 1], [0, 0], [0, 0], [1, 4]], [[0, 0], [1, 2], [2, 3], [0, 0], [1, 1], [2, 3], [0, 0], [2, 4], [0, 0], [0, 0], [1, 3], [2, 1], [0, 0], [0, 0], [1, 4]]], [4, 5, 8, 10, 11, 14, 15], X).
 :-end_tests(test_jouerCoupLargeur).
-
-%TODO parcoursSuivantLargeur
 
 :-begin_tests(test_deplacementSuivantLargeur).
 %test("deplacementSuivantLargeurT1",[true]):- tester avec boucle assertion

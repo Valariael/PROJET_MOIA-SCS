@@ -20,7 +20,7 @@ int verifCodeRep (int sock)
     err = recv(sock, &codeRep, sizeof(TCodeRep), MSG_PEEK);
     if (err <= 0)
     {
-        perror("joueur> erreur peek verif CodeRep");
+        perror("joueur> erreur peek verif du CodeRep");
         return -1;
     }
 
@@ -29,15 +29,15 @@ int verifCodeRep (int sock)
         switch (codeRep)
         {
             case ERR_TYP :
-            printf("joueur> erreur sur le type de requête\n");
+            printf("joueur> ERREUR sur le type de requête\n");
             return -2;
 
             case ERR_PARTIE : 
-            printf("joueur> erreur à la création partie, réessayer\n");
+            printf("joueur> ERREUR à la création partie, réessayer\n");
             return -3;
 
             case ERR_COUP : 
-            printf("joueur> erreur sur le coup joué\n");
+            printf("joueur> ERREUR sur le coup joué\n");
             return -4;
 
             default:
@@ -240,14 +240,13 @@ void afficherValidationCoup (TCoupRep repCoup, int joueur)
     }
 }
 
-int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int num)
+int jouerPartie (int sockServeur, int commence, TCoul couleur, int num)
 {
     int err, joueur = commence, continuer = 1, data;
     TCoupReq reqCoup;
     TCoupRep repCoup;
     TCase caseCible;
     TPion pion;
-    printf("joueur> id=%d commence ? %d\n", idJoueur, commence);
 
     while (continuer)
     {
@@ -302,7 +301,6 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
             if (err <= 0)
             {
                 perror("joueur> erreur send req coup");
-//TODO select read + write pour gérer la réception du timeout
                 return -6;
             }
 
@@ -367,13 +365,12 @@ int jouerPartie (int sockServeur, int commence, TCoul couleur, int idJoueur, int
     return 0;
 }
 
-int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int idJoueur, int num)
+int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int num)
 {
     int err, joueur = commence, continuer = 1, data, nsfd;
     TCoupReq reqCoup;
     TCoupRep repCoup;
 	fd_set readSet;
-    printf("joueur> id=%d commence ? %d\n", idJoueur, commence);
 
     //Envoi du signal d'initialisation de partie.
     if (couleur == BLANC)
@@ -487,7 +484,7 @@ int jouerPartieIA (int sockServeur, int sockIA, int commence, TCoul couleur, int
                 if (repCoup.err != ERR_OK)
                 {
                     printf("joueur> erreur sur le coup joué\n");
-                    return -13;//TODO: improve
+                    return -13;
                 }
             }           
 

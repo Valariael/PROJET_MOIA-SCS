@@ -483,7 +483,7 @@ choisirMeilleurCoupRatioEtBloque([Etat|SetEtatRatioEtBloque], MeilleurEtat):-
 %choisis le meilleur coup possible suivant le ratio W/L et le nombre de cases bloquées sans donner une configuration permettant de faire gagner l'adversaire
 meilleurCoupRatioEtBloqueSansPreFinal(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]):-
     choisirMeilleurCoupRatioEtBloque(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]),
-    \+etatPreFinal(Grille, ListeInd, Ind, Forme). %TODO : verif succes en tout temps
+    \+etatPreFinal(Grille, ListeInd, Ind, Forme).
 meilleurCoupRatioEtBloqueSansPreFinal(SetEtatRatioEtBloque, Etat):-
     choisirMeilleurCoupRatioEtBloque(SetEtatRatioEtBloque, [Grille, ListeInd, Joueur, _, _, _, Ind, Forme]),
     etatPreFinal(Grille, ListeInd, Ind, Forme),
@@ -531,7 +531,7 @@ insereC([[Grille1, ListeInd1, J11, J21, Ind1, NbBloque1, IndCible1, FormeCible1]
     Reste1 == Reste2,
     NbBloque1 > NbBloque2,
     insereC(Next, [Grille2, ListeInd2, J12, J22, Ind2, NbBloque2, IndCible2, FormeCible2], Result, LC).
-insereC([EtatCout1|Next], EtatCout2, [EtatCout2, EtatCout1|Next], _).%TODO amelioration ? choisir random
+insereC([EtatCout1|Next], EtatCout2, [EtatCout2, EtatCout1|Next], _).%TODO amelioration ? choisir random quand egalité
 
 %insère les nouveaux états dans la liste d'états
 insere([], Result, Result, _).
@@ -580,8 +580,8 @@ miseAJourCoupCout([[_, _, _, _, _, NbBloque1, IndCible, FormeCible]|ListeEtatCou
     miseAJourCoupCout(ListeEtatCout, [[NvNbBloque, Victoire, Defaite, IndCible, FormeCible]|NvListeCoupCout], RListeCoupCout).
 
 %calcule l'étage suivant sur les meilleurs états courants en mettant à jour les données
-parcoursH([], ListeCoupCout, ListeCoupCout,LargeurMax).
-parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
+parcoursH([], ListeCoupCout, ListeCoupCout, _).
+parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout, LargeurMax):-
     parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ),
     ListeEtatCoutN \= [],
     miseAJourCoupCout(ListeEtatCoutN, LC, NvLC),
@@ -592,7 +592,7 @@ parcoursH([EtatCout|ListeEtatCout], [LC, NumJ], RListeCoupCout, LargeurMax):-
     %cas où findall renvoie une liste vide car il n'y a aucune possibilité
     parcoursSuivant(EtatCout, ListeEtatCoutN, NumJ), 
     ListeEtatCoutN = [],
-    parcoursH(ListeEtatCout, [LC, NumJ], RListeCoupCout,LargeurMax).
+    parcoursH(ListeEtatCout, [LC, NumJ], RListeCoupCout, LargeurMax).
 parcoursH([[_, _, _, [NumJ, _], _, _, IndCible, FormeCible]|ListeEtatCout], [LC, NumJ], RListeCoupCout,LargeurMax):-
     %cas où parcoursSuivant est false car c'est un état final gagnant
     select([NbBloque, Victoire, Defaite, IndCible, FormeCible], LC, SubLC),
@@ -659,16 +659,16 @@ bloqueOuPasPreFinal(Grille, ListeInd, NumJ):-
 
 %associationLargeurProfondeur(TailleListeIndices,LargeurMax).
 associationLargeurProfondeur(16,3).
-associationLargeurProfondeur(15,3).
-associationLargeurProfondeur(14,4).
-associationLargeurProfondeur(13,5).
-associationLargeurProfondeur(12,6).
-associationLargeurProfondeur(11,12).
-associationLargeurProfondeur(10,22).
-associationLargeurProfondeur(9,34).
-associationLargeurProfondeur(8,50).
-associationLargeurProfondeur(7,120).
-associationLargeurProfondeur(6,800).
+associationLargeurProfondeur(15,4).
+associationLargeurProfondeur(14,5).
+associationLargeurProfondeur(13,6).
+associationLargeurProfondeur(12,7).
+associationLargeurProfondeur(11,13).
+associationLargeurProfondeur(10,21).
+associationLargeurProfondeur(9,33).
+associationLargeurProfondeur(8,54).
+associationLargeurProfondeur(7,110).
+associationLargeurProfondeur(6,850).
 associationLargeurProfondeur(5,10000).
 associationLargeurProfondeur(4,20000).
 associationLargeurProfondeur(3,100000).
@@ -678,7 +678,7 @@ associationLargeurProfondeur(1,100000).
 meilleurCoupCout([], _, _, _, _, _, _, _, _):-
     !,
     fail.
-meilleurCoupCout([[NbBloque, Victoire, Defaite, IndFinal, FormeFinale]|_], Grille, ListeInd, [NumJ, ListePion], IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
+meilleurCoupCout([[_, _, _, IndFinal, FormeFinale]|_], Grille, ListeInd, [NumJ, ListePion], IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
     jouerCoup(Grille, ListeInd, [NumJ, ListePion], IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ),
     bloqueOuPasPreFinal(NvGrille, NvListeInd, NumJ).
 meilleurCoupCout([_|ListeCoupCout], Grille, ListeInd, J, IndFinal, FormeFinale, NvGrille, NvListeInd, NvJ):-
@@ -737,7 +737,7 @@ jeuProfondeurGagnant(HistInd, RNumJ):-
     profondeurGagnant([Grille], ListeInd, J1, J2, -1, HistInd, RNumJ).
 % -----------------
 
-% TODO : regarder le temps d'exec pour chaque tour
+% pour regarder le temps d'exec à chaque tour
 statistics2():-
     statistics(walltime,[Start|_]),
     coupSuivantHeuristique([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ,16], [1, [[2, 1], [2, 2], [2, 3], [2, 4]]], [2, [[2, 1], [2, 2], [2, 3], [2, 4]]], _, _, _, _, _),

@@ -103,7 +103,7 @@ void connecteJoueur (int *sockJoueur, int sockConnexion, TPartieReq *reqPartie)
 			continue;
 		}
 
-		if (reqPartie->coulPion != BLANC && reqPartie->coulPion != NOIR)//TODO : more error handling ?
+		if (reqPartie->coulPion != BLANC && reqPartie->coulPion != NOIR)
 		{
 			partieRep.err = ERR_PARTIE;
 			err = send(*sockJoueur, &partieRep, sizeof(TPartieRep), 0);
@@ -246,7 +246,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 		//Réception du coup joué.
 		printf("arbitre> recv req coup fd=%d\n", sockJoueur);
 		err = verifIdRequete(&sockJoueur, COUP);
-		if (err == 0) err = recv(sockJoueur, &reqCoup, sizeof(TCoupReq), 0);//TODO verif intervalle valeurs > ERR_COUP
+		if (err == 0) err = recv(sockJoueur, &reqCoup, sizeof(TCoupReq), 0);
 		if (err <= 0)
 		{
 			perror("arbitre> erreur recv coup 1");
@@ -330,7 +330,7 @@ int traiterCoup (int sockJoueur, int sockAutreJoueur, int sockJoueurCourant, int
 
 	return 0;
 }
-//TODO vérifier que la couleur ne swap pas à la seconde partie
+
 int jouerPartie (int sockJoueur1, int sockJoueur2)
 {
 	int err, nsfd, sockJoueurCourant = sockJoueur1, continuerPartie = 1;
@@ -340,7 +340,7 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 	
 	initialiserPartie();
 	while (continuerPartie)
-	{//TODO refactor shutdown
+	{
 		//Préparation du select pour le timeout.
 		FD_ZERO(&readSet);
 		FD_SET(sockJoueur1, &readSet);
@@ -399,7 +399,6 @@ int jouerPartie (int sockJoueur1, int sockJoueur2)
 				if (err < 0)
 				{
 					perror("arbitre> erreur traitement coup 2");
-					//TODO: interruption partie ???
 					return -4;
 				}
 				else if (err > 0)

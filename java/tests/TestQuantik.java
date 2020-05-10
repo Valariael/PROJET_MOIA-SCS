@@ -280,7 +280,7 @@ public class TestQuantik
                 new Variable(Quantik.GRILLE),
                 new Variable(Quantik.LISTE_IND),
                 new Variable(Quantik.JOUEUR),
-                new Variable(Quantik.IND)//TODO check why 2 * IND
+                new Variable(Quantik.IND)
         );
 
         Assert.assertEquals(Util.textToTerm(
