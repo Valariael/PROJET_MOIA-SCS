@@ -19,11 +19,11 @@ clear
 echo "Compilation moteur IA."
 cd java/src
 mkdir ../out
-if [[ $LD_PRELOAD != *"libswipl.so"* ]]; then
-	export LD_PRELOAD=libswipl.so:${LD_PRELOAD}
+if [[ $LD_PRELOAD != *"/usr/lib/swi-prolog/lib/x86_64-linux/libswipl.so"* ]]; then
+	export LD_PRELOAD=/usr/lib/swi-prolog/lib/x86_64-linux/libswipl.so:${LD_PRELOAD}
 fi
-if [[ $LD_LIBRARY_PATH != *"/usr/lib/swi-prolog/lib/amd64/"* ]]; then
-	export LD_LIBRARY_PATH=/usr/lib/swi-prolog/lib/amd64/:${LD_LIBRARY_PATH}
+if [[ $LD_LIBRARY_PATH != *"/usr/lib/swi-prolog/lib/x86_64-linux/"* ]]; then
+	export LD_LIBRARY_PATH=/usr/lib/swi-prolog/lib/x86_64-linux/:${LD_LIBRARY_PATH}
 fi
 if [[ $CLASSPATH != *"/usr/lib/swi-prolog/lib/jpl.jar"* ]]; then
 	export CLASSPATH=/usr/lib/swi-prolog/lib/jpl.jar:${CLASSPATH}
